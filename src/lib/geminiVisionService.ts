@@ -55,6 +55,8 @@ export interface GeminiExtractionRaw {
   batchNumber: string | null;
   barcode: string | null;
   rawDetectedText: string;
+  isBlurry?: boolean;
+  imageQualityRemarks?: string;
 }
 
 const STATUTORY_PROMPT = `You are an official Legal Metrology Compliance Officer under the Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011 (Rule 6).
@@ -62,6 +64,7 @@ Analyze this packaged product photo very carefully and extract all statutory dec
 
 CRITICAL INSTRUCTIONS FOR OBJECTIVITY:
 - If a declaration (such as Maximum Retail Price MRP, Customer Care telephone/email, Net Quantity, or Manufacturer address) is NOT visibly printed on this specific image, YOU MUST SET ITS VALUE TO null AND SET THE CORRESPONDING "...Found" FLAG TO false.
+- Check if the image is blurry, out-of-focus, or glare-obscured. If blurry, set isBlurry: true.
 - DO NOT invent, assume, or hallucinate missing data.
 - If you see a phone number or email for consumer complaints, extract it in customerCare and set careFound: true. If no helpline or email is visible, set customerCare: null and careFound: false.
 - If you see MRP (e.g. ₹35, Rs. 150), extract it and set mrpFound: true. If no price is visible, set mrp: null and mrpFound: false.
@@ -88,7 +91,9 @@ Return ONLY a valid JSON object matching this schema:
   "expiryDate": "e.g. 02/2027 or null",
   "batchNumber": "string or null",
   "barcode": "string or null",
-  "rawDetectedText": "concise transcript of all readable text on pack"
+  "rawDetectedText": "concise transcript of all readable text on pack",
+  "isBlurry": false,
+  "imageQualityRemarks": "e.g. 'Sharp and legible' or 'Blurry / text unreadable due to camera motion or glare'"
 }`;
 
 function parseDataUrl(dataUrl: string): { mimeType: string; base64: string } {
@@ -525,7 +530,14 @@ export function buildOCRResultFromGemini(
     },
     rawOcrText: gemini.rawDetectedText || '',
     ocrPassSummaries: [
-      { name: 'optical_enhancement', description: 'Neural Optical Enhancement & Contrast Tuning', confidence: 95, textLength: (gemini.rawDetectedText || '').length },
+      { 
+        name: 'optical_enhancement', 
+        description: gemini.isBlurry 
+          ? `Optical Quality: Blurred / Glare Detected (${gemini.imageQualityRemarks || 'Low sharpness'})` 
+          : `Optical Quality: Sharp & Legible (${gemini.imageQualityRemarks || 'Optimal clarity'})`, 
+        confidence: gemini.isBlurry ? 45 : 98, 
+        textLength: (gemini.rawDetectedText || '').length 
+      },
       { name: 'gemini_multimodal_ai', description: 'Google Gemini Multimodal Vision Entity Parsing', confidence: compliancePercentage, textLength: (gemini.rawDetectedText || '').length },
       { name: 'rule_6_statutory_audit', description: 'Legal Metrology Rules 2011 Gazette Cross-Verification', confidence: compliancePercentage, textLength: (gemini.rawDetectedText || '').length },
     ],
