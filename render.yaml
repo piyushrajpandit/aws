@@ -1,28 +1,19 @@
-# render.yaml — SatyaDrishti Render Deployment Config
-# Docs: https://render.com/docs/render-yaml-spec
+# render.yaml — SatyaDrishti Render Deployment
+# Uses Docker runtime so we can install tesseract-ocr system binary.
+# Render Docker = full Ubuntu image = apt-get works during image build.
 
 services:
-  # ── Backend API ────────────────────────────────────────────────────────────
   - type: web
     name: satyadrishti-backend
-    runtime: python
-    rootDir: backend
-    plan: free            # 512MB RAM — works fine with Tesseract
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
     region: oregon
 
-    # Install tesseract-ocr system binary first, then Python deps
-    buildCommand: >
-      apt-get update -qq &&
-      apt-get install -y -qq tesseract-ocr &&
-      pip install -r requirements.txt
-
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11"
       - key: GEMINI_VISION_API_KEY
-        sync: false          # Set this in Render dashboard → Environment
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: DATABASE_URL
