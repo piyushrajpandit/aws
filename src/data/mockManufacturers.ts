@@ -1,0 +1,316 @@
+import { Manufacturer } from '../types/compliance';
+
+export const MOCK_MANUFACTURERS: Manufacturer[] = [
+  {
+    id: 'MFG-KA-001',
+    name: 'Orkla India Limited (MTR Foods Division)',
+    cin: 'U15136KA1996PTC021007',
+    gstin: '29AACCO2121L1ZY',
+    registeredAddress: 'No. 1, 2nd & 3rd Floor, 100 Feet Inner Ring Road, Ejipura, Ashwini Layout, Vivek Nagar, Bengaluru – 560047, Karnataka',
+    riskScore: 52,
+    riskTier: 'Moderate',
+    totalProductsScanned: 118,
+    activeViolations: 1,
+    repeatOffenderFlag: false,
+    noticesIssued: 1,
+    brands: ['MTR', 'Eastern Condiments', 'Rasoi Magic'],
+    primaryCategory: 'Packaged Spices, Ready Mixes & Instant Foods',
+    topOffenseTypes: ['Non-standard BBD date format', 'Minor net quantity tolerance breach'],
+    lastAuditDate: '14 Feb 2025',
+    coordinates: { lat: 12.9602, lng: 77.6100 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Bommasandra KIADB, Anekal Taluk',
+  },
+  {
+    id: 'MFG-KA-002',
+    name: 'Himalaya Wellness Company (Makali Complex)',
+    cin: 'U24232KA1997PTC022261',
+    gstin: '29AADFT3025B2ZK',
+    registeredAddress: 'Himalaya House, No. 8, Bellary Road, Makali, Tumkur Road, Bengaluru – 562162, Karnataka',
+    riskScore: 28,
+    riskTier: 'Low',
+    totalProductsScanned: 210,
+    activeViolations: 1,
+    repeatOffenderFlag: false,
+    noticesIssued: 1,
+    brands: ['Himalaya', 'Himalaya Wellness', 'Himalaya BabyCare'],
+    primaryCategory: 'FMCG & Personal Care',
+    topOffenseTypes: ['Net quantity numeral font height below statutory 4mm', 'Customer care email obfuscation'],
+    lastAuditDate: '05 Feb 2025',
+    coordinates: { lat: 13.0356, lng: 77.5340 },
+    facilityType: 'R&D & Manufacturing Campus',
+    zone: 'Tumkur Road Industrial Corridor',
+  },
+  {
+    id: 'MFG-KA-003',
+    name: 'Britannia Industries Limited',
+    cin: 'L15412WB1918PLC002964',
+    gstin: '29AABCB2066P3Z9',
+    registeredAddress: 'Plot No. 23, Bidadi Industrial Area, Bidadi, Ramanagara District, Bengaluru – 562109, Karnataka',
+    riskScore: 34,
+    riskTier: 'Low',
+    totalProductsScanned: 320,
+    activeViolations: 1,
+    repeatOffenderFlag: false,
+    noticesIssued: 1,
+    brands: ['Britannia', 'Good Day', 'NutriChoice', 'Marie Gold', '50-50'],
+    primaryCategory: 'Packaged Biscuits, Breads & Dairy',
+    topOffenseTypes: ['Net weight shortfall on biscuit packs'],
+    lastAuditDate: '22 Mar 2025',
+    coordinates: { lat: 12.7991, lng: 77.3985 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Bidadi Industrial Area, Ramanagara',
+  },
+  {
+    id: 'MFG-KA-004',
+    name: 'ITC Limited (Foods Division Karnataka)',
+    cin: 'L16005WB1910PLC001985',
+    gstin: '29AAACI5950L1Z6',
+    registeredAddress: 'ITC Green Centre, 1, Jeevanahalli Main Road, Cox Town, Bengaluru – 560005, Karnataka',
+    riskScore: 22,
+    riskTier: 'Low',
+    totalProductsScanned: 480,
+    activeViolations: 1,
+    repeatOffenderFlag: false,
+    noticesIssued: 1,
+    brands: ['Sunfeast', 'Aashirvaad', 'Bingo!', 'Yippee!', 'B Natural'],
+    primaryCategory: 'Snacks, Atta & Packaged Foods',
+    topOffenseTypes: ['"100% Whole Wheat" claim under CCPA review'],
+    lastAuditDate: '18 Mar 2025',
+    coordinates: { lat: 12.9996, lng: 77.6201 },
+    facilityType: 'Registered Headquarters',
+    zone: 'Cox Town, Central Bengaluru',
+  },
+  {
+    id: 'MFG-KA-005',
+    name: 'Namdhari Agro-Fresh Private Limited',
+    cin: 'U00112KA2005PTC036674',
+    gstin: '29AAFCN5201K1ZF',
+    registeredAddress: 'Uragahalli, Bidadi – 562109, Bengaluru, Karnataka',
+    riskScore: 41,
+    riskTier: 'Moderate',
+    totalProductsScanned: 74,
+    activeViolations: 2,
+    repeatOffenderFlag: false,
+    noticesIssued: 1,
+    brands: ["Namdhari's Fresh", "Simpli Namdhari's"],
+    primaryCategory: 'Packaged Fresh Vegetables & Fruits',
+    topOffenseTypes: ['Non-standard Best Before date format', 'Missing country of origin on imported produce'],
+    lastAuditDate: '10 Mar 2025',
+    coordinates: { lat: 12.8120, lng: 77.4110 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Bidadi Agro-Processing Belt',
+  },
+  {
+    id: 'MFG-KA-006',
+    name: 'Saukhya Naturals Food and Beverage Private Limited',
+    cin: 'U15497KA2018PTC112394',
+    gstin: '29AATCS5601D1ZQ',
+    registeredAddress: 'No. 425/A, 11th Cross, Peenya Industrial Area, 4th Phase, Yeshwanthpur Hobli, Bengaluru – 560058, Karnataka',
+    riskScore: 68,
+    riskTier: 'High',
+    totalProductsScanned: 46,
+    activeViolations: 2,
+    repeatOffenderFlag: true,
+    noticesIssued: 2,
+    brands: ['Saukhya Naturals', 'Orgo Bites'],
+    primaryCategory: 'Health Mixes & Organic Instant Foods',
+    topOffenseTypes: ['Missing allergen declaration', 'Mandatory font height below Legal Metrology minimum'],
+    lastAuditDate: '14 Oct 2025',
+    coordinates: { lat: 13.0290, lng: 77.5190 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Peenya Industrial Area, Phase IV',
+  },
+  {
+    id: 'MFG-KA-007',
+    name: 'QuickMart Fulfillment India Pvt Ltd',
+    cin: 'U52100KA2020PTC135711',
+    gstin: '29AABCQ1990J1ZR',
+    registeredAddress: 'Warehouse No. 14-B, KIADB Industrial Area, Bommasandra – Jigani Link Road, Anekal Taluk, Bengaluru – 560105, Karnataka',
+    riskScore: 91,
+    riskTier: 'Critical',
+    totalProductsScanned: 840,
+    activeViolations: 3,
+    repeatOffenderFlag: true,
+    noticesIssued: 2,
+    brands: ['QuickMart', 'GrocerZen', 'DailyFresh Express'],
+    primaryCategory: 'Multi-category E-Commerce Fulfillment Hub',
+    topOffenseTypes: ['Expired food relabelling (Karnataka HC FIR)', 'Missing mandatory declarations on imports'],
+    lastAuditDate: '12 Jul 2026',
+    coordinates: { lat: 12.8105, lng: 77.6742 },
+    facilityType: 'E-Commerce Fulfillment Hub',
+    zone: 'Bommasandra–Jigani Link Road, KIADB',
+  },
+  {
+    id: 'MFG-KA-008',
+    name: 'VitaEdge Nutraceuticals Import & Trade LLP',
+    cin: 'AAR-7291-LLP',
+    gstin: '29AAKFV4510Q1ZD',
+    registeredAddress: 'Unit 4C, EPIP Zone, Whitefield, Mahadevapura Post, Bengaluru – 560066, Karnataka',
+    riskScore: 77,
+    riskTier: 'High',
+    totalProductsScanned: 58,
+    activeViolations: 2,
+    repeatOffenderFlag: true,
+    noticesIssued: 1,
+    brands: ['VitaEdge', 'ProStack Performance'],
+    primaryCategory: 'Imported Nutraceuticals & Sports Supplements',
+    topOffenseTypes: ['Protein content 42.8% below label claim', 'Country of Origin mislabelling'],
+    lastAuditDate: '07 Mar 2025',
+    coordinates: { lat: 12.9810, lng: 77.7440 },
+    facilityType: 'Import Warehouse',
+    zone: 'Whitefield EPIP Zone, East Bengaluru',
+  },
+  {
+    id: 'MFG-KA-009',
+    name: 'Karnataka Soaps & Detergents Limited (Mysore Sandal Factory)',
+    cin: 'U24241KA1980SGC003881',
+    gstin: '29AACCK2880F1ZV',
+    registeredAddress: 'Bengaluru-Pune Highway, P.B. No. 5531, Rajajinagar Industrial Suburb, Bengaluru – 560055, Karnataka',
+    riskScore: 18,
+    riskTier: 'Low',
+    totalProductsScanned: 310,
+    activeViolations: 0,
+    repeatOffenderFlag: false,
+    noticesIssued: 0,
+    brands: ['Mysore Sandal Soap', 'Mysore Sandal Gold', 'Wave Soap'],
+    primaryCategory: 'Toilet Soaps & Personal Hygiene Commodities',
+    topOffenseTypes: ['All statutory declarations verified under Rule 6(1)'],
+    lastAuditDate: '28 Feb 2025',
+    coordinates: { lat: 13.0031, lng: 77.5510 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Rajajinagar Industrial Suburb',
+  },
+  {
+    id: 'MFG-KA-010',
+    name: 'Tata Consumer Products Limited – Beverages Packaging Unit',
+    cin: 'L15491WB1962PLC031425',
+    gstin: '29AAACT2727Q1ZT',
+    registeredAddress: 'Plot No. 44, Electronic City Phase 2, Hosur Road, Bengaluru – 560100, Karnataka',
+    riskScore: 24,
+    riskTier: 'Low',
+    totalProductsScanned: 290,
+    activeViolations: 0,
+    repeatOffenderFlag: false,
+    noticesIssued: 0,
+    brands: ['Tata Tea', 'Tetley', 'Tata Salt', 'Tata Sampann'],
+    primaryCategory: 'Packaged Tea, Salt & Food Grains',
+    topOffenseTypes: ['Minor batch coding font alignment under review'],
+    lastAuditDate: '12 Jan 2025',
+    coordinates: { lat: 12.8390, lng: 77.6770 },
+    facilityType: 'Processing & Packaging Plant',
+    zone: 'Electronic City Phase 2',
+  },
+];
+
+export interface ZonalRiskMetric {
+  zone: string;
+  code: string;
+  activeCases: number;
+  totalAudited: number;
+  compliancePercentage: number;
+  riskScore: number;
+  riskTier: 'Critical' | 'High' | 'Moderate' | 'Low';
+  facilitiesCount: number;
+  keyFacilities: string[];
+  keyIndustries: string;
+}
+
+export function computeBengaluruZonalRisk(manufacturers: Manufacturer[]): ZonalRiskMetric[] {
+  const zoneClusters: {
+    zone: string;
+    code: string;
+    matcher: (m: Manufacturer) => boolean;
+    keyIndustries: string;
+  }[] = [
+    {
+      zone: 'Bommasandra & Jigani Industrial Corridor',
+      code: 'BOMMA',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('bommasandra') ||
+        m.zone.toLowerCase().includes('jigani') ||
+        m.registeredAddress.toLowerCase().includes('bommasandra'),
+      keyIndustries: 'Food Processing, Dark Stores & Logistics',
+    },
+    {
+      zone: 'Peenya Industrial Area (Phase I–IV)',
+      code: 'PEENYA',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('peenya') ||
+        m.registeredAddress.toLowerCase().includes('peenya'),
+      keyIndustries: 'Organic Foods & Packaging Units',
+    },
+    {
+      zone: 'Whitefield EPIP & Mahadevapura Zone',
+      code: 'WHTFLD',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('whitefield') ||
+        m.zone.toLowerCase().includes('epip') ||
+        m.registeredAddress.toLowerCase().includes('whitefield'),
+      keyIndustries: 'Nutraceuticals & Import Logistics',
+    },
+    {
+      zone: 'Bidadi Industrial Area & Agro Corridor',
+      code: 'BIDADI',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('bidadi') ||
+        m.registeredAddress.toLowerCase().includes('bidadi'),
+      keyIndustries: 'Bakery, Dairy & Agro-Fresh Processing',
+    },
+    {
+      zone: 'Tumkur Road Industrial Corridor',
+      code: 'TMKR-RD',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('tumkur') ||
+        m.registeredAddress.toLowerCase().includes('tumkur') ||
+        m.registeredAddress.toLowerCase().includes('makali'),
+      keyIndustries: 'Personal Care & Consumer Goods Campus',
+    },
+    {
+      zone: 'Rajajinagar & Central Industrial Circle',
+      code: 'CENTRAL',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('rajajinagar') ||
+        m.zone.toLowerCase().includes('cox town') ||
+        m.registeredAddress.toLowerCase().includes('rajajinagar') ||
+        m.registeredAddress.toLowerCase().includes('cox town'),
+      keyIndustries: 'Soaps, Packaged FMCG & Staples',
+    },
+    {
+      zone: 'Electronic City Industrial Zone',
+      code: 'ECITY',
+      matcher: (m) =>
+        m.zone.toLowerCase().includes('electronic city') ||
+        m.registeredAddress.toLowerCase().includes('electronic city'),
+      keyIndustries: 'Beverages, Salt & High-Tech Packaging',
+    },
+  ];
+
+  return zoneClusters.map((cluster) => {
+    const matched = manufacturers.filter(cluster.matcher);
+    const facilitiesCount = matched.length;
+    const totalAudited = matched.reduce((acc, m) => acc + m.totalProductsScanned, 0);
+    const activeCases = matched.reduce((acc, m) => acc + m.activeViolations, 0);
+    const avgRisk =
+      facilitiesCount > 0
+        ? Math.round(matched.reduce((acc, m) => acc + m.riskScore, 0) / facilitiesCount)
+        : 25;
+    const compliancePercentage = Math.max(10, 100 - avgRisk);
+    const riskTier =
+      avgRisk >= 80 ? 'Critical' : avgRisk >= 60 ? 'High' : avgRisk >= 40 ? 'Moderate' : 'Low';
+    const keyFacilities = matched.map((m) => m.name.replace(/\(.*?\)/g, '').trim());
+
+    return {
+      zone: cluster.zone,
+      code: cluster.code,
+      activeCases,
+      totalAudited,
+      compliancePercentage,
+      riskScore: avgRisk,
+      riskTier,
+      facilitiesCount,
+      keyFacilities,
+      keyIndustries: cluster.keyIndustries,
+    };
+  });
+}
