@@ -78,18 +78,6 @@ export const LandingNavbar: React.FC = () => {
           </Link>
 
           <Link
-            to="/#about"
-            onClick={() => handleNavClick('about')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              isAboutActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800 shadow-xs'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            About
-          </Link>
-
-          <Link
             to="/#capabilities"
             onClick={() => handleNavClick('capabilities')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${

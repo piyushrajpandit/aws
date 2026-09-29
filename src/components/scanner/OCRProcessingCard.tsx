@@ -13,7 +13,10 @@ export const OCRProcessingCard: React.FC = () => {
   const isComplete = currentScan?.status === 'completed';
   const isError = currentScan?.status === 'error';
   const valResult = currentScan ? validationResults[currentScan.id] : null;
-  const complianceScore = valResult?.complianceScore ?? 54;
+  const complianceScore = valResult?.complianceScore ?? 0;
+  const violationCount = valResult?.violationCount ?? 0;
+  const warningCount = valResult?.warningCount ?? 0;
+  const passCount = valResult?.passCount ?? 0;
 
   // Parse pass info from status message (e.g., "Pass 2/6: Adaptive Threshold")
   const passMatch = currentStatusMessage.match(/Pass (\d+)\/(\d+)/);
@@ -166,18 +169,22 @@ export const OCRProcessingCard: React.FC = () => {
 
             {/* Right: Key metric badges */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="danger" size="sm" className="font-bold">
-                5 Violations
-              </Badge>
-              <Badge variant="warning" size="sm" className="font-bold">
-                1 Warning
-              </Badge>
+              {violationCount > 0 ? (
+                <Badge variant="danger" size="sm" className="font-bold">
+                  {violationCount} {violationCount === 1 ? 'Violation' : 'Violations'}
+                </Badge>
+              ) : null}
+              {warningCount > 0 ? (
+                <Badge variant="warning" size="sm" className="font-bold">
+                  {warningCount} {warningCount === 1 ? 'Warning' : 'Warnings'}
+                </Badge>
+              ) : null}
               <Badge variant="success" size="sm" className="gap-1 font-medium">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                <span>6 Compliant</span>
+                <span>{passCount} Compliant</span>
               </Badge>
               <Badge variant="neutral" size="sm" className="font-medium text-slate-600">
-                13 Declarations
+                {detectedDeclarationsCount > 0 ? `${detectedDeclarationsCount}/${totalDeclarationsCount}` : totalDeclarationsCount} Declarations
               </Badge>
             </div>
           </div>

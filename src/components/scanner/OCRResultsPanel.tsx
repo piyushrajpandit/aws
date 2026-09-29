@@ -407,7 +407,7 @@ const OpticalStagesInspector: React.FC<OpticalStagesInspectorProps> = ({
 };
 
 export const OCRResultsPanel: React.FC = () => {
-  const { currentScan, activeAngleIndex, setActiveAngleIndex } = useScanStore();
+  const { currentScan, activeAngleIndex, setActiveAngleIndex, validationResults } = useScanStore();
   const [activeTab, setActiveTab] = useState('declarations');
   const [copiedPayload, setCopiedPayload] = useState(false);
   const [highlightedKey, setHighlightedKey] = useState<DeclarationFieldKey | null>(null);
@@ -546,14 +546,34 @@ export const OCRResultsPanel: React.FC = () => {
         </div>
 
         {/* Top-right Compliance Score */}
-        <div className="rounded-lg border border-red-200 bg-red-50/70 px-3.5 py-1.5 text-center min-w-[110px] shadow-2xs shrink-0 self-start">
-          <span className="text-xl font-black font-mono text-red-700 leading-none block">
-            54 / 100
-          </span>
-          <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider block mt-0.5">
-            Compliance Score
-          </span>
-        </div>
+        {(() => {
+          const valResult = currentScan ? validationResults[currentScan.id] : null;
+          const score = valResult?.complianceScore ?? Math.round((compliantCount / (totalCount || 1)) * 100);
+          return (
+            <div
+              className={cn(
+                'rounded-lg border px-3.5 py-1.5 text-center min-w-[110px] shadow-2xs shrink-0 self-start',
+                score >= 80
+                  ? 'border-emerald-200 bg-emerald-50/70 text-emerald-700'
+                  : score >= 60
+                  ? 'border-amber-200 bg-amber-50/70 text-amber-700'
+                  : 'border-red-200 bg-red-50/70 text-red-700'
+              )}
+            >
+              <span className="text-xl font-black font-mono leading-none block">
+                {score} / 100
+              </span>
+              <span
+                className={cn(
+                  'text-[10px] font-bold uppercase tracking-wider block mt-0.5',
+                  score >= 80 ? 'text-emerald-600' : score >= 60 ? 'text-amber-600' : 'text-red-600'
+                )}
+              >
+                Compliance Score
+              </span>
+            </div>
+          );
+        })()}
       </CardHeader>
 
       <CardContent className="p-4 sm:p-5 space-y-4 flex-1 flex flex-col">

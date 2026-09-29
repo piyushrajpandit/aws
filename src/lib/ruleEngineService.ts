@@ -640,17 +640,15 @@ export function validateProduct(
     }
   }
 
-  // Compute aggregates
-  const isMuesli = /muesli/i.test(productData.productName || '') || /safa/i.test(productData.manufacturer || '') || /13624999000389/i.test(context.rawText || '');
-  const violationCount = isMuesli ? 5 : audit.filter((e) => e.status === 'fail').length;
-  const warningCount = isMuesli ? 1 : audit.filter((e) => e.status === 'warning').length;
-  const passCount = isMuesli ? 6 : audit.filter((e) => e.status === 'pass').length;
-  const notApplicableCount = isMuesli ? 1 : audit.filter((e) => e.status === 'not-applicable').length;
-
-  const complianceScore = isMuesli ? 54 : computeComplianceScore(audit);
+  // Compute aggregates dynamically from real audit results
+  const violationCount = audit.filter((e) => e.status === 'fail').length;
+  const warningCount = audit.filter((e) => e.status === 'warning').length;
+  const passCount = audit.filter((e) => e.status === 'pass').length;
+  const notApplicableCount = audit.filter((e) => e.status === 'not-applicable').length;
+  const complianceScore = computeComplianceScore(audit);
 
   // Determine overall status
-  let overallStatus: 'compliant' | 'non-compliant' | 'warning' = isMuesli ? 'non-compliant' : 'compliant';
+  let overallStatus: 'compliant' | 'non-compliant' | 'warning' = 'compliant';
   if (violationCount > 0) {
     overallStatus = 'non-compliant';
   } else if (warningCount > 0) {
