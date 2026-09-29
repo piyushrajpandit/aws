@@ -28,6 +28,8 @@ export interface CrawlerProductData {
   mfg_date: string;
   customer_care: string;
   image_url: string;
+  gallery_images?: string[];
+  specifications?: Record<string, string>;
   ingredients?: string[];
   dietary_type?: string;
   known_compliance_issues?: string[];

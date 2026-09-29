@@ -53,6 +53,7 @@ export const EcommerceCrawler: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [showApiGuideModal, setShowApiGuideModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('All');
+  const [cardImageIndex, setCardImageIndex] = useState<Record<string, number>>({});
   const [countdown, setCountdown] = useState<string>('18h 32m 45s');
 
   const { issueNotice } = useComplianceStore();
@@ -427,43 +428,81 @@ export const EcommerceCrawler: React.FC = () => {
             >
               <CardContent className="p-5">
                 <div className="flex flex-col lg:flex-row gap-5">
-                  {/* Thumbnail Image */}
-                  <div className="w-full lg:w-36 h-36 shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative flex items-center justify-center group">
-                    {p.image_url && p.image_url.trim() && !p.image_url.includes('unsplash.com') ? (
-                      <img
-                        src={p.image_url}
-                        alt={p.title}
-                        className="w-full h-full object-contain p-2"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            const fallback = parent.querySelector('.img-not-avail-box');
-                            if (fallback) (fallback as HTMLElement).style.display = 'flex';
-                          }
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className={cn(
-                        'img-not-avail-box flex-col items-center justify-center text-center p-3 text-slate-400 dark:text-slate-500',
-                        p.image_url && p.image_url.trim() && !p.image_url.includes('unsplash.com') ? 'hidden' : 'flex'
-                      )}
-                    >
-                      <ImageOff className="h-6 w-6 mb-1 text-slate-400 dark:text-slate-500" />
-                      <span className="text-[11px] font-medium leading-tight">Image Not Available</span>
-                    </div>
-                    <div className="absolute top-2 left-2">
-                      <span
-                        className={cn(
-                          'px-2 py-0.5 text-[10px] font-bold rounded-md border shadow-xs',
-                          getPlatformBadgeColor(p.platform)
+                  {/* Thumbnail Image & Packaging Gallery */}
+                  {(() => {
+                    const gallery = p.gallery_images && p.gallery_images.length > 0 ? p.gallery_images : (p.image_url ? [p.image_url] : []);
+                    const activeIdx = cardImageIndex[item.id] || 0;
+                    const displayImg = gallery[activeIdx] || p.image_url;
+
+                    return (
+                      <div className="w-full lg:w-40 shrink-0 flex flex-col items-center">
+                        <div className="w-full h-40 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 relative flex items-center justify-center group shadow-xs">
+                          {displayImg && displayImg.trim() && !displayImg.includes('unsplash.com') ? (
+                            <img
+                              src={displayImg}
+                              alt={p.title}
+                              className="w-full h-full object-contain p-2 cursor-pointer transition-transform group-hover:scale-105"
+                              onClick={() => setActiveAuditRecord(item)}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                  const fallback = parent.querySelector('.img-not-avail-box');
+                                  if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                                }
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className={cn(
+                              'img-not-avail-box flex-col items-center justify-center text-center p-3 text-slate-400 dark:text-slate-500',
+                              displayImg && displayImg.trim() && !displayImg.includes('unsplash.com') ? 'hidden' : 'flex'
+                            )}
+                          >
+                            <ImageOff className="h-6 w-6 mb-1 text-slate-400 dark:text-slate-500" />
+                            <span className="text-[11px] font-medium leading-tight">Image Not Available</span>
+                          </div>
+                          <div className="absolute top-2 left-2">
+                            <span
+                              className={cn(
+                                'px-2 py-0.5 text-[10px] font-bold rounded-md border shadow-xs',
+                                getPlatformBadgeColor(p.platform)
+                              )}
+                            >
+                              {p.platform}
+                            </span>
+                          </div>
+                          {gallery.length > 1 && (
+                            <div className="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs pointer-events-none">
+                              <span>📸 {activeIdx + 1}/{gallery.length}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Multi-Photo Packaging Gallery Strip */}
+                        {gallery.length > 1 && (
+                          <div className="flex items-center gap-1.5 mt-2 overflow-x-auto max-w-full py-1 px-0.5">
+                            {gallery.slice(0, 5).map((imgU, gIdx) => (
+                              <button
+                                key={gIdx}
+                                type="button"
+                                onClick={() => setCardImageIndex(prev => ({ ...prev, [item.id]: gIdx }))}
+                                className={cn(
+                                  "w-8 h-8 rounded-md border overflow-hidden p-0.5 shrink-0 transition-all cursor-pointer",
+                                  activeIdx === gIdx
+                                    ? "border-blue-600 ring-2 ring-blue-500/30 scale-105 bg-blue-50 dark:bg-blue-950"
+                                    : "border-slate-200 dark:border-slate-700 opacity-60 hover:opacity-100 bg-white dark:bg-slate-800"
+                                )}
+                                title={"View Photo " + (gIdx + 1)}
+                              >
+                                <img src={imgU} alt={"Photo " + (gIdx + 1)} className="w-full h-full object-contain" />
+                              </button>
+                            ))}
+                          </div>
                         )}
-                      >
-                        {p.platform}
-                      </span>
-                    </div>
-                  </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Main Product Details */}
                   <div className="flex-1 space-y-3">
@@ -689,7 +728,41 @@ export const EcommerceCrawler: React.FC = () => {
                 <p className="text-slate-500 mt-0.5">
                   Manufacturer: {activeAuditRecord.product.manufacturer || 'Not Declared on Listing'}
                 </p>
+                {activeAuditRecord.product.customer_care && (
+                  <p className="text-slate-500 mt-0.5">
+                    Customer Care: <span className="font-semibold text-slate-700 dark:text-slate-300">{activeAuditRecord.product.customer_care}</span>
+                  </p>
+                )}
               </div>
+
+              {/* All Packaging Gallery Photos */}
+              {((activeAuditRecord.product.gallery_images && activeAuditRecord.product.gallery_images.length > 0) || activeAuditRecord.product.image_url) && (
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <span>📸 All Packaging Photos & Labels ({activeAuditRecord.product.gallery_images?.length || 1} Scraped):</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400">Click photo to view high-res</span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {(activeAuditRecord.product.gallery_images || [activeAuditRecord.product.image_url]).map((imgU, gIdx) => (
+                      <a
+                        key={gIdx}
+                        href={imgU}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative h-28 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 flex items-center justify-center hover:border-blue-500 transition-all shadow-xs"
+                        title={"Click to open high-res packaging photo " + (gIdx + 1)}
+                      >
+                        <img src={imgU} alt={"Packaging Photo " + (gIdx + 1)} className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+                        <span className="absolute bottom-1 right-1 bg-black/70 text-[9px] text-white px-1.5 py-0.5 rounded font-mono font-bold">
+                          #{gIdx + 1}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Status and Score */}
               <div className="grid grid-cols-3 gap-3">
