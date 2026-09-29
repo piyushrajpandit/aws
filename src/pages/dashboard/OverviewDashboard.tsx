@@ -502,6 +502,7 @@ export const OverviewDashboard: React.FC = () => {
                 <select
                   value={zoneFilter}
                   onChange={(e) => setZoneFilter(e.target.value)}
+                  aria-label="Filter by Zone or Risk Level"
                   className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-[11px] font-mono text-slate-800 focus:border-blue-600 focus:outline-none max-w-[140px]"
                 >
                   <option value="All">

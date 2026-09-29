@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { asyncIndexedDbStorage } from '../lib/indexedDbStorage';
 import type {
   ScanRecord,
   UploadedImage,
@@ -10,6 +12,7 @@ import type {
 import type { ComplianceValidationResult } from '../types/ruleEngine';
 import type { ReadabilityAnalysisResult } from '../types/readability';
 import { ocrService } from '../lib/ocrService';
+import { executeLocalOcrScan } from '../lib/localOcrService';
 import { validateProduct } from '../lib/ruleEngineService';
 import { readabilityService } from '../lib/readabilityService';
 import {
@@ -58,6 +61,7 @@ interface ScanState {
   setActiveAngleIndex: (index: number) => void;
   clearUnviewedCompletion: () => void;
   startScan: () => Promise<void>;
+  startLocalScan: () => Promise<void>;
   updateScanProgress: (id: string, progress: number, status: string) => void;
   completeScan: (
     id: string,
@@ -69,6 +73,8 @@ interface ScanState {
   deleteScan: (id: string) => void;
   clearHistory: () => void;
   viewScan: (scan: ScanRecord | null) => void;
+  setCurrentScan: (scan: ScanRecord | null) => void;
+  startNewScan: () => void;
   setValidationResult: (scanId: string, result: ComplianceValidationResult) => void;
   setReadabilityResult: (scanId: string, result: ReadabilityAnalysisResult) => void;
 }
@@ -109,7 +115,9 @@ function formatTimestamp(): string {
   }).format(new Date());
 }
 
-export const useScanStore = create<ScanState>((set, get) => ({
+export const useScanStore = create<ScanState>()(
+  persist(
+    (set, get) => ({
   scans: MOCK_SCANS,
   currentScan: null,
   uploadedImages: [],
@@ -446,6 +454,160 @@ export const useScanStore = create<ScanState>((set, get) => ({
     }
   },
 
+  startLocalScan: async () => {
+    const { uploadedImages } = get();
+    if (uploadedImages.length === 0 || get().isProcessing) return;
+
+    const primaryImage = uploadedImages[0];
+    const scanId = generateId();
+
+    const initialScanRecord: ScanRecord = {
+      id: scanId,
+      imageName: primaryImage.name,
+      imageDataUrl: primaryImage.dataUrl,
+      timestamp: formatTimestamp(),
+      status: 'processing',
+      progress: 0,
+      confidence: 0,
+      extractedData: null,
+      isMultiAngle: false,
+      angles: [],
+      activeAngleIndex: 0,
+    };
+
+    set({
+      isProcessing: true,
+      currentProgress: 2,
+      currentStatusMessage: '⚡ Starting Local PaddleOCR PP-OCRv6 engine...',
+      currentScan: initialScanRecord,
+      activeAngleIndex: 0,
+      hasUnviewedCompletion: false,
+    });
+
+    try {
+      const img = new Image();
+      await new Promise<void>((res, rej) => {
+        img.onload = () => res();
+        img.onerror = rej;
+        img.src = primaryImage.dataUrl;
+      });
+      const imageDimensions = { width: img.naturalWidth || 1200, height: img.naturalHeight || 900 };
+
+      const ocrResult = await executeLocalOcrScan(
+        primaryImage.dataUrl,
+        imageDimensions,
+        (progress, status) => {
+          set({ currentProgress: Math.min(88, progress), currentStatusMessage: status });
+        }
+      );
+
+      set({ currentProgress: 88, currentStatusMessage: '⚡ Validating statutory declarations...' });
+
+      const { masterExtractedData, masterConfidence, consolidatedRawText } =
+        consolidateMultiAngleExtractions(
+          [{
+            id: `${scanId}-angle-1`,
+            angleIndex: 1,
+            label: 'Angle 1 (Front Panel)',
+            imageName: primaryImage.name,
+            imageDataUrl: primaryImage.dataUrl,
+            extractedData: ocrResult.extractedData,
+            confidence: ocrResult.confidence,
+            rawText: ocrResult.rawText,
+          }],
+          primaryImage.name.replace(/\.[^/.]+$/, '')
+        );
+
+      const validationResult = validateProduct(masterExtractedData);
+      validationResult.scanId = scanId;
+
+      await new Promise((r) => setTimeout(r, 300));
+      set({ currentProgress: 94, currentStatusMessage: '⚡ Correlating with Legal Metrology RAG database...' });
+
+      const correlationResult = processScanDiscrepanciesAndCorrelate(
+        scanId,
+        masterExtractedData,
+        validationResult,
+        consolidatedRawText
+      );
+
+      await new Promise((r) => setTimeout(r, 200));
+
+      const masterReadability = await readabilityService.analyze(
+        scanId,
+        primaryImage.dataUrl,
+        masterExtractedData,
+        masterExtractedData.imageDimensions || { width: 1200, height: 900 }
+      );
+
+      const completedScan: ScanRecord = {
+        ...initialScanRecord,
+        status: 'completed',
+        progress: 100,
+        confidence: masterConfidence,
+        extractedData: masterExtractedData,
+        readabilityResult: masterReadability,
+        isMultiAngle: false,
+        angles: [],
+        activeAngleIndex: 0,
+      };
+
+      useComplianceStore.getState().addScannedProduct(
+        masterExtractedData,
+        primaryImage.dataUrl,
+        masterConfidence,
+        validationResult
+      );
+
+      const existingScans = get().scans;
+      const allScansForVerification = [completedScan, ...existingScans];
+
+      const batchResult = verifyBatch(
+        completedScan.id,
+        masterExtractedData.batchNumber || '',
+        masterExtractedData.expiryDate || '',
+        allScansForVerification
+      );
+
+      const directoryProducts = useComplianceStore.getState().products;
+      const mrpResult = verifyMRP(
+        masterExtractedData.mrp || '',
+        masterExtractedData.productName || '',
+        directoryProducts
+      );
+
+      set((state) => ({
+        scans: [completedScan, ...state.scans],
+        currentScan: completedScan,
+        currentProgress: 100,
+        currentStatusMessage: `⚡ Local OCR complete — Compliance: ${validationResult.complianceScore}/100 · ${correlationResult.summary.totalDiscrepancies} discrepancy(s) mapped.`,
+        validationResults: { ...state.validationResults, [completedScan.id]: validationResult },
+        correlationResults: { ...state.correlationResults, [completedScan.id]: correlationResult },
+        readabilityResults: { ...state.readabilityResults, [completedScan.id]: masterReadability },
+        batchVerificationResults: { ...state.batchVerificationResults, [completedScan.id]: batchResult },
+        mrpVerificationResults: { ...state.mrpVerificationResults, [completedScan.id]: mrpResult },
+        isProcessing: false,
+        uploadedImages: [],
+        hasUnviewedCompletion: true,
+        lastCompletedScanId: completedScan.id,
+      }));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Local OCR scan failed';
+      const failedScan: ScanRecord = {
+        ...initialScanRecord,
+        status: 'error',
+        progress: 0,
+        errorMessage,
+      };
+      set((state) => ({
+        scans: [failedScan, ...state.scans],
+        currentScan: failedScan,
+        currentStatusMessage: `⚡ Local OCR Error: ${errorMessage}`,
+        isProcessing: false,
+      }));
+    }
+  },
+
   updateScanProgress: (id, progress, status) => {
     set((state) => ({
       currentScan:
@@ -513,6 +675,20 @@ export const useScanStore = create<ScanState>((set, get) => ({
     });
   },
 
+  setCurrentScan: (scan) => {
+    set({ currentScan: scan, activeAngleIndex: 0 });
+  },
+
+  startNewScan: () => {
+    set({
+      currentScan: null,
+      uploadedImages: [],
+      currentProgress: 0,
+      currentStatusMessage: '',
+      activeAngleIndex: 0,
+    });
+  },
+
   viewScan: (scan) => {
     set({ currentScan: scan, activeAngleIndex: 0 });
   },
@@ -534,4 +710,20 @@ export const useScanStore = create<ScanState>((set, get) => ({
       },
     }));
   },
-}));
+    }),
+    {
+      name: 'satyadrishti_scan_store_v2',
+      storage: createJSONStorage(() => asyncIndexedDbStorage),
+      partialize: (state) => ({
+        scans: state.scans,
+        currentScan: state.currentScan,
+        validationResults: state.validationResults,
+        correlationResults: state.correlationResults,
+        readabilityResults: state.readabilityResults,
+        batchVerificationResults: state.batchVerificationResults,
+        mrpVerificationResults: state.mrpVerificationResults,
+        lastCompletedScanId: state.lastCompletedScanId,
+      }),
+    }
+  )
+);

@@ -426,6 +426,66 @@ class ExtractionAPIHandler:
             "audit_report": audit_report,
         }
 
+    async def handle_gemini_vision_proxy(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        POST /api/v1/scanner/gemini-vision
+        Securely proxies image data to Google Gemini Vision using server-side GEMINI_VISION_API_KEY.
+        """
+        import os, json, httpx
+        data_url = payload.get("dataUrl") or payload.get("image_base64", "")
+        if not data_url:
+            return {"error": "dataUrl is required", "status": 400}
+
+        # Extract base64 and mime
+        if "," in data_url:
+            header, b64_data = data_url.split(",", 1)
+            mime_type = "image/jpeg"
+            if "png" in header: mime_type = "image/png"
+            elif "webp" in header: mime_type = "image/webp"
+        else:
+            b64_data = data_url
+            mime_type = "image/jpeg"
+
+        api_key = os.getenv("GEMINI_VISION_API_KEY") or os.getenv("GEMINI_API_KEY", "").strip()
+        if not api_key:
+            return {"error": "GEMINI_VISION_API_KEY not configured on server", "status": 500}
+
+        prompt = """You are an official Legal Metrology Compliance Officer under the Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011 (Rule 6).
+Analyze this packaged product photo very carefully and extract all statutory declarations.
+If MRP or Customer Care telephone/email or Net Qty is missing, set its value to null and its Found flag to false. Do not hallucinate.
+
+Return valid JSON with keys:
+productName, brand, netQuantity, mrp, mrpFound, unitSalePrice, uspFound, manufacturer, address, mfgFound, customerCare, careFound, countryOfOrigin, originFound, manufacturingDate, expiryDate, batchNumber, barcode, rawDetectedText."""
+
+        gemini_payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt},
+                        {"inline_data": {"mime_type": mime_type, "data": b64_data}}
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.1,
+                "response_mime_type": "application/json"
+            }
+        }
+
+        for model in ["gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash"]:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.post(url, json=gemini_payload)
+                    if resp.status_code == 200:
+                        res_json = resp.json()
+                        text_part = res_json["candidates"][0]["content"]["parts"][0]["text"]
+                        return {"status": "success", "data": json.loads(text_part)}
+            except Exception:
+                continue
+
+        return {"error": "Gemini Vision analysis failed", "status": 502}
+
 
 # ─── FastAPI Router Endpoints ───────────────────────────────────────────────
 
@@ -466,3 +526,100 @@ def get_rules_endpoint(
     return _handler.handle_get_rules(category=category, active_only=active_only, severity=severity)
 
 
+
+@router.post("/scanner/gemini-vision")
+async def scanner_gemini_vision_endpoint(payload: Dict[str, Any] = Body(...)):
+    """Fast Gemini Vision statutory declaration extraction proxy."""
+    return await _handler.handle_gemini_vision_proxy(payload)
+
+
+# ─── Local Food Package OCR Engine Endpoint ─────────────────────────────────
+
+@router.post("/scanner/local-ocr")
+async def scanner_local_ocr_endpoint(payload: Dict[str, Any] = Body(...)):
+    """
+    POST /api/v1/scanner/local-ocr
+
+    Runs the local PaddleOCR PP-OCRv6 / Apple Vision food package extraction engine.
+    Accepts base64 dataUrl image, maps extracted fields directly to
+    SatyaDrishti Legal Metrology statutory compliance schema.
+
+    Returns:
+      - success: bool
+      - fields: dict with mrp, netQuantity, manufacturingDate, expiryDate,
+                batchNumber, customerCare, fssaiLicNo, dietaryType, ingredients
+      - raw_text: str (spatial reading order)
+      - latency_ms: float
+      - total_regions: int
+    """
+    import base64
+    import importlib
+    import sys
+    import os
+    import io
+
+    # ── Ensure food_ocr_bridge is importable ──────────────────────────────
+    bridge_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'services')
+    bridge_dir = os.path.abspath(bridge_dir)
+    if bridge_dir not in sys.path:
+        sys.path.insert(0, bridge_dir)
+
+    # Also add food_package_ocr root in case bridge needs it
+    food_ocr_paths = [
+        os.path.expanduser("~/Desktop/food_package_ocr"),
+        "/Users/piyushraj/Desktop/food_package_ocr",
+    ]
+    for fp in food_ocr_paths:
+        if os.path.exists(fp) and fp not in sys.path:
+            sys.path.insert(0, fp)
+
+    try:
+        # Force reload so any hot-path update is picked up
+        if 'food_ocr_bridge' in sys.modules:
+            bridge_mod = sys.modules['food_ocr_bridge']
+        else:
+            import food_ocr_bridge as bridge_mod
+        run_local_packaging_ocr = bridge_mod.run_local_packaging_ocr
+    except ImportError as e:
+        return {
+            "status": "error",
+            "error": f"Local OCR engine not available on this server: {e}",
+            "code": 503,
+        }
+
+    # ── Decode image from base64 dataUrl or raw base64 ───────────────────
+    data_url: str = payload.get("dataUrl") or payload.get("image_base64", "")
+    if not data_url:
+        return {"status": "error", "error": "dataUrl is required", "code": 400}
+
+    if "," in data_url:
+        _, b64_data = data_url.split(",", 1)
+    else:
+        b64_data = data_url
+
+    try:
+        image_bytes: bytes = base64.b64decode(b64_data)
+    except Exception as e:
+        return {"status": "error", "error": f"Invalid base64 image data: {e}", "code": 400}
+
+    # ── Run local OCR engine ─────────────────────────────────────────────
+    try:
+        result = run_local_packaging_ocr(image_bytes)
+    except Exception as e:
+        return {"status": "error", "error": f"Local OCR engine failed: {e}", "code": 500}
+
+    if not result.get("success"):
+        return {
+            "status": "error",
+            "error": result.get("error", "OCR returned no results"),
+            "code": 422,
+        }
+
+    return {
+        "status": "success",
+        "engine": "LocalPaddleOCR-PP-OCRv6",
+        "fields": result.get("fields", {}),
+        "raw_text": result.get("raw_text", ""),
+        "latency_ms": result.get("latency_ms", 0.0),
+        "total_regions": result.get("total_regions", 0),
+    }

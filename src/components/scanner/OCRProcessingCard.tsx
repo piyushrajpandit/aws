@@ -159,7 +159,10 @@ export const OCRProcessingCard: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200/90 bg-white px-4 py-2.5">
             {/* Left: Prominent compact score and label */}
             <div className="flex items-baseline gap-2.5">
-              <span className="text-2xl font-black font-mono tracking-tight text-slate-900 leading-none">
+              <span className={cn(
+                "text-2xl font-black font-mono tracking-tight leading-none",
+                complianceScore >= 80 ? "text-emerald-700" : complianceScore >= 60 ? "text-amber-600" : "text-rose-600"
+              )}>
                 {complianceScore} <span className="text-base font-semibold text-slate-400">/ 100</span>
               </span>
               <span className="text-xs font-semibold text-slate-600 border-l border-slate-200 pl-2.5 py-0.5 uppercase tracking-wider">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Images,
   BarChart3,
@@ -13,6 +13,10 @@ import {
   ChevronDown,
   Database,
   Camera,
+  Plus,
+  CheckCircle2,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useScanStore } from '../../store/scanStore';
@@ -42,10 +46,24 @@ export const ProductScanner: React.FC = () => {
     uploadedImages,
     isProcessing,
     startScan,
+    startLocalScan,
     clearImages,
     validationResults,
     readabilityResults,
+    viewScan,
+    setCurrentScan,
+    startNewScan,
   } = useScanStore();
+
+  // Auto-restore most recent completed scan if none selected
+  useEffect(() => {
+    if (!currentScan && scans.length > 0) {
+      const latestCompleted = scans.find((s) => s.status === 'completed' && s.extractedData);
+      if (latestCompleted) {
+        viewScan(latestCompleted);
+      }
+    }
+  }, [currentScan, scans, viewScan]);
 
   const { reports, addReport } = useReportStore();
 
@@ -252,6 +270,36 @@ export const ProductScanner: React.FC = () => {
         </div>
       )}
 
+      {/* Active / Persisted Scan Status Bar */}
+      {currentScan && currentScan.status === 'completed' && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-blue-50/90 to-indigo-50/80 dark:from-blue-950/40 dark:to-indigo-950/30 border border-blue-200/90 dark:border-blue-800/60 rounded-xl p-3 sm:px-4 shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 bg-blue-600 text-white rounded-lg shrink-0">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-blue-950 dark:text-blue-200 truncate">
+                Active Local Record: <span className="font-semibold text-slate-700 dark:text-slate-300">{currentScan.extractedData?.productName || currentScan.imageName}</span>
+              </p>
+              <p className="text-[11px] text-blue-700/80 dark:text-blue-400 font-mono">
+                Scanned {currentScan.timestamp} • Stored locally in offline database
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startNewScan}
+              className="text-xs h-7 gap-1.5 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 font-semibold"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Scan Another Product</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Packaging Capture & Upload Zone */}
       <div className="min-w-0">
         <ImageUploader />
@@ -288,6 +336,17 @@ export const ProductScanner: React.FC = () => {
             >
               <Play className="h-3.5 w-3.5" />
               <span>{isProcessing ? 'Scanning...' : 'Start Scan'}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startLocalScan}
+              isLoading={isProcessing}
+              disabled={isProcessing}
+              className="text-xs gap-1.5 font-semibold min-h-[36px] border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950"
+            >
+              <Zap className="h-3.5 w-3.5 fill-amber-400" />
+              <span>{isProcessing ? 'Scanning...' : '⚡ Local OCR Engine'}</span>
             </Button>
           </div>
         </div>

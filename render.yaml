@@ -1,0 +1,26 @@
+# render.yaml — SatyaDrishti Render Docker Deployment
+# Docker context is repo root (Render default).
+# Dockerfile lives in backend/ and copies files using backend/ prefix paths.
+
+services:
+  - type: web
+    name: satyadrishti-backend-v2
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: GEMINI_VISION_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: "ap-south-1"
