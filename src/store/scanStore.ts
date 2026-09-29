@@ -19,6 +19,7 @@ import {
   ScanCorrelationResult,
 } from '../lib/scanComplaintCorrelator';
 import { consolidateMultiAngleExtractions } from '../lib/multiAngleConsolidator';
+import { runConcurrent } from '../lib/concurrencyRunner';
 import { useComplianceStore } from './complianceStore';
 import { verifyBatch, verifyMRP } from '../lib/batchVerificationService';
 import {
@@ -241,74 +242,82 @@ export const useScanStore = create<ScanState>()(
     });
 
     try {
-      const angles: ScanAngle[] = [];
+      // Track individual angle progress and active statuses for real-time composite progress
+      const angleProgresses: number[] = new Array(totalImages).fill(5);
+      const angleStatuses: string[] = new Array(totalImages).fill('Queued');
+      const accumulatedAngles: (ScanAngle | null)[] = new Array(totalImages).fill(null);
 
-      // Process each image as an angle of the same product
-      for (let i = 0; i < totalImages; i++) {
-        const image = uploadedImages[i];
-        const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Angle ${i + 1}`;
-        const baseProgress = (i / totalImages) * 85;
+      const updateCompositeProgress = () => {
+        const sum = angleProgresses.reduce((acc, p) => acc + p, 0);
+        const composite = Math.round((sum / totalImages) * 0.85);
+        const activeStatuses = angleStatuses.filter((s) => s && s !== 'Queued' && !s.includes('Completed'));
+        const statusSnippet = activeStatuses.length > 0 ? activeStatuses[activeStatuses.length - 1] : 'Processing...';
 
         set({
-          currentProgress: Math.round(baseProgress),
+          currentProgress: Math.min(88, Math.max(5, composite)),
           currentStatusMessage: isMultiAngle
-            ? `Analyzing ${angleLabel} (${i + 1}/${totalImages}): ${image.name}...`
-            : 'Analyzing product packaging...',
-        });
-
-        // Run OCR on this specific angle
-        const ocrResult = await ocrService.recognize(
-          image.dataUrl,
-          (angleProgress, angleStatus) => {
-            const compositeProgress = Math.round(
-              baseProgress + (angleProgress / 100) * (85 / totalImages)
-            );
-            set({
-              currentProgress: Math.min(88, compositeProgress),
-              currentStatusMessage: isMultiAngle
-                ? `[${angleLabel}] ${angleStatus}`
-                : angleStatus,
-            });
-          }
-        );
-
-        // Readability analysis for this angle
-        let angleReadability: ReadabilityAnalysisResult | undefined = undefined;
-        try {
-          angleReadability = await readabilityService.analyze(
-            `${scanId}-angle-${i + 1}`,
-            image.dataUrl,
-            ocrResult.extractedData,
-            ocrResult.extractedData.imageDimensions || { width: 1000, height: 800 }
-          );
-        } catch {
-          // ignore readability errors for sub-angles
-        }
-
-        const angleRecord: ScanAngle = {
-          id: `${scanId}-angle-${i + 1}`,
-          angleIndex: i + 1,
-          label: angleLabel,
-          imageName: image.name,
-          imageDataUrl: image.dataUrl,
-          extractedData: ocrResult.extractedData,
-          confidence: ocrResult.confidence,
-          rawText: ocrResult.rawText,
-          readabilityResult: angleReadability,
-        };
-
-        angles.push(angleRecord);
-
-        // Update ongoing scan record with accumulated angles
-        set((state) => ({
-          currentScan: state.currentScan
+            ? `[Parallel Multi-Angle Engine] ${statusSnippet} (${accumulatedAngles.filter(Boolean).length}/${totalImages} angles completed)`
+            : statusSnippet,
+          currentScan: get().currentScan
             ? {
-                ...state.currentScan,
-                angles: [...angles],
+                ...get().currentScan!,
+                angles: accumulatedAngles.filter(Boolean) as ScanAngle[],
               }
             : null,
-        }));
-      }
+        });
+      };
+
+      // Process all images concurrently using adaptive platform concurrency (mobile: 2, desktop: up to 4)
+      const angles: ScanAngle[] = await runConcurrent(
+        uploadedImages,
+        async (image, i) => {
+          const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Angle ${i + 1}`;
+          angleStatuses[i] = `Analyzing ${angleLabel}`;
+          updateCompositeProgress();
+
+          // Run OCR on this angle
+          const ocrResult = await ocrService.recognize(
+            image.dataUrl,
+            (angleProgress, angleStatus) => {
+              angleProgresses[i] = angleProgress;
+              angleStatuses[i] = `[${angleLabel}] ${angleStatus}`;
+              updateCompositeProgress();
+            }
+          );
+
+          // Readability analysis for this angle
+          let angleReadability: ReadabilityAnalysisResult | undefined = undefined;
+          try {
+            angleReadability = await readabilityService.analyze(
+              `${scanId}-angle-${i + 1}`,
+              image.dataUrl,
+              ocrResult.extractedData,
+              ocrResult.extractedData.imageDimensions || { width: 1000, height: 800 }
+            );
+          } catch {
+            // ignore readability errors for sub-angles
+          }
+
+          const angleRecord: ScanAngle = {
+            id: `${scanId}-angle-${i + 1}`,
+            angleIndex: i + 1,
+            label: angleLabel,
+            imageName: image.name,
+            imageDataUrl: image.dataUrl,
+            extractedData: ocrResult.extractedData,
+            confidence: ocrResult.confidence,
+            rawText: ocrResult.rawText,
+            readabilityResult: angleReadability,
+          };
+
+          angleProgresses[i] = 100;
+          angleStatuses[i] = `[${angleLabel}] Completed`;
+          accumulatedAngles[i] = angleRecord;
+          updateCompositeProgress();
+
+          return angleRecord;
+        }
+      );
 
       // Step 2: Consolidate all angles into a single master product declaration
       set({
