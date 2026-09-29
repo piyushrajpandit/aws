@@ -11,14 +11,15 @@ export const LandingNavbar: React.FC = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isDirectoryActive = location.pathname === '/' || location.pathname === '/directory' || location.pathname === '/verify';
-  const isAboutActive = location.pathname === '/about' && (!location.hash || location.hash === '#about');
-  const isCapabilitiesActive = location.pathname === '/about' && location.hash === '#capabilities';
-  const isWorkflowActive = location.pathname === '/about' && location.hash === '#workflow';
+  const isHomeActive = (location.pathname === '/' || location.pathname === '/about') && (!location.hash || location.hash === '#about' || location.hash === '#home');
+  const isAboutActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#about';
+  const isDirectoryActive = location.pathname === '/directory' || location.pathname === '/verify';
+  const isCapabilitiesActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#capabilities';
+  const isWorkflowActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#workflow';
 
   const handleNavClick = (targetId: string) => {
     setIsMobileMenuOpen(false);
-    if (location.pathname === '/about') {
+    if (location.pathname === '/' || location.pathname === '/about') {
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -48,20 +49,36 @@ export const LandingNavbar: React.FC = () => {
         </Link>
 
         {/* Center Nav Links - Desktop */}
+        {/* Center Nav Links - Desktop */}
         <nav className="hidden md:flex items-center gap-1">
           <Link
             to="/"
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              isDirectoryActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800 shadow-xs'
+            onClick={() => handleNavClick('about')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              isHomeActive
+                ? 'bg-blue-600 text-white shadow-xs font-bold'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            Product Directory
+            <Home className="h-3.5 w-3.5" />
+            <span>Home</span>
           </Link>
 
           <Link
-            to="/about#about"
+            to="/directory"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              isDirectoryActive
+                ? 'bg-blue-600 text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Product Directory</span>
+          </Link>
+
+          <Link
+            to="/#about"
             onClick={() => handleNavClick('about')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isAboutActive
@@ -73,7 +90,7 @@ export const LandingNavbar: React.FC = () => {
           </Link>
 
           <Link
-            to="/about#capabilities"
+            to="/#capabilities"
             onClick={() => handleNavClick('capabilities')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isCapabilitiesActive
@@ -85,7 +102,7 @@ export const LandingNavbar: React.FC = () => {
           </Link>
 
           <Link
-            to="/about#workflow"
+            to="/#workflow"
             onClick={() => handleNavClick('workflow')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               isWorkflowActive
@@ -181,6 +198,19 @@ export const LandingNavbar: React.FC = () => {
 
           <Link
             to="/"
+            onClick={() => handleNavClick('about')}
+            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
+              isHomeActive
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Home className="h-4 w-4 shrink-0" />
+            <span>Home</span>
+          </Link>
+
+          <Link
+            to="/directory"
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
               isDirectoryActive
@@ -193,20 +223,7 @@ export const LandingNavbar: React.FC = () => {
           </Link>
 
           <Link
-            to="/about#about"
-            onClick={() => handleNavClick('about')}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-              isAboutActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <BookOpen className="h-4 w-4 shrink-0" />
-            <span>About Platform</span>
-          </Link>
-
-          <Link
-            to="/about#capabilities"
+            to="/#capabilities"
             onClick={() => handleNavClick('capabilities')}
             className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
               isCapabilitiesActive
@@ -219,7 +236,7 @@ export const LandingNavbar: React.FC = () => {
           </Link>
 
           <Link
-            to="/about#workflow"
+            to="/#workflow"
             onClick={() => handleNavClick('workflow')}
             className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
               isWorkflowActive
