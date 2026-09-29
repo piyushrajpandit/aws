@@ -25,6 +25,7 @@ import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
+import { LiveProductCapture } from '../../components/scanner/LiveProductCapture';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
@@ -40,6 +41,7 @@ import { HistoricalIntelligencePanel } from '../../components/scanner/Historical
 import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
+  const [captureMode, setCaptureMode] = useState<'camera' | 'upload'>('camera');
   const {
     scans,
     currentScan,
@@ -300,9 +302,38 @@ export const ProductScanner: React.FC = () => {
         </div>
       )}
 
-      {/* Packaging Capture & Upload Zone */}
-      <div className="min-w-0">
-        <ImageUploader />
+      {/* Packaging Capture & Upload Zone with Camera Tabs */}
+      <div className="space-y-3 min-w-0">
+        <div className="flex items-center gap-2 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl w-fit border border-slate-200/80 dark:border-slate-700/60 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setCaptureMode('camera')}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all',
+              captureMode === 'camera'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            )}
+          >
+            <Camera className="h-3.5 w-3.5" />
+            <span>📷 Live Camera Viewfinder</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCaptureMode('upload')}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all',
+              captureMode === 'upload'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            )}
+          >
+            <Images className="h-3.5 w-3.5" />
+            <span>📁 Upload Files</span>
+          </button>
+        </div>
+
+        {captureMode === 'camera' ? <LiveProductCapture /> : <ImageUploader />}
       </div>
 
       {/* Image Previews + Actions */}

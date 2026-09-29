@@ -97,8 +97,39 @@ function generateId(): string {
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      if (!file.type.startsWith('image/') || typeof Image === 'undefined') {
+        return resolve(src);
+      }
+      const img = new Image();
+      img.onerror = () => resolve(src);
+      img.onload = () => {
+        const maxDim = 1920;
+        let { width, height } = img;
+        if (width <= maxDim && height <= maxDim && file.size < 1.2 * 1024 * 1024) {
+          return resolve(src);
+        }
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(src);
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.90));
+      };
+      img.src = src;
+    };
     reader.readAsDataURL(file);
   });
 }

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Camera, RefreshCw, X, AlertCircle, ShieldAlert, CheckCircle2, ChevronDown, ChevronUp, ExternalLink, ShieldCheck, SwitchCamera, Flashlight, FlashlightOff, ImagePlus } from 'lucide-react';
+import { Camera, RefreshCw, X, AlertCircle, ShieldAlert, CheckCircle2, ChevronDown, ChevronUp, ExternalLink, ShieldCheck, SwitchCamera, Flashlight, FlashlightOff, ImagePlus, Zap, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useScanStore } from '../../store/scanStore';
 
 export const LiveProductCapture: React.FC = () => {
-  const { addImages, isProcessing, uploadedImages } = useScanStore();
+  const { addImages, isProcessing, uploadedImages, startLocalScan, startScan } = useScanStore();
+  const [autoScanMode, setAutoScanMode] = useState<'local' | 'gemini' | null>(null);
 
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -156,41 +157,78 @@ export const LiveProductCapture: React.FC = () => {
     }
   };
 
-  const handleCapturePhoto = () => {
-    if (!videoRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
+  const captureCanvasBlob = (): Promise<File | null> => {
+    return new Promise((resolve) => {
+      if (!videoRef.current) return resolve(null);
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(null);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return resolve(null);
           const fileName = `product-live-capture-${Date.now()}.jpg`;
-          const file = new File([blob], fileName, { type: 'image/jpeg' });
-          addImages([file]);
-        }
-        stopCamera();
-      },
-      'image/jpeg',
-      0.95
-    );
+          resolve(new File([blob], fileName, { type: 'image/jpeg' }));
+        },
+        'image/jpeg',
+        0.92
+      );
+    });
   };
 
-  const handleNativeCameraSnap = () => {
+  const handleCapturePhoto = async () => {
+    const file = await captureCanvasBlob();
+    if (file) {
+      await addImages([file]);
+    }
+    stopCamera();
+  };
+
+  const handleCaptureAndLocalScan = async () => {
+    const file = await captureCanvasBlob();
+    if (file) {
+      await addImages([file]);
+      stopCamera();
+      setTimeout(() => {
+        startLocalScan();
+      }, 120);
+    } else {
+      stopCamera();
+    }
+  };
+
+  const handleCaptureAndGeminiScan = async () => {
+    const file = await captureCanvasBlob();
+    if (file) {
+      await addImages([file]);
+      stopCamera();
+      setTimeout(() => {
+        startScan();
+      }, 120);
+    } else {
+      stopCamera();
+    }
+  };
+
+  const handleNativeCameraSnap = (mode?: 'local' | 'gemini' | null) => {
+    setAutoScanMode(mode || null);
     fallbackInputRef.current?.click();
   };
 
-  const handleNativeCameraFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNativeCameraFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
-      addImages(Array.from(e.target.files));
+      const mode = autoScanMode;
+      setAutoScanMode(null);
+      await addImages(Array.from(e.target.files));
       e.target.value = '';
+      if (mode === 'local') {
+        setTimeout(() => startLocalScan(), 150);
+      } else if (mode === 'gemini') {
+        setTimeout(() => startScan(), 150);
+      }
     }
   };
 
@@ -214,7 +252,7 @@ export const LiveProductCapture: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto justify-center">
+            <div className="pt-2 flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto justify-center flex-wrap">
               <Button
                 variant="primary"
                 onClick={handleStartCamera}
@@ -224,12 +262,12 @@ export const LiveProductCapture: React.FC = () => {
                 {isInitializing ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin" />
-                    <span>Connecting Rear Camera...</span>
+                    <span>Connecting Camera...</span>
                   </>
                 ) : (
                   <>
                     <Camera className="h-4 w-4" />
-                    <span>Start Live Viewfinder</span>
+                    <span>Open Live Viewfinder</span>
                   </>
                 )}
               </Button>
@@ -237,12 +275,23 @@ export const LiveProductCapture: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleNativeCameraSnap}
+                onClick={() => handleNativeCameraSnap('local')}
                 disabled={isProcessing}
-                className="text-xs sm:text-sm gap-1.5 min-h-[42px] px-4 w-full sm:w-auto border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300"
+                className="text-xs sm:text-sm gap-1.5 min-h-[42px] px-4 w-full sm:w-auto border-amber-400 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-950/40 font-semibold"
+              >
+                <Zap className="h-4 w-4 fill-amber-500 text-amber-500" />
+                <span>⚡ Snap & Run Local OCR</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleNativeCameraSnap(null)}
+                disabled={isProcessing}
+                className="text-xs sm:text-sm gap-1.5 min-h-[42px] px-3.5 w-full sm:w-auto border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
               >
                 <ImagePlus className="h-4 w-4" />
-                <span>Snap Native Camera</span>
+                <span>Take Photo Only</span>
               </Button>
             </div>
 
@@ -325,8 +374,8 @@ export const LiveProductCapture: React.FC = () => {
               </div>
             </div>
 
-            {/* Shutter and Cancel controls */}
-            <div className="flex items-center justify-center gap-6 pt-1">
+            {/* Shutter and Direct Scan Controls */}
+            <div className="flex items-center justify-center gap-3 sm:gap-4 pt-1 flex-wrap">
               <button
                 type="button"
                 onClick={stopCamera}
@@ -337,15 +386,40 @@ export const LiveProductCapture: React.FC = () => {
                 <X className="h-5 w-5" />
               </button>
 
-              {/* Shutter Trigger */}
+              {/* Instant Local OCR Snap & Scan */}
+              <button
+                type="button"
+                onClick={handleCaptureAndLocalScan}
+                className="px-5 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white flex items-center gap-2 shadow-lg ring-4 ring-amber-300 dark:ring-amber-900/60 font-bold text-xs sm:text-sm transition-all focus:outline-none"
+                title="Snap frame and immediately run Cloud Local OCR"
+                aria-label="Snap and scan with Local OCR"
+              >
+                <Zap className="h-4 w-4 fill-white text-white" />
+                <span>⚡ Snap & Run Local OCR</span>
+              </button>
+
+              {/* Instant Gemini Scan */}
+              <button
+                type="button"
+                onClick={handleCaptureAndGeminiScan}
+                className="px-4 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white flex items-center gap-1.5 shadow-md font-semibold text-xs sm:text-sm transition-all focus:outline-none"
+                title="Snap frame and run Gemini Vision"
+                aria-label="Snap and scan with Gemini"
+              >
+                <Sparkles className="h-4 w-4 text-white" />
+                <span>Gemini Scan</span>
+              </button>
+
+              {/* Shutter Trigger (Queue without scanning) */}
               <button
                 type="button"
                 onClick={handleCapturePhoto}
-                className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white flex items-center justify-center shadow-lg ring-4 ring-indigo-300 dark:ring-indigo-900/60 transition-all focus:outline-none"
-                title="Capture Photo"
-                aria-label="Capture photo of packaging"
+                className="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 active:scale-95 text-slate-700 dark:text-slate-200 flex flex-col items-center justify-center transition-all focus:outline-none"
+                title="Capture & Queue (Multi-Angle)"
+                aria-label="Capture photo and queue"
               >
-                <Camera className="h-7 w-7" />
+                <Camera className="h-4 w-4" />
+                <span className="text-[8px] font-bold uppercase">Queue</span>
               </button>
             </div>
           </div>
@@ -378,7 +452,7 @@ export const LiveProductCapture: React.FC = () => {
                 type="button"
                 variant="primary"
                 size="sm"
-                onClick={handleNativeCameraSnap}
+                onClick={() => handleNativeCameraSnap()}
                 className="text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <Camera className="h-3.5 w-3.5" />
