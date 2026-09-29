@@ -52,7 +52,7 @@ export function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      
+
       {/* PWA Phone Download / Install Prompt Banner & Modal */}
       <PwaInstallPrompt />
 

@@ -12,6 +12,7 @@ export const LandingNavbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isHomeActive = (location.pathname === '/' || location.pathname === '/about') && (!location.hash || location.hash === '#about' || location.hash === '#home');
+  const isAboutActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#about';
   const isDirectoryActive = location.pathname === '/directory' || location.pathname === '/verify';
   const isCapabilitiesActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#capabilities';
   const isWorkflowActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#workflow';
@@ -47,6 +48,7 @@ export const LandingNavbar: React.FC = () => {
           </div>
         </Link>
 
+        {/* Center Nav Links - Desktop */}
         {/* Center Nav Links - Desktop */}
         <nav className="hidden md:flex items-center gap-1">
           <Link
