@@ -388,35 +388,43 @@ export const OverviewDashboard: React.FC = () => {
               </CardHeader>
 
               <div className="divide-y divide-slate-100 text-xs">
-                {violations.slice(0, 7).map((violation) => (
-                  <div
-                    key={violation.id}
-                    onClick={() => handleInspectViolation(violation.id)}
-                    className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-3"
-                  >
-                    <div className="min-w-0 flex-1 pr-2">
-                      <div className="font-semibold text-slate-900 dark:text-white truncate">
-                        {violation.productName}
-                      </div>
-                      <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
-                        {violation.caseNumber} • {violation.ruleCode}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 shrink-0 ml-auto">
-                      <div className="w-24 text-right hidden sm:block shrink-0">
-                        <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs whitespace-nowrap">
-                          {formatCurrency(violation.penaltyEstimate)}
-                        </div>
-                        <div className="text-[10px] text-slate-400 whitespace-nowrap">Est. Penalty</div>
-                      </div>
-                      <div className="w-36 flex items-center justify-end shrink-0">
-                        <StatusBadge status={violation.status} />
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
-                    </div>
+                {violations.length === 0 ? (
+                  <div className="p-6 flex flex-col items-center justify-center text-center text-slate-500 space-y-2">
+                    <FileCheck2 className="h-8 w-8 text-emerald-500 mb-1" />
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">No active high-priority cases</span>
+                    <span className="text-[11px]">All enforcement queues are cleared.</span>
                   </div>
-                ))}
+                ) : (
+                  violations.slice(0, 7).map((violation) => (
+                    <div
+                      key={violation.id}
+                      onClick={() => handleInspectViolation(violation.id)}
+                      className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-3"
+                    >
+                      <div className="min-w-0 flex-1 pr-2">
+                        <div className="font-semibold text-slate-900 dark:text-white truncate">
+                          {violation.productName}
+                        </div>
+                        <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
+                          {violation.caseNumber} • {violation.ruleCode}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0 ml-auto">
+                        <div className="w-24 text-right hidden sm:block shrink-0">
+                          <div className="font-bold text-slate-800 dark:text-slate-200 font-mono text-xs whitespace-nowrap">
+                            {formatCurrency(violation.penaltyEstimate)}
+                          </div>
+                          <div className="text-[10px] text-slate-400 whitespace-nowrap">Est. Penalty</div>
+                        </div>
+                        <div className="w-36 flex items-center justify-end shrink-0">
+                          <StatusBadge status={violation.status} />
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
