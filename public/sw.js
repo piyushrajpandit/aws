@@ -1,6 +1,6 @@
 // SatyaDrishti Conservative Service Worker
-// Version: 1.0.0
-const CACHE_NAME = 'satyadrishti-shell-v1';
+// Version: 1.1.0
+const CACHE_NAME = 'satyadrishti-shell-v2';
 
 // Static UI shell assets to cache on install
 const SHELL_ASSETS = [
@@ -8,6 +8,10 @@ const SHELL_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-512.png',
+  '/apple-touch-icon.png',
 ];
 
 // Install: pre-cache static UI shell only

@@ -15,6 +15,7 @@ import { AnalyticsIntelligence } from './pages/dashboard/AnalyticsIntelligence';
 import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { EcommerceCrawler } from './pages/dashboard/EcommerceCrawler';
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
+import { PwaInstallPrompt } from './components/ui/PwaInstallPrompt';
 
 import { TechnicalBlogPage } from './pages/TechnicalBlogPage';
 import { AiCopilotWidget } from './components/ai/AiCopilotWidget';
@@ -51,6 +52,10 @@ export function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
+      {/* PWA Phone Download / Install Prompt Banner & Modal */}
+      <PwaInstallPrompt />
+
       {/* AI Copilot — Floating chat widget (additive, does not affect existing UI) */}
       <AiCopilotWidget />
     </BrowserRouter>

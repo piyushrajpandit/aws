@@ -2,7 +2,7 @@
 
 ## AI-Powered Legal Metrology & Consumer Protection Enforcement Platform
 
-**Smart India Hackathon 2026 · Problem Statement SIH26034**
+
 
 *Automating statutory packaging-label compliance audits across India's e-commerce and retail supply chain using hybrid on-device + multimodal-LLM vision and a deterministic rules engine grounded in gazette law.*
 

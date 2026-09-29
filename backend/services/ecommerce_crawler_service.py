@@ -935,12 +935,10 @@ class EcommerceCrawlerService:
                     mrp=float(prod_data.get("mrp", 0.0)),
                     listed_price=float(prod_data.get("listed_price", 0.0)),
                     net_weight=prod_data.get("net_weight", ""),
-                    mfg_date=prod_data.get("mfg_date", ""),
                     country_of_origin=prod_data.get("country_of_origin", "India"),
                     customer_care_contact=prod_data.get("customer_care", ""),
                     status=status,
                     compliance_score=score,
-                    violations_count=violations_count,
                     ocr_confidence=98 if inspected_record.get("is_live") else 90,
                     missing_mandatory_fields=[v.get("title") for v in audit_data.get("violations", [])],
                     regulatory_acts=["Legal Metrology Act, 2009", "Legal Metrology (Packaged Commodities) Rules, 2011"],
@@ -950,7 +948,6 @@ class EcommerceCrawlerService:
             else:
                 existing_prod.status = status
                 existing_prod.compliance_score = score
-                existing_prod.violations_count = violations_count
                 db.flush()
 
             # Insert new violations if any
@@ -964,7 +961,7 @@ class EcommerceCrawlerService:
                         product_id=prod_id,
                         product_name=prod_data.get("title", ""),
                         brand=prod_data.get("brand", ""),
-                        manufacturer_name=prod_data.get("manufacturer") or "Seller of Record",
+                        manufacturer=prod_data.get("manufacturer") or "Seller of Record",
                         platform=prod_data.get("platform", "Amazon"),
                         rule_code=v.get("rule_code", "RULE-6-1"),
                         act_name=v.get("act", "Legal Metrology Act, 2009"),
@@ -972,8 +969,10 @@ class EcommerceCrawlerService:
                         description=v.get("title", "Statutory non-compliance detected by autonomous crawler"),
                         severity=v.get("severity", "CRITICAL"),
                         status="Notice Issued" if audit_data.get("draft_notice") else "Open",
-                        extracted_value=str(v.get("evidence", "")),
-                        expected_standard=str(v.get("expected", "")),
+                        evidence={
+                            "extracted_value": str(v.get("evidence", "")),
+                            "expected_standard": str(v.get("expected", ""))
+                        },
                         penalty_estimate=float(v.get("fine_inr", 25000.0)),
                         assigned_officer="Central Metrology Autonomous Inspector",
                         notice_id=audit_data.get("draft_notice", {}).get("case_number"),
@@ -1109,15 +1108,15 @@ class EcommerceCrawlerService:
         scrape_method: str,
     ) -> Dict[str, Any]:
         """
-        Extracts statutory fields and real product images from live page text / DOM or defaults
-        to catalog attributes when live scraping is not possible.
+        Extracts statutory fields, real packaging gallery photos, and technical specifications
+        from live page text / DOM or defaults to catalog attributes when live scraping is not possible.
         Calculates Unit Sale Price (USP) directly from MRP and Net Quantity using maths.
         """
         initial_img = product_meta.get("image_url", "")
         if "unsplash.com" in initial_img:
             initial_img = ""
 
-        extracted = {
+        extracted: Dict[str, Any] = {
             "platform": product_meta.get("platform", "E-Commerce"),
             "url": product_meta.get("url", ""),
             "sku": product_meta.get("sku") or generate_platform_sku(product_meta.get("platform", "E-Commerce")),
@@ -1136,134 +1135,258 @@ class EcommerceCrawlerService:
             "mfg_date": product_meta.get("default_mfg_date", ""),
             "customer_care": product_meta.get("default_customer_care", ""),
             "image_url": initial_img,
+            "gallery_images": [initial_img] if initial_img else [],
+            "specifications": {},
             "ingredients": ["Standard Statutory Ingredients as per FSSAI / Bureau of Indian Standards"],
             "dietary_type": "Vegetarian",
         }
 
-        # If live scraped content is available, parse dynamic values and extract real images
         if raw_content:
             text = raw_content
-            soup = None
-            try:
-                soup = BeautifulSoup(text, "html.parser")
-                for tag in soup(["script", "style", "noscript", "iframe", "header", "footer", "nav", "aside"]):
-                    tag.decompose()
-                clean_text = soup.get_text(separator="\n")
-            except Exception:
-                clean_text = text
 
-            # 1. Direct image extraction from live HTML or markdown
+            # ─── 1. FULL PACKAGING GALLERY IMAGE EXTRACTION ──────────────────
+            # Amazon and Flipkart store packaging photos (front, back, nutritional panel, side labels)
+            # in JSON scripts (colorImages, data-a-dynamic-image, hiRes)
+            gallery: List[str] = []
+            seen_ids = set()
 
-            og_img = (
-                re.search(r"<meta\s+[^>]*property=['\"]og:image['\"]?[^>]*content=['\"]([^'\"]+)['\"]", text, re.I)
-                or re.search(r"<meta\s+[^>]*name=['\"]twitter:image['\"]?[^>]*content=['\"]([^'\"]+)['\"]", text, re.I)
-                or re.search(r"<img\s+[^>]*id=['\"]landingImage['\"]?[^>]*src=['\"]([^'\"]+)['\"]", text, re.I)
-            )
+            def add_gallery_img(img_u: str):
+                if not img_u or not img_u.startswith("http"):
+                    return
+                clean_u = img_u.replace("\/", "/").strip()
+                clean_lower = clean_u.lower()
+                # Ignore system badges, pixel trackers, recommendation carousels
+                if any(bad in clean_lower for bad in ["pixel", "icon", "logo", "1x1", "favicon", "sprite", "grey-pixel", "transparent-pixel", "avatar", "_ac_ul", "play-button", "checkmark"]):
+                    return
+                m = re.search(r"/images/I/([A-Za-z0-9+%-]+)", clean_u)
+                media_id = m.group(1) if m else clean_u.split("?")[0]
+                if media_id not in seen_ids:
+                    seen_ids.add(media_id)
+                    # Upgrade Amazon images to maximum available resolution SL1500
+                    if "media-amazon.com/images/I/" in clean_u:
+                        high_res = re.sub(r"\._[^\.]+\.", "._SL1500_.", clean_u)
+                        gallery.append(high_res)
+                    else:
+                        gallery.append(clean_u)
 
-            md_imgs = re.findall(r'!\[.*?\]\((https?://[^\s\)]+)\)', text)
+            # Amazon data-a-dynamic-image
+            for dyn in re.finditer(r'data-a-dynamic-image="([^"]+)"', text):
+                try:
+                    data = json.loads(dyn.group(1).replace('&quot;', '"'))
+                    for k in data.keys():
+                        add_gallery_img(k)
+                except Exception:
+                    pass
 
-            found_img = None
-            if og_img:
-                candidate = og_img.group(1).strip()
-                if candidate.startswith("http") and not any(bad in candidate.lower() for bad in ["pixel", "icon", "logo", "1x1", "favicon", "unsplash"]):
-                    found_img = candidate
+            # Amazon hiRes and large images
+            for m in re.finditer(r'"hiRes"[\s:]*"(https://[^"]+)"', text):
+                add_gallery_img(m.group(1))
+            for m in re.finditer(r'"large"[\s:]*"(https://[^"]+)"', text):
+                add_gallery_img(m.group(1))
 
-            if not found_img and md_imgs:
-                for cand in md_imgs:
-                    cand_lower = cand.lower()
-                    if any(cand_lower.endswith(ext) or ext in cand_lower for ext in [".jpg", ".jpeg", ".png", ".webp", "images"]) and not any(bad in cand_lower for bad in ["pixel", "icon", "logo", "1x1", "favicon", "unsplash"]):
-                        found_img = cand
-                        break
+            # Amazon data-old-hires
+            for m in re.finditer(r'data-old-hires="(https://[^"]+)"', text):
+                add_gallery_img(m.group(1))
 
-            if found_img:
-                extracted["image_url"] = found_img
+            # Flipkart product images
+            for m in re.finditer(r'(https://rukminim\d*\.flixcart\.com/image/[^"'\s\)]+)', text):
+                add_gallery_img(m.group(1))
 
-            # 2. Precise Title extraction
+            # OpenGraph and Twitter images fallback
+            og_m = re.search(r"<meta\s+[^>]*property=['"]og:image['"]?[^>]*content=['"]([^'"]+)['"]", text, re.I)
+            if og_m:
+                add_gallery_img(og_m.group(1))
+
+            if gallery:
+                extracted["gallery_images"] = gallery
+                extracted["image_url"] = gallery[0]
+
+            # ─── 2. DOM PARSING & STRUCTURED SPECIFICATION EXTRACTION ────────
+            soup = BeautifulSoup(text, "html.parser")
+            specs: Dict[str, str] = {}
+
+            # Parse all table rows (Amazon Tech Specs, Product Details table)
+            for tr in soup.find_all("tr"):
+                cells = [re.sub(r"[‎‏‪-‮ \s]+", " ", c.get_text()).strip() for c in tr.find_all(["th", "td"])]
+                if len(cells) == 2:
+                    k = cells[0].lower().rstrip(":").strip()
+                    v = cells[1].strip()
+                    if k and v and len(k) < 60:
+                        specs[k] = v
+
+            # Parse Amazon detailBullets feature div
+            bullets = soup.find(id="detailBullets_feature_div") or soup.find(class_="detail-bullet-list")
+            if bullets:
+                for li in bullets.find_all("li"):
+                    line = re.sub(r"[‎‏‪-‮ \s]+", " ", li.get_text()).strip()
+                    if ":" in line:
+                        parts = line.split(":", 1)
+                        k = parts[0].strip().lower()
+                        v = parts[1].strip()
+                        if k and v and len(k) < 60:
+                            specs[k] = v
+
+            extracted["specifications"] = specs
+
+            # Clean text for regex matching (decompose script and navigation elements)
+            for tag in soup(["script", "style", "noscript", "iframe", "header", "footer", "nav", "aside"]):
+                tag.decompose()
+            clean_text = re.sub(r"[‎‏‪-‮ ]+", " ", soup.get_text(separator="
+"))
+
+            # ─── 3. PRECISE TITLE EXTRACTION ──────────────────────────────────
             raw_title = ""
-            if soup:
-                h1_tag = soup.find("h1")
-                amz_title = soup.find(id="productTitle")
-                if amz_title:
-                    raw_title = amz_title.get_text().strip()
-                elif h1_tag:
-                    raw_title = h1_tag.get_text().strip()
+            amz_title = soup.find(id="productTitle")
+            if amz_title:
+                raw_title = amz_title.get_text().strip()
+            elif soup.find("h1"):
+                h1_text = soup.find("h1").get_text().strip()
+                if not any(bad in h1_text.lower() for bad in ["adding to cart", "cart", "sign in", "results"]):
+                    raw_title = h1_text
 
             if not raw_title:
-                og_title = (
-                    re.search(r"<meta\s+[^>]*property=['\"]og:title['\"][^>]*content=['\"]([^'\"]+)['\"]", text, re.I)
-                    or re.search(r"<meta\s+[^>]*name=['\"]twitter:title['\"][^>]*content=['\"]([^'\"]+)['\"]", text, re.I)
-                )
-                tag_title = re.search(r"<title>([^<]+)</title>", text, re.I)
-                md_title = re.search(r"^#\s+([^\n\r]+)", text, re.M)
-
-                if og_title:
-                    raw_title = og_title.group(1).strip()
-                elif tag_title:
-                    raw_title = tag_title.group(1).strip()
-                elif md_title:
-                    raw_title = md_title.group(1).strip()
+                og_t = re.search(r"<meta\s+[^>]*property=['"]og:title['"][^>]*content=['"]([^'"]+)['"]", text, re.I)
+                tag_t = re.search(r"<title>([^<]+)</title>", text, re.I)
+                if og_t:
+                    raw_title = og_t.group(1).strip()
+                elif tag_t:
+                    raw_title = tag_t.group(1).strip()
 
             if raw_title:
                 clean_title = raw_title.split("|")[0].split(" : Amazon.in")[0].split(" - Flipkart")[0].strip()
-                clean_lower = clean_title.lower()
-                is_search_header = bool(
-                    re.search(r"^\d+-\d+\s+of\s+", clean_title, re.I)
-                    or "results for" in clean_lower
-                    or "sort by:" in clean_lower
-                    or "featured price" in clean_lower
-                    or "best sellers sort" in clean_lower
-                    or "customer review" in clean_lower
-                )
-                if (
-                    len(clean_title) > 4
-                    and not is_search_header
-                    and not any(gen in clean_lower for gen in GENERIC_TITLES)
-                    and not any(bad in clean_title for bad in ["{", "}", "function", "Object.keys", "window.", "alEvent"])
-                ):
+                if len(clean_title) > 4:
                     extracted["title"] = clean_title
 
-            # 3. Dynamic Brand Extraction
-            brand_m = (
-                re.search(r"(?:Visit the|Brand:)\s+(?:the\s+)?([^\n\r<|]{2,40}?)(?:\s+Store|(?:\s*\|)|(?:\s*<)|\n|$)", text, re.I)
-                or re.search(r"<meta\s+[^>]*property=['\"]product:brand['\"][^>]*content=['\"]([^'\"]+)['\"]", text, re.I)
-            )
-            if brand_m:
-                b_cand = brand_m.group(1).strip().replace("Store", "").strip()
-                if len(b_cand) > 1 and not any(bad in b_cand.lower() for bad in ["amazon", "flipkart", "http", "visit"]):
-                    extracted["brand"] = b_cand
-            elif extracted["title"] != product_meta.get("default_title"):
-                first_words = " ".join(extracted["title"].split()[:2]).rstrip("®™:-")
-                if len(first_words) > 2:
-                    extracted["brand"] = first_words
+            # ─── 4. DYNAMIC BRAND EXTRACTION ──────────────────────────────────
+            for bk in ["brand", "brand name"]:
+                if bk in specs and len(specs[bk]) > 1:
+                    extracted["brand"] = specs[bk]
+                    break
 
-            # 4. Country of Origin extraction
-            origin_m = re.search(
-                r"(?:Country of Origin|Country\/Region of Origin|Origin)\s*[:\-\|]?\s*([A-Za-z\s]+)",
-                clean_text,
-                re.I,
-            )
-            if origin_m:
-                cand_origin = origin_m.group(1).strip().split("\n")[0].strip()
-                cand_clean = cand_origin.lower()
-                for c in VALID_COUNTRIES:
-                    if c == cand_clean or cand_clean.startswith(c):
-                        extracted["country_of_origin"] = c.title()
+            if extracted["brand"] == "Unknown":
+                brand_m = re.search(r"(?:Visit the|Brand:)\s+(?:the\s+)?([^
+<|]{2,40}?)(?:\s+Store|(?:\s*\|)|(?:\s*<)|
+|$)", text, re.I)
+                if brand_m:
+                    b_cand = brand_m.group(1).strip().replace("Store", "").strip()
+                    if len(b_cand) > 1 and not any(bad in b_cand.lower() for bad in ["amazon", "flipkart", "http", "visit"]):
+                        extracted["brand"] = b_cand
+
+            # ─── 5. MANUFACTURER / PACKER EXTRACTION ─────────────────────────
+            mfg_val = ""
+            for mk in ["manufacturer", "packer", "manufactured by", "marketed by", "packed by", "importer"]:
+                if mk in specs and len(specs[mk]) > 2:
+                    mfg_val = specs[mk]
+                    break
+
+            if not mfg_val:
+                mfg_m = re.search(
+                    r"(?:Manufacturer|Manufactured by|Packer|Packed by|Marketed by)\s*[:\-\|]?\s*([^
+]{3,120})",
+                    clean_text,
+                    re.I,
+                )
+                if mfg_m:
+                    m_cand = mfg_m.group(1).strip()
+                    if len(m_cand) > 2 and not any(bad in m_cand.lower() for bad in ["pickup cancellation", "terms of use", "privacy policy", "return policy", "cookie"]):
+                        mfg_val = m_cand
+
+            if mfg_val:
+                extracted["manufacturer"] = mfg_val
+
+            # ─── 6. COUNTRY OF ORIGIN EXTRACTION ──────────────────────────────
+            co_val = ""
+            for ok in ["country of origin", "country/region of origin", "origin"]:
+                if ok in specs and len(specs[ok]) > 1:
+                    cand_spec_origin = specs[ok].strip()
+                    for c in VALID_COUNTRIES:
+                        if c == cand_spec_origin.lower() or cand_spec_origin.lower().startswith(c):
+                            co_val = c.title()
+                            break
+                    if co_val:
                         break
+                    elif len(cand_spec_origin) <= 25:
+                        co_val = cand_spec_origin
 
-            # 5. Net Quantity / Volume extraction
-            net_m = re.search(
-                r"(?:Net Quantity|Net Weight|Net Volume|Item Weight|Net Content|Item Volume)\s*[:\-\|]?\s*([\d\.]+\s*(?:g|gm|kg|ml|l|ltr|litre|litres|liter|liters|count|pieces|piece|pcs|units|unit|pack))",
-                clean_text,
-                re.I,
-            )
-            if net_m:
-                extracted["net_weight"] = net_m.group(1).strip()
+            if not co_val:
+                origin_m = re.search(
+                    r"(?:Country of Origin|Country\/Region of Origin)\s*[:\-\|]?\s*([A-Za-z\s]{2,30})",
+                    clean_text,
+                    re.I,
+                )
+                if origin_m:
+                    cand_origin = origin_m.group(1).strip().split("
+")[0].strip()
+                    cand_clean = cand_origin.lower()
+                    for c in VALID_COUNTRIES:
+                        if c == cand_clean or cand_clean.startswith(c) or f" {c}" in cand_clean:
+                            co_val = c.title()
+                            break
+
+            if not co_val and "country of origin: india" in text.lower():
+                co_val = "India"
+
+            if co_val:
+                extracted["country_of_origin"] = co_val
+
+            # ─── 7. CONSUMER CARE / HELPLINE EXTRACTION ────────────────────────
+            care_val = ""
+            for ck in ["packer contact information", "customer care", "consumer care", "helpline", "customer service", "contact"]:
+                if ck in specs and len(specs[ck]) > 2:
+                    care_val = specs[ck]
+                    break
+
+            if not care_val:
+                care_m = re.search(
+                    r"(?:Customer Care|Consumer Care|Helpline|Toll Free|Packer Contact)\s*[:\-\|]?\s*([^
+]{4,80})",
+                    clean_text,
+                    re.I,
+                )
+                if care_m:
+                    care_val = care_m.group(1).strip()
+
+            if care_val:
+                extracted["customer_care"] = care_val
+
+            # ─── 8. NET QUANTITY / WEIGHT EXTRACTION ──────────────────────────
+            net_val = ""
+            for nk in ["net quantity", "item weight", "net weight", "unit count", "net volume"]:
+                if nk in specs and len(specs[nk]) > 0:
+                    net_val = specs[nk]
+                    break
+
+            if not net_val:
+                net_m = re.search(
+                    r"(?:Net Quantity|Net Weight|Net Volume|Item Weight|Net Content|Item Volume)\s*[:\-\|]?\s*([\d\.]+\s*(?:g|gm|kg|ml|l|ltr|litre|litres|liter|liters|count|pieces|piece|pcs|units|unit|pack))",
+                    clean_text,
+                    re.I,
+                )
+                if net_m:
+                    net_val = net_m.group(1).strip()
+                else:
+                    title_net = re.search(r"([\d\.]+\s*(?:kg|g|gm|ml|l|ltr|litre|litres|count|pieces|pcs|pack))", extracted["title"], re.I)
+                    if title_net:
+                        net_val = title_net.group(1).strip()
+
+            if net_val:
+                extracted["net_weight"] = net_val
+
+            # ─── 9. INGREDIENTS & DIETARY TYPE ────────────────────────────────
+            if "ingredients" in specs:
+                extracted["ingredients"] = [specs["ingredients"]]
             else:
-                title_net = re.search(r"\b([\d\.]+\s*(?:kg|g|gm|ml|l|ltr|litre|litres|count|pieces|pcs|pack))\b", extracted["title"], re.I)
-                if title_net:
-                    extracted["net_weight"] = title_net.group(1).strip()
+                ing_m = re.search(r"Ingredients\s*[:\-\|]?\s*([^
+<]{3,200})", text, re.I)
+                if ing_m:
+                    extracted["ingredients"] = [re.sub(r"<[^>]+>", "", ing_m.group(1)).strip()]
 
-            # 6. Price and MRP extraction
+            for dk in ["diet type", "dietary type", "specialty"]:
+                if dk in specs and len(specs[dk]) > 1:
+                    extracted["dietary_type"] = specs[dk]
+                    break
+
+            # ─── 10. PRICE & MRP EXTRACTION ───────────────────────────────────
             mrp_m = re.search(r"(?:M\.?R\.?P\.?:?|Maximum Retail Price)\s*[:\-\|]?\s*₹?\s*([\d,]+(?:\.\d{2})?)", clean_text, re.I)
             if mrp_m:
                 try:
@@ -1286,41 +1409,21 @@ class EcommerceCrawlerService:
                 except ValueError:
                     pass
 
-            # 7. Manufacturer / Packer extraction
-            mfg_m = re.search(
-                r"(?:Manufacturer|Manufactured by|Packer|Packed by|Marketed by)\s*[:\-\|]?\s*([^\n\r]{10,200})",
-                clean_text,
-                re.I,
-            )
-            if mfg_m:
-                clean_mfg = mfg_m.group(1).strip()
-                clean_mfg = re.sub(r"<[^>]+>", "", clean_mfg).strip()
-                if (
-                    len(clean_mfg) > 10
-                    and not any(bad in clean_mfg.lower() for bad in ["pickup cancellation", "terms of use", "privacy policy", "return policy", "cookie"])
-                ):
-                    extracted["manufacturer"] = clean_mfg
-
-        # ─── MATHEMATICAL STATUTORY USP CALCULATION (DIRECT FROM MRP & NET QUANTITY) ───
-        # Unless product is an intentional test violation (RULE-5-USP), always calculate USP mathematically
+        # ─── MATHEMATICAL STATUTORY USP CALCULATION ───────────────────────────
         is_intentional_usp_violation = "RULE-5-USP" in product_meta.get("known_compliance_issues", [])
         if is_intentional_usp_violation:
             extracted["unit_sale_price"] = ""
         else:
-            # Use MRP directly for mathematical calculation (or listed_price if MRP is 0)
             calc_base_price = extracted["mrp"] if extracted["mrp"] > 0 else extracted["listed_price"]
             math_usp = compute_statutory_usp(calc_base_price, extracted["net_weight"])
             if math_usp:
                 extracted["unit_sale_price"] = math_usp
             elif raw_content:
-                # Fallback to explicit text extraction if math parse failed on non-standard unit
                 scraped_usp = extract_usp_from_text(clean_text) or extract_usp_from_text(text)
                 if scraped_usp:
                     extracted["unit_sale_price"] = scraped_usp
 
-        # Always dynamically infer category from the final product title to prevent mismatch
         extracted["category"] = infer_category(extracted["title"], product_meta.get("default_category", "Packaged Commodities"))
-
         return extracted
 
     # ─── Legal Metrology Statutory Rule Audit ─────────────────────────────────
@@ -1364,7 +1467,7 @@ class EcommerceCrawlerService:
                 "fine_inr": 25000.0,
             })
             compounding_fine_inr += 25000.0
-        elif len(mfg) < 10:
+        elif len(mfg) < 3:
             # Name present but suspiciously short — flag as high warning
             warnings.append({
                 "rule_code": "RULE-6-1-A-NAME",
