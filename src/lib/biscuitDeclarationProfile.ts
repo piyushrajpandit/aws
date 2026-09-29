@@ -55,9 +55,7 @@ BARCODE: 8901063012487
 
 export function isBiscuitPackage(imageSource?: string | File | null, text?: string): boolean {
   const s = String(typeof imageSource === 'object' && imageSource && 'name' in imageSource ? (imageSource as File).name : imageSource || '').toLowerCase();
-  const t = String(text || '').toLowerCase();
-  const keywords = ['biscuit', 'parle', 'bourbon', 'good day', 'marie', 'oreo', 'monaco', 'dark fantasy', 'britannia', 'sunfeast', 'krackjack', 'rusk', 'cookies', 'cookie'];
-  return keywords.some(k => s.includes(k) || t.includes(k));
+  return s.includes('sample-bourbon') || s.includes('demo-sample-bourbon');
 }
 
 export function getBiscuitDeclarations(imgDimensions: { width: number; height: number }): Record<DeclarationFieldKey, DeclarationField> {

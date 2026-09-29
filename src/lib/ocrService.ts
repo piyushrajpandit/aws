@@ -161,9 +161,7 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
           bestRawText = rawText;
         }
 
-        if (isBiscuitPackage(imageSource, rawText)) {
-          return executeRealisticBiscuitScan(imgDimensions, onProgress);
-        }
+
 
         // Fast early-exit: When primary pass extracts text with good confidence, stop!
         if (rawText.length > 20 && confidence > 40) {

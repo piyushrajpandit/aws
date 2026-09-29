@@ -472,7 +472,7 @@ productName, brand, netQuantity, mrp, mrpFound, unitSalePrice, uspFound, manufac
             }
         }
 
-        for model in ["gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.1-flash-lite"]:
+        for model in ["gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash"]:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             try:
                 async with httpx.AsyncClient(timeout=15.0) as client:
