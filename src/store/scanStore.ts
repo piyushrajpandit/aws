@@ -478,7 +478,7 @@ export const useScanStore = create<ScanState>()(
     set({
       isProcessing: true,
       currentProgress: 2,
-      currentStatusMessage: '⚡ Starting Local PaddleOCR PP-OCRv6 engine...',
+      currentStatusMessage: '⚡ Running Cloud OCR engine (Tesseract + OpenCV)...',
       currentScan: initialScanRecord,
       activeAngleIndex: 0,
       hasUnviewedCompletion: false,

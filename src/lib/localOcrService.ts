@@ -87,7 +87,7 @@ function buildOCRResultFromLocalOcr(
       boundingBox: bbox,
       validationStatus: vs(found),
       validationMessage: found
-        ? `${label} detected by local PaddleOCR engine.`
+        ? `${label} detected by Cloud OCR engine.`
         : `${label} not found on this label.`,
       ruleCode,
       ruleDescription: ruleDesc,
@@ -146,7 +146,7 @@ function buildOCRResultFromLocalOcr(
   const passSummaries: OcrPassSummary[] = [
     {
       name: 'paddleocr_ppv6_detection',
-      description: `PaddleOCR PP-OCRv6 Text Detection — ${totalRegions} regions`,
+      description: `Cloud OCR Text Detection (Tesseract + OpenCV) — ${totalRegions} regions`,
       confidence: 94,
       textLength: rawText.length,
     },
@@ -227,7 +227,7 @@ export async function executeLocalOcrScan(
 ): Promise<OCRResult> {
   const endpoint = `${BACKEND_API_URL.replace(/\/$/, '')}/api/v1/scanner/local-ocr`;
 
-  onProgress?.(5, '⚡ Initializing local PaddleOCR PP-OCRv6 engine...');
+  onProgress?.(5, '⚡ Initializing Cloud OCR engine (Tesseract + OpenCV)...');
 
   let response: Response;
   try {
@@ -242,7 +242,7 @@ export async function executeLocalOcrScan(
     );
   }
 
-  onProgress?.(40, '⚡ Running PaddleOCR text detection & spatial reading-order sort...');
+  onProgress?.(40, '⚡ Running text detection & spatial reading-order sort...');
 
   if (!response.ok) {
     let detail = '';
