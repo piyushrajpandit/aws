@@ -6,6 +6,7 @@
 
 const COPILOT_API_URL = '/api/copilot/chat';
 const COPILOT_HEALTH_URL = '/api/copilot/health';
+const CLIENT_GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY || '';
 const CLIENT_GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY || '';
 
 export interface CopilotMessage {
@@ -45,6 +46,58 @@ Key Platform Pages:
 Rules:
 1. Answer queries accurately regarding Indian Legal Metrology laws, mandatory declarations (MRP, Net Qty, Dates, Address with PIN, Customer Care, USP), and platform capabilities.
 2. Keep responses concise, professional, structured, and legally grounded.`;
+
+async function callDirectGroq(message: string, history: any[] = []): Promise<CopilotResponse> {
+  const messages: any[] = [{ role: 'system', content: SYSTEM_INSTRUCTION }];
+
+  for (const h of history) {
+    const role = h.role === 'user' ? 'user' : 'assistant';
+    let text = '';
+    if (typeof h.content === 'string') text = h.content;
+    else if (Array.isArray(h.content)) {
+      text = h.content.map((c: any) => c.text || '').join('\n');
+    }
+    if (text) messages.push({ role, content: text });
+  }
+
+  messages.push({ role: 'user', content: message });
+
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${CLIENT_GROQ_KEY}`,
+    },
+    body: JSON.stringify({
+      model: import.meta.env.VITE_GROQ_MODEL || 'llama-3.3-70b-versatile',
+      messages,
+      temperature: 0.2,
+      max_tokens: 1024,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Groq API Error: ${err}`);
+  }
+
+  const data = await res.json();
+  const rawText = data.choices?.[0]?.message?.content || 'I processed your request.';
+
+  const updatedHistory = [
+    ...history,
+    { role: 'user', content: [{ text: message }] },
+    { role: 'assistant', content: [{ text: rawText }] },
+  ];
+
+  return {
+    response: rawText,
+    type: 'message',
+    history: updatedHistory,
+  };
+}
 
 async function callDirectGemini(message: string, history: any[] = []): Promise<CopilotResponse> {
   const contents = [];
@@ -95,7 +148,7 @@ async function callDirectGemini(message: string, history: any[] = []): Promise<C
 }
 
 /**
- * Send a message to the AI Copilot backend (with seamless Gemini fallback).
+ * Send a message to the AI Copilot backend (with Groq & Gemini fallbacks).
  */
 export async function sendCopilotMessage(
   message: string,
@@ -123,7 +176,10 @@ export async function sendCopilotMessage(
     }
 
     if (!res.ok) {
-      // If backend fails but client Gemini key is available, use client Gemini
+      // Direct client key fallbacks if backend returns error
+      if (CLIENT_GROQ_KEY) {
+        return await callDirectGroq(message, history);
+      }
       if (CLIENT_GEMINI_KEY) {
         return await callDirectGemini(message, history);
       }
@@ -139,13 +195,21 @@ export async function sendCopilotMessage(
   } catch (err: any) {
     clearTimeout(timeoutId);
     
-    // Direct Gemini fallback if backend is offline
+    // Direct Groq / Gemini fallback if backend is offline
+    if (CLIENT_GROQ_KEY) {
+      try {
+        return await callDirectGroq(message, history);
+      } catch (groqErr: any) {
+        console.warn('Direct Groq fallback error:', groqErr);
+      }
+    }
+
     if (CLIENT_GEMINI_KEY) {
       try {
         return await callDirectGemini(message, history);
       } catch (geminiErr: any) {
         return {
-          response: `Gemini Error: ${geminiErr.message}`,
+          response: `AI Error: ${geminiErr.message}`,
           type: 'error',
           history,
         };
@@ -160,7 +224,7 @@ export async function sendCopilotMessage(
       };
     }
     return {
-      response: 'Unable to reach the AI service. Please check that the backend server is running or set VITE_GEMINI_API_KEY.',
+      response: 'Unable to reach the AI service. Please check that the backend server is running or set GROQ_API_KEY.',
       type: 'error',
       history,
     };
@@ -171,7 +235,7 @@ export async function sendCopilotMessage(
  * Check if the AI Copilot service is available.
  */
 export async function checkCopilotHealth(): Promise<boolean> {
-  if (CLIENT_GEMINI_KEY) return true;
+  if (CLIENT_GROQ_KEY || CLIENT_GEMINI_KEY) return true;
   try {
     const res = await fetch(COPILOT_HEALTH_URL, { method: 'GET' });
     if (!res.ok) return false;

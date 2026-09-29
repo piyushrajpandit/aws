@@ -20,6 +20,7 @@ from database import get_db
 import os
 from services.bedrock_service import converse_with_bedrock
 from services.gemini_service import converse_with_gemini
+from services.groq_service import converse_with_groq
 
 
 router = APIRouter(prefix="/api/copilot", tags=["AI Copilot"])
@@ -96,6 +97,7 @@ async def copilot_chat(
     """
     Main AI Copilot chat endpoint.
     Accepts a user message and conversation history, returns the AI response.
+    Prioritizes Groq API -> Gemini API -> Amazon Bedrock.
     """
     # Rate limiting using a hash of the first message as a simple session key
     session_key = hashlib.sha256(
@@ -122,9 +124,17 @@ async def copilot_chat(
         "content": [{"text": user_message}],
     })
 
-    # Check if Google Gemini API key is configured
+    # Provider prioritization: 1. Groq -> 2. Gemini -> 3. Amazon Bedrock
+    groq_key = os.getenv("GROQ_API_KEY")
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-    if gemini_key:
+
+    if groq_key:
+        result = converse_with_groq(
+            messages=messages,
+            db_session=db,
+            api_key=groq_key,
+        )
+    elif gemini_key:
         result = converse_with_gemini(
             messages=messages,
             db_session=db,
@@ -151,6 +161,15 @@ async def copilot_chat(
 @router.get("/health")
 async def copilot_health():
     """Check if the AI Copilot service is available."""
+    groq_key = os.getenv("GROQ_API_KEY")
+    if groq_key:
+        return {
+            "status": "available",
+            "provider": "Groq Cloud",
+            "model": os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+            "service": "SatyaDrishti AI Copilot",
+        }
+
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     if gemini_key:
         return {
