@@ -16,7 +16,6 @@ from api.routes.database_api import router as database_router
 from api.routes.extraction_api import router as extraction_router
 from api.routes.email_api import router as email_router
 from api.routes.crawler_api import router as crawler_router
-from api.routes.copilot_api import router as copilot_router
 from services.ecommerce_crawler_service import crawler_service
 import asyncio
 
@@ -39,9 +38,7 @@ app.add_middleware(
 app.include_router(database_router)
 app.include_router(extraction_router)
 app.include_router(email_router)
-
 app.include_router(crawler_router)
-app.include_router(copilot_router)
 
 
 async def _autonomous_crawler_loop():

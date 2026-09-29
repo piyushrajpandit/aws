@@ -18,7 +18,6 @@ import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 import { PwaInstallPrompt } from './components/ui/PwaInstallPrompt';
 
 import { TechnicalBlogPage } from './pages/TechnicalBlogPage';
-import { AiCopilotWidget } from './components/ai/AiCopilotWidget';
 
 export function App() {
   return (
@@ -55,9 +54,6 @@ export function App() {
 
       {/* PWA Phone Download / Install Prompt Banner & Modal */}
       <PwaInstallPrompt />
-
-      {/* AI Copilot — Floating chat widget (additive, does not affect existing UI) */}
-      <AiCopilotWidget />
     </BrowserRouter>
   );
 }
