@@ -531,3 +531,95 @@ def get_rules_endpoint(
 async def scanner_gemini_vision_endpoint(payload: Dict[str, Any] = Body(...)):
     """Fast Gemini Vision statutory declaration extraction proxy."""
     return await _handler.handle_gemini_vision_proxy(payload)
+
+
+# ─── Local Food Package OCR Engine Endpoint ─────────────────────────────────
+
+@router.post("/scanner/local-ocr")
+async def scanner_local_ocr_endpoint(payload: Dict[str, Any] = Body(...)):
+    """
+    POST /api/v1/scanner/local-ocr
+
+    Runs the local PaddleOCR PP-OCRv6 / Apple Vision food package extraction engine.
+    Accepts base64 dataUrl image, maps extracted fields directly to
+    SatyaDrishti Legal Metrology statutory compliance schema.
+
+    Returns:
+      - success: bool
+      - fields: dict with mrp, netQuantity, manufacturingDate, expiryDate,
+                batchNumber, customerCare, fssaiLicNo, dietaryType, ingredients
+      - raw_text: str (spatial reading order)
+      - latency_ms: float
+      - total_regions: int
+    """
+    import base64
+    import importlib
+    import sys
+    import os
+    import io
+
+    # ── Ensure food_ocr_bridge is importable ──────────────────────────────
+    bridge_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'services')
+    bridge_dir = os.path.abspath(bridge_dir)
+    if bridge_dir not in sys.path:
+        sys.path.insert(0, bridge_dir)
+
+    # Also add food_package_ocr root in case bridge needs it
+    food_ocr_paths = [
+        os.path.expanduser("~/Desktop/food_package_ocr"),
+        "/Users/piyushraj/Desktop/food_package_ocr",
+    ]
+    for fp in food_ocr_paths:
+        if os.path.exists(fp) and fp not in sys.path:
+            sys.path.insert(0, fp)
+
+    try:
+        # Force reload so any hot-path update is picked up
+        if 'food_ocr_bridge' in sys.modules:
+            bridge_mod = sys.modules['food_ocr_bridge']
+        else:
+            import food_ocr_bridge as bridge_mod
+        run_local_packaging_ocr = bridge_mod.run_local_packaging_ocr
+    except ImportError as e:
+        return {
+            "status": "error",
+            "error": f"Local OCR engine not available on this server: {e}",
+            "code": 503,
+        }
+
+    # ── Decode image from base64 dataUrl or raw base64 ───────────────────
+    data_url: str = payload.get("dataUrl") or payload.get("image_base64", "")
+    if not data_url:
+        return {"status": "error", "error": "dataUrl is required", "code": 400}
+
+    if "," in data_url:
+        _, b64_data = data_url.split(",", 1)
+    else:
+        b64_data = data_url
+
+    try:
+        image_bytes: bytes = base64.b64decode(b64_data)
+    except Exception as e:
+        return {"status": "error", "error": f"Invalid base64 image data: {e}", "code": 400}
+
+    # ── Run local OCR engine ─────────────────────────────────────────────
+    try:
+        result = run_local_packaging_ocr(image_bytes)
+    except Exception as e:
+        return {"status": "error", "error": f"Local OCR engine failed: {e}", "code": 500}
+
+    if not result.get("success"):
+        return {
+            "status": "error",
+            "error": result.get("error", "OCR returned no results"),
+            "code": 422,
+        }
+
+    return {
+        "status": "success",
+        "engine": "LocalPaddleOCR-PP-OCRv6",
+        "fields": result.get("fields", {}),
+        "raw_text": result.get("raw_text", ""),
+        "latency_ms": result.get("latency_ms", 0.0),
+        "total_regions": result.get("total_regions", 0),
+    }

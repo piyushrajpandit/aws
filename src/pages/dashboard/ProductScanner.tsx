@@ -16,6 +16,7 @@ import {
   Plus,
   CheckCircle2,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useScanStore } from '../../store/scanStore';
@@ -45,6 +46,7 @@ export const ProductScanner: React.FC = () => {
     uploadedImages,
     isProcessing,
     startScan,
+    startLocalScan,
     clearImages,
     validationResults,
     readabilityResults,
@@ -334,6 +336,17 @@ export const ProductScanner: React.FC = () => {
             >
               <Play className="h-3.5 w-3.5" />
               <span>{isProcessing ? 'Scanning...' : 'Start Scan'}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startLocalScan}
+              isLoading={isProcessing}
+              disabled={isProcessing}
+              className="text-xs gap-1.5 font-semibold min-h-[36px] border-amber-400 text-amber-600 hover:bg-amber-50 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-950"
+            >
+              <Zap className="h-3.5 w-3.5 fill-amber-400" />
+              <span>{isProcessing ? 'Scanning...' : '⚡ Local OCR Engine'}</span>
             </Button>
           </div>
         </div>
