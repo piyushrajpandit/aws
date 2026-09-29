@@ -100,63 +100,6 @@ function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
-/**
- * Downscales and compresses large raw mobile camera photos (often 12-48MP / 15MB)
- * to a lightweight 1600px high-resolution JPEG (~200KB - 300KB).
- * Eliminates mobile browser OOM (Out Of Memory) tab crashes during multi-image parallel scans.
- */
-function optimizeImageFile(file: File): Promise<{ dataUrl: string; size: number }> {
-  return new Promise((resolve) => {
-    if (!file.type.startsWith('image/') || file.type.includes('svg')) {
-      const reader = new FileReader();
-      reader.onload = () => resolve({ dataUrl: reader.result as string, size: file.size });
-      reader.onerror = () => resolve({ dataUrl: '', size: 0 });
-      reader.readAsDataURL(file);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const MAX_DIM = 1600;
-        let w = img.naturalWidth || img.width;
-        let h = img.naturalHeight || img.height;
-
-        if (w > MAX_DIM || h > MAX_DIM) {
-          if (w > h) {
-            h = Math.round((h * MAX_DIM) / w);
-            w = MAX_DIM;
-          } else {
-            w = Math.round((w * MAX_DIM) / h);
-            h = MAX_DIM;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL('image/jpeg', 0.82);
-          const approxBytes = Math.round((compressed.length * 3) / 4);
-          resolve({ dataUrl: compressed, size: approxBytes });
-        } else {
-          resolve({ dataUrl: e.target?.result as string, size: file.size });
-        }
-      };
-      img.onerror = () => resolve({ dataUrl: e.target?.result as string, size: file.size });
-      img.src = e.target?.result as string;
-    };
-    reader.onerror = () => resolve({ dataUrl: '', size: 0 });
-    reader.readAsDataURL(file);
-  });
-}
-
-
 function formatTimestamp(): string {
   return new Intl.DateTimeFormat('en-IN', {
     day: '2-digit',
@@ -167,34 +110,6 @@ function formatTimestamp(): string {
     second: '2-digit',
     hour12: false,
   }).format(new Date());
-}
-
-/**
- * Executes asynchronous tasks in parallel with a bounded concurrency pool.
- * Preserves the exact array index order of results while processing images simultaneously.
- */
-async function runParallelPool<T, R>(
-  items: T[],
-  concurrency: number,
-  fn: (item: T, index: number) => Promise<R>
-): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let nextIndex = 0;
-
-  async function worker() {
-    while (nextIndex < items.length) {
-      const idx = nextIndex++;
-      results[idx] = await fn(items[idx], idx);
-    }
-  }
-
-  const workers = Array.from(
-    { length: Math.min(concurrency, items.length) },
-    () => worker()
-  );
-
-  await Promise.all(workers);
-  return results;
 }
 
 export const useScanStore = create<ScanState>()(
@@ -235,7 +150,7 @@ export const useScanStore = create<ScanState>()(
 
     for (let i = 0; i < validFiles.length; i++) {
       const file = validFiles[i];
-      const { dataUrl, size } = await optimizeImageFile(file);
+      const dataUrl = await fileToDataUrl(file);
       const angleIndex = currentImages.length + i;
       const angleLabel = DEFAULT_ANGLE_LABELS[angleIndex] || `Angle ${angleIndex + 1}`;
 
@@ -243,7 +158,7 @@ export const useScanStore = create<ScanState>()(
         id: generateId(),
         file,
         name: file.name,
-        size,
+        size: file.size,
         dataUrl,
         addedAt: Date.now(),
         angleLabel,
@@ -326,95 +241,74 @@ export const useScanStore = create<ScanState>()(
     });
 
     try {
-      set({
-        currentProgress: 5,
-        currentStatusMessage: isMultiAngle
-          ? `Scanning ${totalImages} photos in parallel with Gemini Vision...`
-          : 'Analyzing product packaging with Gemini Vision...',
-      });
+      const angles: ScanAngle[] = [];
 
-      const progressPerImage = new Array(totalImages).fill(0);
-      let completedCount = 0;
-      const PARALLEL_CONCURRENCY = Math.min(2, totalImages);
+      // Process each image as an angle of the same product
+      for (let i = 0; i < totalImages; i++) {
+        const image = uploadedImages[i];
+        const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Angle ${i + 1}`;
+        const baseProgress = (i / totalImages) * 85;
 
-      // Process all images in parallel using bounded concurrency pool
-      const angles: ScanAngle[] = await runParallelPool(
-        uploadedImages,
-        PARALLEL_CONCURRENCY,
-        async (image, i) => {
-          const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Angle ${i + 1}`;
+        set({
+          currentProgress: Math.round(baseProgress),
+          currentStatusMessage: isMultiAngle
+            ? `Analyzing ${angleLabel} (${i + 1}/${totalImages}): ${image.name}...`
+            : 'Analyzing product packaging...',
+        });
 
-          // Run OCR / Gemini Vision on this angle
-          const ocrResult = await ocrService.recognize(
-            image.dataUrl,
-            (angleProgress, angleStatus) => {
-              progressPerImage[i] = angleProgress;
-              const aggregateProgress = Math.round(
-                (progressPerImage.reduce((sum, p) => sum + p, 0) / totalImages) * 0.85
-              );
-              set({
-                currentProgress: Math.min(88, Math.max(5, aggregateProgress)),
-                currentStatusMessage: isMultiAngle
-                  ? `Parallel Scan (${completedCount}/${totalImages} done) — [${angleLabel}]: ${angleStatus}`
-                  : angleStatus,
-              });
-            }
-          );
-
-          // Readability analysis for this angle
-          let angleReadability: ReadabilityAnalysisResult | undefined = undefined;
-          try {
-            angleReadability = await readabilityService.analyze(
-              `${scanId}-angle-${i + 1}`,
-              image.dataUrl,
-              ocrResult.extractedData,
-              ocrResult.extractedData.imageDimensions || { width: 1000, height: 800 }
+        // Run OCR on this specific angle
+        const ocrResult = await ocrService.recognize(
+          image.dataUrl,
+          (angleProgress, angleStatus) => {
+            const compositeProgress = Math.round(
+              baseProgress + (angleProgress / 100) * (85 / totalImages)
             );
-          } catch {
-            // ignore readability errors for sub-angles
-          }
-
-          completedCount++;
-          progressPerImage[i] = 100;
-          const aggregateProgress = Math.round(
-            (progressPerImage.reduce((sum, p) => sum + p, 0) / totalImages) * 0.85
-          );
-
-          const angleRecord: ScanAngle = {
-            id: `${scanId}-angle-${i + 1}`,
-            angleIndex: i + 1,
-            label: angleLabel,
-            imageName: image.name,
-            imageDataUrl: image.dataUrl,
-            extractedData: ocrResult.extractedData,
-            confidence: ocrResult.confidence,
-            rawText: ocrResult.rawText,
-            readabilityResult: angleReadability,
-          };
-
-          // Incrementally update currentScan with completed angles in real time
-          set((state) => {
-            const currentAngles = state.currentScan?.angles || [];
-            const updatedAngles = [...currentAngles.filter((a) => a.id !== angleRecord.id), angleRecord]
-              .sort((a, b) => a.angleIndex - b.angleIndex);
-
-            return {
-              currentProgress: Math.min(88, aggregateProgress),
+            set({
+              currentProgress: Math.min(88, compositeProgress),
               currentStatusMessage: isMultiAngle
-                ? `Scanned ${completedCount}/${totalImages} photos in parallel...`
-                : 'Packaging analysis complete...',
-              currentScan: state.currentScan
-                ? {
-                    ...state.currentScan,
-                    angles: updatedAngles,
-                  }
-                : null,
-            };
-          });
+                ? `[${angleLabel}] ${angleStatus}`
+                : angleStatus,
+            });
+          }
+        );
 
-          return angleRecord;
+        // Readability analysis for this angle
+        let angleReadability: ReadabilityAnalysisResult | undefined = undefined;
+        try {
+          angleReadability = await readabilityService.analyze(
+            `${scanId}-angle-${i + 1}`,
+            image.dataUrl,
+            ocrResult.extractedData,
+            ocrResult.extractedData.imageDimensions || { width: 1000, height: 800 }
+          );
+        } catch {
+          // ignore readability errors for sub-angles
         }
-      );
+
+        const angleRecord: ScanAngle = {
+          id: `${scanId}-angle-${i + 1}`,
+          angleIndex: i + 1,
+          label: angleLabel,
+          imageName: image.name,
+          imageDataUrl: image.dataUrl,
+          extractedData: ocrResult.extractedData,
+          confidence: ocrResult.confidence,
+          rawText: ocrResult.rawText,
+          readabilityResult: angleReadability,
+        };
+
+        angles.push(angleRecord);
+
+        // Update ongoing scan record with accumulated angles
+        set((state) => ({
+          currentScan: state.currentScan
+            ? {
+                ...state.currentScan,
+                angles: [...angles],
+              }
+            : null,
+        }));
+      }
 
       // Step 2: Consolidate all angles into a single master product declaration
       set({
