@@ -130,7 +130,7 @@ export const ImageUploader: React.FC = () => {
             </p>
           </div>
 
-          {/* Dedicated Action Buttons (Native Labels to guarantee direct OS camera invocation) */}
+          {/* Dedicated Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto pt-2">
             <label
               htmlFor="scanner-camera-capture"
@@ -140,17 +140,17 @@ export const ImageUploader: React.FC = () => {
               )}
             >
               <Camera className="h-4 w-4 shrink-0" />
-              <span>Take Photo (Back Camera)</span>
+              <span>Click Photo</span>
             </label>
 
             <label
               htmlFor="scanner-file-browse"
               className={cn(
-                'w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-xs cursor-pointer transition-all active:scale-95 select-none min-h-[42px]'
+                'w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 shadow-xs cursor-pointer transition-all active:scale-95 select-none min-h-[42px]'
               )}
             >
-              <Upload className="h-4 w-4 shrink-0 text-slate-500" />
-              <span>Browse Files</span>
+              <Upload className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+              <span>Upload Photo</span>
             </label>
           </div>
         </div>
