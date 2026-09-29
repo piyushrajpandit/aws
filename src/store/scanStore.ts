@@ -391,8 +391,8 @@ export const useScanStore = create<ScanState>((set, get) => ({
         currentScan: completedScan,
         currentProgress: 100,
         currentStatusMessage: isMultiAngle
-          ? `Multi-Angle Analysis Complete (${totalImages} angles compiled) — Score: ${masterReadability.summary.overallScore}/100. ${correlationResult.summary.totalDiscrepancies} discrepancy(s) mapped.`
-          : `Extraction & Readability complete — Score: ${masterReadability.summary.overallScore}/100. ${correlationResult.summary.totalDiscrepancies} packaging discrepancy(s) mapped.`,
+          ? `Multi-Angle Analysis Complete (${totalImages} angles compiled) — Compliance: ${validationResult.complianceScore}/100 (Readability: ${masterReadability.summary.overallScore}%). ${correlationResult.summary.totalDiscrepancies} discrepancy(s) mapped.`
+          : `Extraction & Validation complete — Compliance: ${validationResult.complianceScore}/100 (Readability: ${masterReadability.summary.overallScore}%). ${correlationResult.summary.totalDiscrepancies} discrepancy(s) mapped.`,
         validationResults: {
           ...state.validationResults,
           [completedScan.id]: validationResult,
