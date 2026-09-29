@@ -41,13 +41,18 @@ function imageToCanvas(
   scale: number = 1
 ): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(img.naturalWidth * scale);
-  canvas.height = Math.round(img.naturalHeight * scale);
-  const ctx = canvas.getContext('2d')!;
-  if (scale !== 1) {
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-  }
+  const MAX_DIM = 1280;
+  const naturalW = img.naturalWidth || img.width || 1280;
+  const naturalH = img.naturalHeight || img.height || 960;
+  const maxSide = Math.max(naturalW, naturalH);
+  const autoScale = maxSide > MAX_DIM ? MAX_DIM / maxSide : 1;
+  const finalScale = scale * autoScale;
+
+  canvas.width = Math.max(100, Math.round(naturalW * finalScale));
+  canvas.height = Math.max(100, Math.round(naturalH * finalScale));
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   return { canvas, ctx };
 }
@@ -241,89 +246,28 @@ export async function preprocessImage(imageSource: string): Promise<Preprocessin
   const height = img.naturalHeight || img.height;
   const variants: PreprocessedVariant[] = [];
 
-  // 1. Original (no processing)
-  variants.push({
-    name: 'original',
-    dataUrl: imageSource,
-    description: 'Original image',
-    scale: 1,
-  });
-
-  // 2. Grayscale + Contrast Enhancement
+  // 1. High-Contrast Primary Variant (Optimized for Fast & Accurate OCR)
   {
     const { canvas, ctx } = imageToCanvas(img, 1);
     let pixels = getPixels(ctx, canvas.width, canvas.height);
     pixels = grayscale(pixels);
-    pixels = enhanceContrast(pixels, 1.6);
+    pixels = enhanceContrast(pixels, 1.5);
     putPixels(ctx, pixels);
     variants.push({
       name: 'high_contrast',
-      dataUrl: canvas.toDataURL('image/png'),
+      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
       description: 'Grayscale + high contrast',
       scale: 1,
     });
   }
 
-  // 3. Sharpened
-  {
-    const { canvas, ctx } = imageToCanvas(img, 1);
-    let pixels = getPixels(ctx, canvas.width, canvas.height);
-    pixels = grayscale(pixels);
-    pixels = sharpen(pixels, canvas.width);
-    putPixels(ctx, pixels);
-    variants.push({
-      name: 'sharpened',
-      dataUrl: canvas.toDataURL('image/png'),
-      description: 'Grayscale + sharpened text edges',
-      scale: 1,
-    });
-  }
-
-  // 4. Denoised
-  {
-    const { canvas, ctx } = imageToCanvas(img, 1);
-    let pixels = getPixels(ctx, canvas.width, canvas.height);
-    pixels = grayscale(pixels);
-    pixels = medianDenoise(pixels, canvas.width);
-    pixels = enhanceContrast(pixels, 1.3);
-    putPixels(ctx, pixels);
-    variants.push({
-      name: 'denoised',
-      dataUrl: canvas.toDataURL('image/png'),
-      description: 'Denoised + contrast',
-      scale: 1,
-    });
-  }
-
-  // 5. Adaptive Threshold
-  {
-    const { canvas, ctx } = imageToCanvas(img, 1);
-    let pixels = getPixels(ctx, canvas.width, canvas.height);
-    pixels = adaptiveThreshold(pixels, canvas.width, 15, 8);
-    putPixels(ctx, pixels);
-    variants.push({
-      name: 'adaptive_threshold',
-      dataUrl: canvas.toDataURL('image/png'),
-      description: 'Binary text via adaptive threshold',
-      scale: 1,
-    });
-  }
-
-  // 6. Upscaled 2× (for small text)
-  {
-    const { canvas, ctx } = imageToCanvas(img, 2);
-    let pixels = getPixels(ctx, canvas.width, canvas.height);
-    pixels = grayscale(pixels);
-    pixels = enhanceContrast(pixels, 1.4);
-    pixels = sharpen(pixels, canvas.width);
-    putPixels(ctx, pixels);
-    variants.push({
-      name: 'upscaled_2x',
-      dataUrl: canvas.toDataURL('image/png'),
-      description: '2× upscaled + grayscale + enhanced',
-      scale: 2,
-    });
-  }
+  // 2. Original reference
+  variants.push({
+    name: 'original',
+    dataUrl: imageSource,
+    description: 'Original packaging image',
+    scale: 1,
+  });
 
   return {
     variants,
