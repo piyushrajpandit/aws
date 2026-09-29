@@ -280,7 +280,7 @@ export const LiveProductCapture: React.FC = () => {
                 className="text-xs sm:text-sm gap-1.5 min-h-[42px] px-4 w-full sm:w-auto border-amber-400 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-950/40 font-semibold"
               >
                 <Zap className="h-4 w-4 fill-amber-500 text-amber-500" />
-                <span>⚡ Snap & Run Local OCR</span>
+                <span>⚡ Snap & Run OCR</span>
               </Button>
 
               <Button
@@ -395,7 +395,7 @@ export const LiveProductCapture: React.FC = () => {
                 aria-label="Snap and scan with Local OCR"
               >
                 <Zap className="h-4 w-4 fill-white text-white" />
-                <span>⚡ Snap & Run Local OCR</span>
+                <span>⚡ Snap & Run OCR</span>
               </button>
 
               {/* Instant Gemini Scan */}
