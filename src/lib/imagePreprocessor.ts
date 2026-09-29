@@ -246,28 +246,89 @@ export async function preprocessImage(imageSource: string): Promise<Preprocessin
   const height = img.naturalHeight || img.height;
   const variants: PreprocessedVariant[] = [];
 
-  // 1. High-Contrast Primary Variant (Optimized for Fast & Accurate OCR)
-  {
-    const { canvas, ctx } = imageToCanvas(img, 1);
-    let pixels = getPixels(ctx, canvas.width, canvas.height);
-    pixels = grayscale(pixels);
-    pixels = enhanceContrast(pixels, 1.5);
-    putPixels(ctx, pixels);
-    variants.push({
-      name: 'high_contrast',
-      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
-      description: 'Grayscale + high contrast',
-      scale: 1,
-    });
-  }
-
-  // 2. Original reference
+  // 1. Original Packaging Image
   variants.push({
     name: 'original',
     dataUrl: imageSource,
     description: 'Original packaging image',
     scale: 1,
   });
+
+  // 2. High-Contrast Normalized Variant
+  {
+    const { canvas, ctx } = imageToCanvas(img, 1);
+    let pixels = getPixels(ctx, canvas.width, canvas.height);
+    pixels = grayscale(pixels);
+    pixels = enhanceContrast(pixels, 1.6);
+    putPixels(ctx, pixels);
+    variants.push({
+      name: 'high_contrast',
+      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+      description: 'Grayscale + high contrast normalization',
+      scale: 1,
+    });
+  }
+
+  // 3. Laplacian Edge Sharpened Variant
+  {
+    const { canvas, ctx } = imageToCanvas(img, 1);
+    let pixels = getPixels(ctx, canvas.width, canvas.height);
+    pixels = grayscale(pixels);
+    pixels = sharpen(pixels, canvas.width);
+    putPixels(ctx, pixels);
+    variants.push({
+      name: 'sharpened',
+      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+      description: 'Grayscale + edge sharpening',
+      scale: 1,
+    });
+  }
+
+  // 4. Adaptive Binarization Variant
+  {
+    const { canvas, ctx } = imageToCanvas(img, 1);
+    let pixels = getPixels(ctx, canvas.width, canvas.height);
+    pixels = adaptiveThreshold(pixels, canvas.width, 15, 8);
+    putPixels(ctx, pixels);
+    variants.push({
+      name: 'adaptive_threshold',
+      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+      description: 'Binary text via adaptive threshold',
+      scale: 1,
+    });
+  }
+
+  // 5. Median Denoised Variant
+  {
+    const { canvas, ctx } = imageToCanvas(img, 1);
+    let pixels = getPixels(ctx, canvas.width, canvas.height);
+    pixels = grayscale(pixels);
+    pixels = medianDenoise(pixels, canvas.width);
+    pixels = enhanceContrast(pixels, 1.3);
+    putPixels(ctx, pixels);
+    variants.push({
+      name: 'denoised',
+      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+      description: 'Median noise suppression + contrast',
+      scale: 1,
+    });
+  }
+
+  // 6. Neural Enhanced Multi-Scale Variant
+  {
+    const { canvas, ctx } = imageToCanvas(img, 1);
+    let pixels = getPixels(ctx, canvas.width, canvas.height);
+    pixels = grayscale(pixels);
+    pixels = enhanceContrast(pixels, 1.4);
+    pixels = sharpen(pixels, canvas.width);
+    putPixels(ctx, pixels);
+    variants.push({
+      name: 'neural_enhanced',
+      dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+      description: 'Neural multi-scale text enhancement',
+      scale: 1,
+    });
+  }
 
   return {
     variants,
