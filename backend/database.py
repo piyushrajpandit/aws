@@ -26,13 +26,14 @@ if DATABASE_URL:
 is_sqlite = DATABASE_URL.startswith("sqlite")
 
 try:
+    connect_args = {"check_same_thread": False} if is_sqlite else {"connect_timeout": 3}
     engine = create_engine(
         DATABASE_URL,
         pool_pre_ping=True,
         echo=False,
-        connect_args={"check_same_thread": False} if is_sqlite else {}
+        connect_args=connect_args
     )
-    # Test connection
+    # Test connection with 3-second timeout
     with engine.connect() as conn:
         pass
 except Exception as e:

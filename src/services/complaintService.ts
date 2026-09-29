@@ -5,7 +5,7 @@
 
 import { Complaint, OfficerActionType } from '../types/compliance';
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'https://satyadrishti-backend-v2.onrender.com';
 
 export interface BackendComplaintPayload {
   id?: string;

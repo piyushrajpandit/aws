@@ -48,7 +48,7 @@ export interface SendEmailResult {
   error?: string;
 }
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'https://satyadrishti-backend-v2.onrender.com';
 
 /**
  * Dispatches Show Cause Notice email securely via FastAPI backend API.

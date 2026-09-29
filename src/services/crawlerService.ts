@@ -109,7 +109,7 @@ export interface CrawlerLogEntry {
   details?: Record<string, any>;
 }
 
-const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BACKEND_BASE_URL = import.meta.env.VITE_API_URL || 'https://satyadrishti-backend-v2.onrender.com';
 
 export const generatePlatformSku = (platform: string, seedNum?: number): string => {
   const p = platform.toLowerCase();

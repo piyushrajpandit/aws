@@ -156,7 +156,7 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
 
       // Call backend LLM text extractor (/api/v1/extract) to parse missing fields from noisy OCR text
       if (bestRawText && bestRawText.trim().length > 10) {
-        const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const apiBase = import.meta.env.VITE_API_URL || 'https://satyadrishti-backend-v2.onrender.com';
         const endpoints = [
           `${apiBase}/api/v1/extract`,
         ];
@@ -545,7 +545,7 @@ class OCRService {
   private provider: OCRProvider;
 
   constructor() {
-    this.provider = new HybridVisionBackendProvider(import.meta.env.VITE_API_URL || 'http://localhost:8000');
+    this.provider = new HybridVisionBackendProvider(import.meta.env.VITE_API_URL || 'https://satyadrishti-backend-v2.onrender.com');
   }
 
   /** Swap the OCR provider (e.g. to Google Vision, AWS Textract, or Azure OCR) */
