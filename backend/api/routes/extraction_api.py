@@ -426,6 +426,66 @@ class ExtractionAPIHandler:
             "audit_report": audit_report,
         }
 
+    async def handle_gemini_vision_proxy(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        POST /api/v1/scanner/gemini-vision
+        Securely proxies image data to Google Gemini Vision using server-side GEMINI_VISION_API_KEY.
+        """
+        import os, json, httpx
+        data_url = payload.get("dataUrl") or payload.get("image_base64", "")
+        if not data_url:
+            return {"error": "dataUrl is required", "status": 400}
+
+        # Extract base64 and mime
+        if "," in data_url:
+            header, b64_data = data_url.split(",", 1)
+            mime_type = "image/jpeg"
+            if "png" in header: mime_type = "image/png"
+            elif "webp" in header: mime_type = "image/webp"
+        else:
+            b64_data = data_url
+            mime_type = "image/jpeg"
+
+        api_key = os.getenv("GEMINI_VISION_API_KEY") or os.getenv("GEMINI_API_KEY", "").strip()
+        if not api_key:
+            return {"error": "GEMINI_VISION_API_KEY not configured on server", "status": 500}
+
+        prompt = """You are an official Legal Metrology Compliance Officer under the Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011 (Rule 6).
+Analyze this packaged product photo very carefully and extract all statutory declarations.
+If MRP or Customer Care telephone/email or Net Qty is missing, set its value to null and its Found flag to false. Do not hallucinate.
+
+Return valid JSON with keys:
+productName, brand, netQuantity, mrp, mrpFound, unitSalePrice, uspFound, manufacturer, address, mfgFound, customerCare, careFound, countryOfOrigin, originFound, manufacturingDate, expiryDate, batchNumber, barcode, rawDetectedText."""
+
+        gemini_payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt},
+                        {"inline_data": {"mime_type": mime_type, "data": b64_data}}
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.1,
+                "response_mime_type": "application/json"
+            }
+        }
+
+        for model in ["gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.1-flash-lite"]:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.post(url, json=gemini_payload)
+                    if resp.status_code == 200:
+                        res_json = resp.json()
+                        text_part = res_json["candidates"][0]["content"]["parts"][0]["text"]
+                        return {"status": "success", "data": json.loads(text_part)}
+            except Exception:
+                continue
+
+        return {"error": "Gemini Vision analysis failed", "status": 502}
+
 
 # ─── FastAPI Router Endpoints ───────────────────────────────────────────────
 
@@ -466,3 +526,8 @@ def get_rules_endpoint(
     return _handler.handle_get_rules(category=category, active_only=active_only, severity=severity)
 
 
+
+@router.post("/scanner/gemini-vision")
+async def scanner_gemini_vision_endpoint(payload: Dict[str, Any] = Body(...)):
+    """Fast Gemini Vision statutory declaration extraction proxy."""
+    return await _handler.handle_gemini_vision_proxy(payload)
