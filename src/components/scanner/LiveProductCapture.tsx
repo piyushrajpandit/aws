@@ -302,6 +302,7 @@ export const LiveProductCapture: React.FC = () => {
                       onClick={handleToggleTorch}
                       className="p-2 rounded-full bg-black/60 backdrop-blur-xs hover:bg-black/80 text-white transition-all"
                       title={isTorchOn ? 'Turn Flash Off' : 'Turn Flash On'}
+                      aria-label={isTorchOn ? 'Turn Flash Off' : 'Turn Flash On'}
                     >
                       {isTorchOn ? (
                         <Flashlight className="h-4 w-4 text-amber-400" />
@@ -316,6 +317,7 @@ export const LiveProductCapture: React.FC = () => {
                     onClick={handleToggleFacingMode}
                     className="p-2 rounded-full bg-black/60 backdrop-blur-xs hover:bg-black/80 text-white transition-all"
                     title="Flip Camera (Rear/Front)"
+                    aria-label="Flip Camera"
                   >
                     <SwitchCamera className="h-4 w-4 text-white" />
                   </button>
