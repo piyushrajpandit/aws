@@ -66,10 +66,10 @@ export const DashboardLayout: React.FC = () => {
         onCloseMobile={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* Main Content Area — Responsive Left Inset (0 on mobile, 64/18 on lg+) */}
+      {/* Main Content Area — Responsive Left Inset (72px when collapsed mini-rail, 64 (256px) when pinned expanded) */}
       <div
         className={`transition-all duration-300 flex flex-col min-h-screen relative z-10 pl-0 ${
-          isSidebarCollapsed ? 'lg:pl-18' : 'lg:pl-64'
+          isSidebarCollapsed ? 'lg:pl-[72px]' : 'lg:pl-64'
         }`}
       >
         {/* Topbar */}

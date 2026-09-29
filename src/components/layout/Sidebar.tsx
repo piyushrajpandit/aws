@@ -39,6 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [isHovered, setIsHovered] = React.useState(false);
+
   // Auto-close mobile drawer when route changes
   useEffect(() => {
     if (isMobileOpen && onCloseMobile) {
@@ -137,6 +139,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     navigate('/login');
   };
 
+  const isExpanded = !isCollapsed || (isCollapsed && isHovered) || isMobileOpen;
+
   return (
     <>
       {/* Mobile Backdrop Overlay */}
@@ -150,67 +154,90 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar / Off-canvas Drawer */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-50 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col justify-between ${
-          isMobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
-        } ${isCollapsed ? 'lg:w-18' : 'w-72 lg:w-64'}`}
+        onMouseEnter={() => {
+          if (isCollapsed) setIsHovered(true);
+        }}
+        onMouseLeave={() => {
+          if (isCollapsed) setIsHovered(false);
+        }}
+        className={`fixed top-0 left-0 bottom-0 z-50 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-in-out flex flex-col justify-between ${
+          isMobileOpen
+            ? 'translate-x-0 shadow-2xl w-72'
+            : isCollapsed
+            ? isHovered
+              ? 'translate-x-0 w-64 shadow-2xl ring-1 ring-black/5 dark:ring-white/10'
+              : '-translate-x-full lg:translate-x-0 lg:w-[72px]'
+            : 'translate-x-0 w-72 lg:w-64'
+        }`}
       >
         {/* Top Header */}
         <div className="overflow-y-auto flex-1 scrollbar-thin">
-          <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80">
-            {(!isCollapsed || isMobileOpen) && (
-              <div className="flex items-center gap-3">
-                <div>
-                  <div className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+          <div className={`h-16 px-3 flex items-center border-b border-slate-200 dark:border-slate-800/80 ${
+            isExpanded ? 'justify-between px-4' : 'justify-center'
+          }`}>
+            {isExpanded ? (
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className={`h-9 w-9 shrink-0 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-xs ${
+                    userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
+                  }`}
+                >
+                  S
+                </div>
+                <div className="min-w-0">
+                  <div className="text-base font-bold text-slate-900 dark:text-white tracking-tight truncate flex items-center gap-1.5">
                     <span>SatyaDrishti</span>
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider">
-                    {userRole === 'consumer'
-                      ? 'Consumer Portal'
-                      : 'Compliance Intel'}
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider truncate">
+                    {userRole === 'consumer' ? 'Consumer Portal' : 'Compliance Intel'}
                   </div>
                 </div>
               </div>
-            )}
-
-            {isCollapsed && !isMobileOpen && (
-              <div
-                className={`mx-auto h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
-                  userRole === 'consumer'
-                    ? 'bg-emerald-600'
-                    : 'bg-blue-600'
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(false)}
+                title="Expand Navigation Menu"
+                className={`h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-xs hover:opacity-90 transition-opacity ${
+                  userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
                 }`}
               >
                 S
-              </div>
+              </button>
             )}
 
             {/* Mobile Close Button (<lg) */}
-            <div className="flex items-center gap-1">
-              {isMobileOpen && (
-                <button
-                  type="button"
-                  onClick={onCloseMobile}
-                  className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  aria-label="Close navigation drawer"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              )}
-
-              {/* Desktop Collapse Toggle (lg+) */}
+            {isMobileOpen && (
               <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="hidden lg:flex p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-                aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+                type="button"
+                onClick={onCloseMobile}
+                className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Close navigation drawer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+
+            {/* Desktop Collapse / Pin Toggle (lg+) */}
+            {isExpanded && (
+              <button
+                type="button"
+                onClick={() => {
+                  const nextState = !isCollapsed;
+                  setIsCollapsed(nextState);
+                  setIsHovered(false);
+                }}
+                className="hidden lg:flex p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title={isCollapsed ? 'Pin Sidebar Open' : 'Collapse Sidebar to Mini Rail'}
+                aria-label={isCollapsed ? 'Pin Sidebar Open' : 'Collapse Sidebar'}
               >
                 {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               </button>
-            </div>
+            )}
           </div>
 
           {/* User Role Card */}
-          {(!isCollapsed || isMobileOpen) && user && (
+          {isExpanded && user && (
             <div className="p-3.5 m-3 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user.name}</div>
@@ -220,7 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {/* Navigation Items */}
-          <nav className="p-3 space-y-1 text-xs font-medium">
+          <nav className={`p-3 space-y-1.5 text-xs font-medium ${!isExpanded ? 'px-2' : ''}`}>
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -232,21 +259,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     if (onCloseMobile) onCloseMobile();
                   }}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors min-h-[44px] ${
+                    `flex items-center rounded-xl transition-all duration-200 min-h-[44px] ${
+                      isExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center p-2.5'
+                    } ${
                       isActive
-                        ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                        ? 'bg-blue-600 text-white font-semibold shadow-sm'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
-                    } ${isCollapsed && !isMobileOpen ? 'justify-center px-2' : ''}`
+                    }`
                   }
-                  title={isCollapsed && !isMobileOpen ? item.label : undefined}
+                  title={!isExpanded ? item.label : undefined}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {(!isCollapsed || isMobileOpen) && (
-                    <div className="flex-1 flex items-center justify-between">
+                  <Icon className="h-5 w-5 shrink-0" />
+                  {isExpanded && (
+                    <div className="flex-1 flex items-center justify-between min-w-0">
                       <span className="truncate">{item.label}</span>
                       {item.badge && (
                         <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-semibold shrink-0 ml-1.5 ${
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold shrink-0 ml-1.5 ${
                             item.badgeVariant === 'danger'
                               ? 'bg-red-500/20 text-red-400 border border-red-500/40'
                               : item.badgeVariant === 'warning'
@@ -266,30 +295,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Bottom Section */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-2 shrink-0">
+        <div className={`p-3 border-t border-slate-200 dark:border-slate-800 space-y-1.5 shrink-0 ${!isExpanded ? 'px-2' : ''}`}>
           <NavLink
             to="/"
             onClick={() => {
               if (onCloseMobile) onCloseMobile();
             }}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs min-h-[44px] ${
-              isCollapsed && !isMobileOpen ? 'justify-center px-2' : ''
+            className={`flex items-center rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs transition-colors min-h-[44px] ${
+              isExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center p-2.5'
             }`}
-            title="Public Portal"
+            title={!isExpanded ? 'Public Portal' : undefined}
           >
-            <ExternalLink className="h-4 w-4 shrink-0 text-slate-400" />
-            {(!isCollapsed || isMobileOpen) && <span>Public Portal</span>}
+            <ExternalLink className="h-5 w-5 shrink-0 text-slate-400" />
+            {isExpanded && <span className="truncate">Public Portal</span>}
           </NavLink>
 
           <button
+            type="button"
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-300 text-xs transition-colors min-h-[44px] ${
-              isCollapsed && !isMobileOpen ? 'justify-center px-2' : ''
+            className={`w-full flex items-center rounded-xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-300 text-xs transition-colors min-h-[44px] ${
+              isExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center p-2.5'
             }`}
-            title="Logout"
+            title={!isExpanded ? 'Sign Out' : undefined}
           >
-            <LogOut className="h-4 w-4 shrink-0" />
-            {(!isCollapsed || isMobileOpen) && <span>Sign Out</span>}
+            <LogOut className="h-5 w-5 shrink-0" />
+            {isExpanded && <span className="truncate">Sign Out</span>}
           </button>
         </div>
       </aside>
