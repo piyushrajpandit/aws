@@ -935,12 +935,10 @@ class EcommerceCrawlerService:
                     mrp=float(prod_data.get("mrp", 0.0)),
                     listed_price=float(prod_data.get("listed_price", 0.0)),
                     net_weight=prod_data.get("net_weight", ""),
-                    mfg_date=prod_data.get("mfg_date", ""),
                     country_of_origin=prod_data.get("country_of_origin", "India"),
                     customer_care_contact=prod_data.get("customer_care", ""),
                     status=status,
                     compliance_score=score,
-                    violations_count=violations_count,
                     ocr_confidence=98 if inspected_record.get("is_live") else 90,
                     missing_mandatory_fields=[v.get("title") for v in audit_data.get("violations", [])],
                     regulatory_acts=["Legal Metrology Act, 2009", "Legal Metrology (Packaged Commodities) Rules, 2011"],
@@ -950,7 +948,6 @@ class EcommerceCrawlerService:
             else:
                 existing_prod.status = status
                 existing_prod.compliance_score = score
-                existing_prod.violations_count = violations_count
                 db.flush()
 
             # Insert new violations if any
@@ -964,7 +961,7 @@ class EcommerceCrawlerService:
                         product_id=prod_id,
                         product_name=prod_data.get("title", ""),
                         brand=prod_data.get("brand", ""),
-                        manufacturer_name=prod_data.get("manufacturer") or "Seller of Record",
+                        manufacturer=prod_data.get("manufacturer") or "Seller of Record",
                         platform=prod_data.get("platform", "Amazon"),
                         rule_code=v.get("rule_code", "RULE-6-1"),
                         act_name=v.get("act", "Legal Metrology Act, 2009"),
@@ -972,8 +969,10 @@ class EcommerceCrawlerService:
                         description=v.get("title", "Statutory non-compliance detected by autonomous crawler"),
                         severity=v.get("severity", "CRITICAL"),
                         status="Notice Issued" if audit_data.get("draft_notice") else "Open",
-                        extracted_value=str(v.get("evidence", "")),
-                        expected_standard=str(v.get("expected", "")),
+                        evidence={
+                            "extracted_value": str(v.get("evidence", "")),
+                            "expected_standard": str(v.get("expected", ""))
+                        },
                         penalty_estimate=float(v.get("fine_inr", 25000.0)),
                         assigned_officer="Central Metrology Autonomous Inspector",
                         notice_id=audit_data.get("draft_notice", {}).get("case_number"),
