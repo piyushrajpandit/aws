@@ -165,9 +165,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             ? 'translate-x-0 shadow-2xl w-72'
             : isCollapsed
             ? isHovered
-              ? 'translate-x-0 w-64 shadow-2xl ring-1 ring-black/5 dark:ring-white/10'
-              : '-translate-x-full lg:translate-x-0 lg:w-[72px]'
-            : 'translate-x-0 w-72 lg:w-64'
+              ? '-translate-x-full lg:translate-x-0 lg:w-64 shadow-2xl ring-1 ring-black/5 dark:ring-white/10'
+              : '-translate-x-full lg:translate-x-0 lg:w-20'
+            : '-translate-x-full lg:translate-x-0 w-72 lg:w-64'
         }`}
       >
         {/* Top Header */}
