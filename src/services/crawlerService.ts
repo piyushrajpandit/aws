@@ -33,6 +33,11 @@ export interface CrawlerProductData {
   ingredients?: string[];
   dietary_type?: string;
   known_compliance_issues?: string[];
+  verified_via_packaging_image?: boolean;
+  declaration_source?: string;
+  packaging_image_source?: string;
+  packaging_image_index?: number;
+  fssai_license?: string;
 }
 
 export interface RuleViolationFinding {
