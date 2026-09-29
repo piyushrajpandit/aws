@@ -27,7 +27,7 @@ export const GEMINI_SCANNER_KEY =
 // Backend proxy URL fallback
 const BACKEND_API_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
-  'https://aws-37mu.onrender.com';
+  'https://satyadrishti-backend-v2.onrender.com';
 
 const GEMINI_MODELS = [
   'gemini-3-flash-preview',
