@@ -19,20 +19,7 @@ import type {
 import { preprocessImage } from './imagePreprocessor';
 import { extractAllLegalDeclarations } from './fieldExtractors';
 import type { MultiPassOCRData, OCRLineWithBBox } from './fieldExtractors';
-import { isBiscuitPackage, executeRealisticBiscuitScan } from './biscuitDeclarationProfile';
 import { executeGeminiLiveScan } from './geminiVisionService';
-import {
-  isChocolateMuesliPackage,
-  getChocolateMuesliDeclarations,
-  CHOCOLATE_MUESLI_RAW_TEXT,
-  executeRealisticMuesliScan,
-  detectMuesliColorProfile,
-} from './muesliDeclarationProfile';
-
-async function checkIsMuesli(imageSource: string | File, dataUrl: string): Promise<boolean> {
-  // Disabled hardcoded demo override — always run real OCR & Vision LLM pipeline
-  return false;
-}
 
 // ─── Provider Interface ─────────────────────────────────────────
 export interface OCRProvider {
@@ -61,18 +48,6 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
     const preprocessed = await preprocessImage(dataUrl);
     const variants = preprocessed.variants;
     const imgDimensions = preprocessed.dimensions;
-
-    // Demo Sample Preset check (only for explicit sample presets, not camera clicks or user uploads)
-    const fileName = String(typeof imageSource === 'object' && imageSource && 'name' in imageSource ? (imageSource as File).name : imageSource || '').toLowerCase();
-    const isExplicitDemoSample = fileName.includes('demo-sample') || fileName.includes('sample-bourbon');
-
-    if (isExplicitDemoSample && isBiscuitPackage(imageSource, '')) {
-      return executeRealisticBiscuitScan(imgDimensions, onProgress);
-    }
-
-    if (isExplicitDemoSample && await checkIsMuesli(imageSource, dataUrl)) {
-      return executeRealisticMuesliScan(imgDimensions, onProgress);
-    }
 
     // ── Primary Engine: Live Google Gemini Multimodal Vision ──────
     // Genuinely reads camera snapshots and uploaded photos in ~1.5s
@@ -161,17 +136,8 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
           bestRawText = rawText;
         }
 
-
-
         // Fast early-exit: When primary pass extracts text with good confidence, stop!
-        if (rawText.length > 20 && confidence > 40) {
-          break;
-        }
-
-        // Fast-track if Chocolate Muesli packaging is identified
-        if (isChocolateMuesliPackage(imageSource, rawText)) {
-          bestRawText = CHOCOLATE_MUESLI_RAW_TEXT;
-          bestOverallConfidence = 96.2;
+        if (rawText.length > 25 && confidence > 65) {
           break;
         }
       } catch (err) {
@@ -186,16 +152,7 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
 
     // ── Step 3: Statutory Declaration Extraction & Rule Validation ──
     onProgress?.(88, 'Extracting Legal Metrology statutory declarations & evidence...');
-    const isMuesli = isChocolateMuesliPackage(imageSource, bestRawText);
-
-    let declarations: Record<DeclarationFieldKey, DeclarationField>;
-
-    if (isMuesli) {
-      bestRawText = CHOCOLATE_MUESLI_RAW_TEXT;
-      bestOverallConfidence = 96.2;
-      declarations = getChocolateMuesliDeclarations(imgDimensions);
-    } else {
-      declarations = extractAllLegalDeclarations(passOCRData, imgDimensions, bestRawText);
+    const declarations = extractAllLegalDeclarations(passOCRData, imgDimensions, bestRawText);
 
       // Call backend LLM text extractor (/api/v1/extract) to parse missing fields from noisy OCR text
       if (bestRawText && bestRawText.trim().length > 10) {
@@ -232,8 +189,6 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
           }
         }
       }
-    }
-
 
     // ── Step 4: Build Rule Engine Compliance Payload ────────────
     onProgress?.(95, 'Synthesizing Rule Engine compliance payload...');
@@ -365,16 +320,6 @@ export class HybridVisionBackendProvider implements OCRProvider {
       // Step 1: Preprocess dimensions for accurate coordinates
       const preprocessed = await preprocessImage(dataUrl);
       const imgDimensions = preprocessed.dimensions;
-
-      // Fast-path check: Instantaneous Biscuit Recognition
-      if (isBiscuitPackage(imageSource, '')) {
-        return executeRealisticBiscuitScan(imgDimensions, onProgress);
-      }
-
-      // Check if Chocolate Muesli package for realistic demo scanning
-      if (await checkIsMuesli(imageSource, dataUrl)) {
-        return executeRealisticMuesliScan(imgDimensions, onProgress);
-      }
 
       onProgress?.(20, 'Scanning text regions with Tesseract OCR...');
       let localOcrText = '';

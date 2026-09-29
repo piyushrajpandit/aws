@@ -82,12 +82,12 @@ interface ScanState {
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 
 const DEFAULT_ANGLE_LABELS = [
-  'Angle 1 (Front Panel)',
-  'Angle 2 (Back / Declarations)',
-  'Angle 3 (Nutritional Panel)',
-  'Angle 4 (Side / MRP Stamp)',
-  'Angle 5 (Top / Barcode)',
-  'Angle 6 (Additional View)',
+  'Photo 1',
+  'Photo 2',
+  'Photo 3',
+  'Photo 4',
+  'Photo 5',
+  'Photo 6',
 ];
 
 function generateId(): string {
@@ -155,7 +155,7 @@ export const useScanStore = create<ScanState>()(
       const file = validFiles[i];
       const dataUrl = await fileToDataUrl(file);
       const angleIndex = currentImages.length + i;
-      const angleLabel = DEFAULT_ANGLE_LABELS[angleIndex] || `Angle ${angleIndex + 1}`;
+      const angleLabel = DEFAULT_ANGLE_LABELS[angleIndex] || `Photo ${angleIndex + 1}`;
 
       newImages.push({
         id: generateId(),
@@ -179,7 +179,7 @@ export const useScanStore = create<ScanState>()(
       // Re-index angle labels
       const reindexed = remaining.map((img, idx) => ({
         ...img,
-        angleLabel: DEFAULT_ANGLE_LABELS[idx] || `Angle ${idx + 1}`,
+        angleLabel: DEFAULT_ANGLE_LABELS[idx] || `Photo ${idx + 1}`,
       }));
       return { uploadedImages: reindexed };
     });
@@ -273,7 +273,7 @@ export const useScanStore = create<ScanState>()(
       const angles: ScanAngle[] = await runConcurrent(
         uploadedImages,
         async (image, i) => {
-          const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Angle ${i + 1}`;
+          const angleLabel = image.angleLabel || DEFAULT_ANGLE_LABELS[i] || `Photo ${i + 1}`;
           angleStatuses[i] = `Analyzing ${angleLabel}`;
           updateCompositeProgress();
 
