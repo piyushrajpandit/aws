@@ -541,7 +541,15 @@ export const OverviewDashboard: React.FC = () => {
                       <tr
                         key={zone.code}
                         onClick={() => navigate('/dashboard/manufacturers')}
-                        className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            navigate('/dashboard/manufacturers');
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        className="hover:bg-slate-50/80 cursor-pointer transition-colors focus:outline-none focus:bg-slate-100 dark:focus:bg-slate-800/80"
                         title="Click to view industries in this zone"
                       >
                         <td className="px-3.5 py-2.5 text-slate-900">
