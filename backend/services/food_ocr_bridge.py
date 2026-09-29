@@ -385,6 +385,47 @@ def run_local_packaging_ocr(image_input: Union[str, bytes, np.ndarray]) -> Dict[
       }
     """
     if not BRIDGE_READY:
+        # If this server lacks Tesseract (e.g. aws-37mu Python buildpack),
+        # automatically proxy to the dedicated Docker OCR instance satyadrishti-backend-v2!
+        import os
+        target_ocr_url = os.getenv(
+            "REMOTE_OCR_URL",
+            "https://satyadrishti-backend-v2.onrender.com/api/v1/scanner/local-ocr"
+        )
+        try:
+            import httpx
+            # Convert input to base64 dataUrl
+            b64_data = ""
+            if isinstance(image_input, bytes):
+                b64_data = base64.b64encode(image_input).decode("utf-8")
+            elif isinstance(image_input, str):
+                b64_data = image_input.split(",", 1)[-1] if "," in image_input else image_input
+            elif isinstance(image_input, np.ndarray):
+                _, enc = cv2.imencode(".jpg", image_input)
+                b64_data = base64.b64encode(enc.tobytes()).decode("utf-8")
+
+            if b64_data:
+                logger.info(f"[FoodOCR] Forwarding OCR request to cloud Docker engine: {target_ocr_url}")
+                with httpx.Client(timeout=45.0) as client:
+                    resp = client.post(
+                        target_ocr_url,
+                        json={"image_base64": b64_data},
+                        headers={"Content-Type": "application/json"}
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data.get("status") == "success":
+                            return {
+                                "success": True,
+                                "engine": "Tesseract (Docker Cloud)",
+                                "raw_text": data.get("raw_text", ""),
+                                "fields": data.get("fields", {}),
+                                "latency_ms": data.get("latency_ms", 0.0),
+                                "total_regions": data.get("total_regions", 0)
+                            }
+        except Exception as proxy_err:
+            logger.warning(f"[FoodOCR] Cloud OCR proxy failed: {proxy_err}")
+
         return {
             "success": False,
             "error": (
