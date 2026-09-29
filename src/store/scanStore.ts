@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { asyncIndexedDbStorage } from '../lib/indexedDbStorage';
 import type {
   ScanRecord,
   UploadedImage,
@@ -68,6 +70,8 @@ interface ScanState {
   deleteScan: (id: string) => void;
   clearHistory: () => void;
   viewScan: (scan: ScanRecord | null) => void;
+  setCurrentScan: (scan: ScanRecord | null) => void;
+  startNewScan: () => void;
   setValidationResult: (scanId: string, result: ComplianceValidationResult) => void;
   setReadabilityResult: (scanId: string, result: ReadabilityAnalysisResult) => void;
 }
@@ -108,7 +112,9 @@ function formatTimestamp(): string {
   }).format(new Date());
 }
 
-export const useScanStore = create<ScanState>((set, get) => ({
+export const useScanStore = create<ScanState>()(
+  persist(
+    (set, get) => ({
   scans: MOCK_SCANS,
   currentScan: null,
   uploadedImages: [],
@@ -504,6 +510,20 @@ export const useScanStore = create<ScanState>((set, get) => ({
     });
   },
 
+  setCurrentScan: (scan) => {
+    set({ currentScan: scan, activeAngleIndex: 0 });
+  },
+
+  startNewScan: () => {
+    set({
+      currentScan: null,
+      uploadedImages: [],
+      currentProgress: 0,
+      currentStatusMessage: '',
+      activeAngleIndex: 0,
+    });
+  },
+
   viewScan: (scan) => {
     set({ currentScan: scan, activeAngleIndex: 0 });
   },
@@ -525,4 +545,20 @@ export const useScanStore = create<ScanState>((set, get) => ({
       },
     }));
   },
-}));
+    }),
+    {
+      name: 'satyadrishti_scan_store_v2',
+      storage: createJSONStorage(() => asyncIndexedDbStorage),
+      partialize: (state) => ({
+        scans: state.scans,
+        currentScan: state.currentScan,
+        validationResults: state.validationResults,
+        correlationResults: state.correlationResults,
+        readabilityResults: state.readabilityResults,
+        batchVerificationResults: state.batchVerificationResults,
+        mrpVerificationResults: state.mrpVerificationResults,
+        lastCompletedScanId: state.lastCompletedScanId,
+      }),
+    }
+  )
+);

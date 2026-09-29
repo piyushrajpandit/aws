@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { asyncIndexedDbStorage } from '../lib/indexedDbStorage';
 import {
   Product,
   Violation,
@@ -57,7 +59,9 @@ interface ComplianceState {
   toggleRule: (ruleId: string) => void;
 }
 
-export const useComplianceStore = create<ComplianceState>((set, get) => ({
+export const useComplianceStore = create<ComplianceState>()(
+  persist(
+    (set, get) => ({
   products: MOCK_PRODUCTS,
   violations: MOCK_VIOLATIONS,
   manufacturers: MOCK_MANUFACTURERS,
@@ -356,4 +360,15 @@ export const useComplianceStore = create<ComplianceState>((set, get) => ({
       ),
     }));
   },
-}));
+    }),
+    {
+      name: 'satyadrishti_compliance_store_v2',
+      storage: createJSONStorage(() => asyncIndexedDbStorage),
+      partialize: (state) => ({
+        products: state.products,
+        violations: state.violations,
+        complaints: state.complaints,
+      }),
+    }
+  )
+);
