@@ -1,17 +1,16 @@
-# ── SatyaDrishti Backend — Render Docker Deployment ───────────────────────────
-# Uses Tesseract OCR (free-tier safe: ~50MB RAM) via Docker system install.
-# No apt-get in build command needed — it runs here during Docker image build.
+# SatyaDrishti Backend — Render Docker Deployment
+# Docker context = repo root (Render default)
+# All paths are relative to the repo root.
 
 FROM python:3.11-slim
 
-# Prevent interactive prompts during apt
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-# ── Install system dependencies (tesseract binary) ────────────────────────────
+# Install tesseract system binary (works in Docker — apt-get has full write access here)
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
         tesseract-ocr \
@@ -21,12 +20,12 @@ RUN apt-get update -qq && \
         libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# ── Install Python dependencies ───────────────────────────────────────────────
-COPY requirements.txt .
+# Copy requirements from backend/ subdirectory and install
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ── Copy app source ───────────────────────────────────────────────────────────
-COPY . .
+# Copy backend source code
+COPY backend/ .
 
-# ── Start server ──────────────────────────────────────────────────────────────
+# Start the server
 CMD uvicorn main:app --host 0.0.0.0 --port $PORT

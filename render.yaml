@@ -1,16 +1,14 @@
-# render.yaml — SatyaDrishti Render Deployment
-# Uses Docker runtime so we can install tesseract-ocr system binary.
-# Render Docker = full Ubuntu image = apt-get works during image build.
+# render.yaml — SatyaDrishti Render Docker Deployment
+# Docker context is repo root (Render default).
+# Dockerfile lives in backend/ and copies files using backend/ prefix paths.
 
 services:
   - type: web
-    name: satyadrishti-backend
+    name: satyadrishti-backend-v2
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
     plan: free
     region: oregon
-
     envVars:
       - key: GEMINI_VISION_API_KEY
         sync: false
