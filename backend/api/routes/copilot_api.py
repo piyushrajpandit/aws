@@ -17,7 +17,10 @@ if str(_backend_dir) not in sys.path:
     sys.path.insert(0, str(_backend_dir))
 
 from database import get_db
+import os
 from services.bedrock_service import converse_with_bedrock
+from services.gemini_service import converse_with_gemini
+from services.groq_service import converse_with_groq
 
 
 router = APIRouter(prefix="/api/copilot", tags=["AI Copilot"])
@@ -94,6 +97,7 @@ async def copilot_chat(
     """
     Main AI Copilot chat endpoint.
     Accepts a user message and conversation history, returns the AI response.
+    Prioritizes Groq API -> Gemini API -> Amazon Bedrock.
     """
     # Rate limiting using a hash of the first message as a simple session key
     session_key = hashlib.sha256(
@@ -120,11 +124,28 @@ async def copilot_chat(
         "content": [{"text": user_message}],
     })
 
-    # Call Bedrock with tool support
-    result = converse_with_bedrock(
-        messages=messages,
-        db_session=db,
-    )
+    # Provider prioritization: 1. Groq -> 2. Gemini -> 3. Amazon Bedrock
+    groq_key = os.getenv("GROQ_API_KEY")
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+
+    if groq_key:
+        result = converse_with_groq(
+            messages=messages,
+            db_session=db,
+            api_key=groq_key,
+        )
+    elif gemini_key:
+        result = converse_with_gemini(
+            messages=messages,
+            db_session=db,
+            api_key=gemini_key,
+        )
+    else:
+        # Fallback to Bedrock with tool support
+        result = converse_with_bedrock(
+            messages=messages,
+            db_session=db,
+        )
 
     return CopilotChatResponse(
         response=result.get("response", "I couldn't process that request."),
@@ -140,9 +161,27 @@ async def copilot_chat(
 @router.get("/health")
 async def copilot_health():
     """Check if the AI Copilot service is available."""
+    groq_key = os.getenv("GROQ_API_KEY")
+    if groq_key:
+        return {
+            "status": "available",
+            "provider": "Groq Cloud",
+            "model": os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+            "service": "SatyaDrishti AI Copilot",
+        }
+
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if gemini_key:
+        return {
+            "status": "available",
+            "provider": "Google Gemini",
+            "model": os.getenv("GEMINI_MODEL", "gemini-1.5-flash"),
+            "service": "SatyaDrishti AI Copilot",
+        }
+
     try:
         from services.bedrock_service import _get_bedrock_client
         client = _get_bedrock_client()
-        return {"status": "available", "service": "SatyaDrishti AI Copilot"}
+        return {"status": "available", "provider": "Amazon Bedrock", "service": "SatyaDrishti AI Copilot"}
     except Exception as e:
         return {"status": "unavailable", "reason": str(e)}

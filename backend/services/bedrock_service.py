@@ -10,8 +10,14 @@ import traceback
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-import boto3
-from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnectionError
+try:
+    import boto3
+    from botocore.exceptions import ClientError, NoCredentialsError, EndpointConnectionError
+except ImportError:
+    boto3 = None
+    ClientError = Exception
+    NoCredentialsError = Exception
+    EndpointConnectionError = Exception
 
 
 # ---------------------------------------------------------------------------
@@ -339,6 +345,8 @@ _bedrock_client = None
 def _get_bedrock_client():
     """Lazily create and cache the Bedrock Runtime client."""
     global _bedrock_client
+    if boto3 is None:
+        raise RuntimeError("boto3 is not installed. Please install boto3 or configure GROQ_API_KEY / GEMINI_API_KEY.")
     if _bedrock_client is None:
         _bedrock_client = boto3.client(
             "bedrock-runtime",
