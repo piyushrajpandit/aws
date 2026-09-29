@@ -472,7 +472,7 @@ export const EcommerceCrawler: React.FC = () => {
                               {p.platform}
                             </span>
                           </div>
-                          {gallery.length > 1 && (
+                          {(p.gallery_images?.length || 0) > 1 && (
                             <div className="absolute bottom-2 right-2 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs pointer-events-none">
                               <span>📸 {activeIdx + 1}/{gallery.length}</span>
                             </div>
@@ -480,7 +480,7 @@ export const EcommerceCrawler: React.FC = () => {
                         </div>
 
                         {/* Multi-Photo Packaging Gallery Strip */}
-                        {gallery.length > 1 && (
+                        {(p.gallery_images?.length || 0) > 1 && (
                           <div className="flex items-center gap-1.5 mt-2 overflow-x-auto max-w-full py-1 px-0.5">
                             {gallery.slice(0, 5).map((imgU, gIdx) => (
                               <button
@@ -597,6 +597,46 @@ export const EcommerceCrawler: React.FC = () => {
                         </span>
                       </div>
                     </div>
+
+                    {/* Packaging Photo Verification Evidence Banner */}
+                    {p.verified_via_packaging_image && (
+                      <div className="p-3 bg-emerald-50/90 dark:bg-emerald-950/40 rounded-xl border border-emerald-300 dark:border-emerald-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+                        <div className="flex items-start gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold block text-emerald-900 dark:text-emerald-200">
+                              {p.declaration_source || 'Statutory Declarations Verified from Packaging Photos'}
+                            </span>
+                            <p className="text-[11px] text-emerald-700 dark:text-emerald-300/90 mt-0.5">
+                              Manufacturer identity, Country of Origin, Customer Care &amp; FSSAI were identified on the seller's packaging label photos, satisfying Rule 6(10) E-Commerce compliance.
+                            </p>
+                            <div className="flex items-center gap-3 mt-1 text-[11px] font-medium flex-wrap">
+                              {p.customer_care && (
+                                <span className="bg-emerald-100/70 dark:bg-emerald-900/50 px-2 py-0.5 rounded text-emerald-800 dark:text-emerald-200">
+                                  📞 Consumer Care: <strong>{p.customer_care}</strong>
+                                </span>
+                              )}
+                              {p.fssai_license && (
+                                <span className="bg-emerald-100/70 dark:bg-emerald-900/50 px-2 py-0.5 rounded text-emerald-800 dark:text-emerald-200">
+                                  🏛️ FSSAI: <strong>{p.fssai_license}</strong>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        {(p.gallery_images?.length || 0) > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setCardImageIndex(prev => ({ ...prev, [item.id]: p.packaging_image_index ?? ((p.gallery_images?.length || 0) > 2 ? 2 : 0) }))}
+                            className="shrink-0 px-3 py-1.5 text-[11px] font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer flex items-center gap-1"
+                            title="Flip preview to statutory packaging label"
+                          >
+                            <span>Inspect Photo #{(p.packaging_image_index ?? 2) + 1}</span>
+                            <span>🔍</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {/* Detected Violations List if any */}
                     {a.violations.length > 0 && (
@@ -745,21 +785,37 @@ export const EcommerceCrawler: React.FC = () => {
                     <span className="text-[10px] text-slate-400">Click photo to view high-res</span>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {(activeAuditRecord.product.gallery_images || [activeAuditRecord.product.image_url]).map((imgU, gIdx) => (
-                      <a
-                        key={gIdx}
-                        href={imgU}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative h-28 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 flex items-center justify-center hover:border-blue-500 transition-all shadow-xs"
-                        title={"Click to open high-res packaging photo " + (gIdx + 1)}
-                      >
-                        <img src={imgU} alt={"Packaging Photo " + (gIdx + 1)} className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
-                        <span className="absolute bottom-1 right-1 bg-black/70 text-[9px] text-white px-1.5 py-0.5 rounded font-mono font-bold">
-                          #{gIdx + 1}
-                        </span>
-                      </a>
-                    ))}
+                    {(activeAuditRecord.product.gallery_images || [activeAuditRecord.product.image_url]).map((imgU, gIdx) => {
+                      const isStatutoryPanel = activeAuditRecord.product.verified_via_packaging_image && (
+                        gIdx === (activeAuditRecord.product.packaging_image_index ?? 2) ||
+                        imgU === activeAuditRecord.product.packaging_image_source
+                      );
+                      return (
+                        <a
+                          key={gIdx}
+                          href={imgU}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn(
+                            "group relative h-28 rounded-lg overflow-hidden border p-1 flex items-center justify-center transition-all shadow-xs",
+                            isStatutoryPanel
+                              ? "border-emerald-500 ring-2 ring-emerald-500/40 bg-emerald-50/30 dark:bg-emerald-950/20"
+                              : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-blue-500"
+                          )}
+                          title={isStatutoryPanel ? "Statutory Declarations Verified in this Photo! Click to view high-res" : ("Click to open packaging photo " + (gIdx + 1))}
+                        >
+                          <img src={imgU} alt={"Packaging Photo " + (gIdx + 1)} className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+                          {isStatutoryPanel && (
+                            <span className="absolute top-1 left-1 bg-emerald-600 text-[8px] text-white px-1 py-0.2 rounded font-bold uppercase tracking-wider shadow-xs">
+                              ✓ Statutory Label
+                            </span>
+                          )}
+                          <span className="absolute bottom-1 right-1 bg-black/70 text-[9px] text-white px-1.5 py-0.5 rounded font-mono font-bold">
+                            #{gIdx + 1}
+                          </span>
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}
