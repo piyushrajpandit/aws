@@ -10,9 +10,12 @@ beautifulsoup4>=4.12.0
 boto3>=1.34.0
 
 
-# ── Local OCR Engine (Cloud-Compatible) ──
-easyocr>=1.7.1
+# ── Local OCR Engine (Cloud-Compatible, Free Tier Safe) ──
+# EasyOCR needs ~1.5GB RAM — too heavy for free tiers.
+# Tesseract runs in <50MB RAM — perfect for Render/Railway/Fly free tiers.
+# Render build command installs tesseract binary: apt-get install -y tesseract-ocr
+pytesseract>=0.3.10
 opencv-python-headless>=4.9.0
 pillow>=10.0.0
 numpy>=1.24.0
-# pytesseract>=0.3.10  # Optional Tesseract fallback — needs: apt-get install tesseract-ocr
+# easyocr>=1.7.1  # Uncomment on paid plans (≥1GB RAM) for better accuracy

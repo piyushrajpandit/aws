@@ -42,29 +42,34 @@ logger = logging.getLogger(__name__)
 # Engine Detection (graceful — no crash if not installed)
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Engine availability flags
 _EASYOCR_READER = None
 EASYOCR_AVAILABLE = False
 TESSERACT_AVAILABLE = False
 
-try:
-    import easyocr
-    EASYOCR_AVAILABLE = True
-    logger.info("[FoodOCR] EasyOCR detected.")
-except ImportError:
-    logger.info("[FoodOCR] EasyOCR not installed.")
-
+# ── Tesseract: free-tier safe, ~50MB RAM, runs on any server ──────────────────
 try:
     import pytesseract
     pytesseract.get_tesseract_version()
     TESSERACT_AVAILABLE = True
-    logger.info("[FoodOCR] Tesseract detected.")
+    logger.info("[FoodOCR] Tesseract detected and ready.")
 except Exception:
-    logger.info("[FoodOCR] Tesseract not installed or not in PATH.")
+    logger.info("[FoodOCR] Tesseract not available (install tesseract-ocr binary + pytesseract).")
 
-BRIDGE_READY = EASYOCR_AVAILABLE or TESSERACT_AVAILABLE
+# ── EasyOCR: higher accuracy but needs ~1.5GB RAM (paid/local only) ───────────
+try:
+    import easyocr
+    EASYOCR_AVAILABLE = True
+    logger.info("[FoodOCR] EasyOCR detected (high-accuracy mode available).")
+except ImportError:
+    logger.info("[FoodOCR] EasyOCR not installed (free-tier mode, using Tesseract).")
+
+BRIDGE_READY = TESSERACT_AVAILABLE or EASYOCR_AVAILABLE
+
+# Priority: Tesseract first (free-tier safe), EasyOCR if Tesseract unavailable
 ENGINE_NAME = (
-    "EasyOCR" if EASYOCR_AVAILABLE
-    else "Tesseract" if TESSERACT_AVAILABLE
+    "Tesseract" if TESSERACT_AVAILABLE
+    else "EasyOCR" if EASYOCR_AVAILABLE
     else "None"
 )
 
@@ -151,14 +156,29 @@ def _run_easyocr(img: np.ndarray) -> List[str]:
 
 def _run_tesseract(img: np.ndarray) -> List[str]:
     """
-    Runs Tesseract OCR on a BGR OpenCV image.
-    Returns list of non-empty text lines.
+    Runs Tesseract OCR on a BGR OpenCV image with multi-pass strategy.
+    Pass 1: psm 6 (uniform block of text — good for well-formatted labels)
+    Pass 2: psm 11 (sparse text — catches scattered elements like MRP stamps)
+    Merges unique lines from both passes for maximum field coverage.
     """
-    # Convert to RGB PIL for pytesseract
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pil_img = Image.fromarray(rgb)
-    raw = pytesseract.image_to_string(pil_img, lang='eng', config='--psm 6')
-    return [line.strip() for line in raw.splitlines() if line.strip()]
+
+    all_lines: list = []
+    seen = set()
+
+    for psm in ['--psm 6 --oem 3', '--psm 11 --oem 3', '--psm 3 --oem 3']:
+        try:
+            raw = pytesseract.image_to_string(pil_img, lang='eng', config=psm)
+            for line in raw.splitlines():
+                line = line.strip()
+                if line and line not in seen:
+                    seen.add(line)
+                    all_lines.append(line)
+        except Exception:
+            continue
+
+    return all_lines
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -172,18 +192,48 @@ def _normalize(text: str) -> str:
 def _fix_ocr_noise(text: str) -> str:
     """
     Corrects common EasyOCR/Tesseract character confusions in food label text.
-    Handles: comma-as-slash in dates, spaced email addresses, letter-digit swaps.
+    Handles dates, email/phone formatting, MRP decimals, FSSAI codes, dietary markers.
     """
-    # Fix dates like "15,08/2026" or "15.08/2026" → "15/08/2026"
+    # ── Date normalisation ────────────────────────────────────────────────────
+    # "15,08/2026" or "15.08/2026" → "15/08/2026"
     text = re.sub(r"(\d{1,2})[,\.](\d{2})[/](\d{4})", r"\1/\2/\3", text)
     text = re.sub(r"(\d{1,2})[,\.](\d{2})[,\.](\d{2,4})", r"\1/\2/\3", text)
-    # Fix MRP amounts like "2400" when label says "24.00" (EasyOCR drops decimal dot)
-    # We don't blindly fix amounts since some may be genuinely 2400
-    # Fix spaced email addresses "wecare@in nestle com" → "wecare@in.nestle.com"
+    # "1108/2028" Tesseract drops the slash before month → "11/08/2028"
+    text = re.sub(r"\b(\d{2})(\d{2}/\d{4})\b", r"\1/\2", text)
+
+    # ── MRP normalisation ─────────────────────────────────────────────────────
+    # "Rs 2400" or "Ps 2400" (Tesseract reads Rs as Ps) → "Rs 24.00"
+    def fix_mrp(m):
+        digits = m.group(1).replace(",", "")
+        # If >3 digits with no decimal, likely missing the period: 2400 → 24.00
+        if len(digits) >= 4 and "." not in digits:
+            fixed = digits[:-2] + "." + digits[-2:]
+            return m.group(0).replace(m.group(1), fixed)
+        return m.group(0)
+    text = re.sub(r"(?:MRP|mrp).*?(?:Rs|Ps|RS|ps)\.?\s*(\d[\d,]+)", fix_mrp, text, flags=re.IGNORECASE)
+
+    # ── Email normalisation ───────────────────────────────────────────────────
+    # "wecare@in nestle com" or "wecare@in.nestle com" → "wecare@in.nestle.com"
     text = re.sub(r"([A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+)\s+([A-Za-z0-9\-]+)\s+com\b",
                   r"\1.\2.com", text, flags=re.IGNORECASE)
-    # Fix "l" used as "1" in FSSAI license numbers (14-digit sequences)
+    text = re.sub(r"([A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+)\.\s+com\b", r"\1.com", text, flags=re.IGNORECASE)
+
+    # ── FSSAI License (14-digit) fixes ────────────────────────────────────────
+    # "l" (letter L) used as "1" at start of FSSAI number
     text = re.sub(r"\b([lL])(\d{13})\b", r"1\2", text)
+    # Tesseract may drop one digit in 14-digit FSSAI: 13-digit starting with 1 → prepend 1
+    text = re.sub(r"\b(1\d{12})\b", lambda m: m.group(0) if len(m.group(0))==14 else "1" + m.group(0), text)
+
+    # ── Dietary type keywords ─────────────────────────────────────────────────
+    # "VEGELARIAN" / "VEGEIARIAN" Tesseract OCR noise
+    text = re.sub(r"VEGE[IL][AT]ARIAN", "VEGETARIAN", text, flags=re.IGNORECASE)
+    # "I00% VEGETARIAN" → "100% VEGETARIAN"
+    text = re.sub(r"\bI00%", "100%", text)
+
+    # ── Remove leading noise chars on lines ──────────────────────────────────
+    # Lines starting with a stray apostrophe/quote before real content
+    text = re.sub(r"^[\'\'\`]+\s*", "", text, flags=re.MULTILINE)
+
     return text
 
 
@@ -338,9 +388,10 @@ def run_local_packaging_ocr(image_input: Union[str, bytes, np.ndarray]) -> Dict[
         return {
             "success": False,
             "error": (
-                "No OCR engine available. "
-                "Install easyocr (`pip install easyocr`) or "
-                "tesseract (`pip install pytesseract` + `apt-get install tesseract-ocr`)."
+                "No OCR engine available on this server. "
+                "For free-tier deployment: install Tesseract binary (apt-get install -y tesseract-ocr) "
+                "and pytesseract (pip install pytesseract). "
+                "For higher accuracy on paid plans: pip install easyocr."
             ),
             "fields": {},
         }
@@ -354,14 +405,17 @@ def run_local_packaging_ocr(image_input: Union[str, bytes, np.ndarray]) -> Dict[
     except Exception as e:
         return {"success": False, "error": f"Image load/preprocess failed: {e}", "fields": {}}
 
-    # 2. OCR
+    # 2. OCR — Tesseract first (free-tier safe, <50MB RAM)
+    #          EasyOCR fallback (higher accuracy, needs ≥1GB RAM)
     try:
-        if EASYOCR_AVAILABLE:
+        if TESSERACT_AVAILABLE:
+            text_lines = _run_tesseract(img)
+            engine_used = "Tesseract"
+        elif EASYOCR_AVAILABLE:
             text_lines = _run_easyocr(img)
             engine_used = "EasyOCR"
         else:
-            text_lines = _run_tesseract(img)
-            engine_used = "Tesseract"
+            return {"success": False, "error": "No OCR engine available", "fields": {}}
     except Exception as e:
         return {"success": False, "error": f"OCR engine failed: {e}", "fields": {}}
 

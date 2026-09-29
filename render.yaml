@@ -1,0 +1,37 @@
+# render.yaml — SatyaDrishti Render Deployment Config
+# Docs: https://render.com/docs/render-yaml-spec
+
+services:
+  # ── Backend API ────────────────────────────────────────────────────────────
+  - type: web
+    name: satyadrishti-backend
+    runtime: python
+    rootDir: backend
+    plan: free            # 512MB RAM — works fine with Tesseract
+    region: oregon
+
+    # Install tesseract-ocr system binary first, then Python deps
+    buildCommand: >
+      apt-get update -qq &&
+      apt-get install -y -qq tesseract-ocr &&
+      pip install -r requirements.txt
+
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: GEMINI_VISION_API_KEY
+        sync: false          # Set this in Render dashboard → Environment
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: "ap-south-1"
