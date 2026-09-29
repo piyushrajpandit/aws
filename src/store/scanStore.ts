@@ -100,6 +100,63 @@ function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
+/**
+ * Downscales and compresses large raw mobile camera photos (often 12-48MP / 15MB)
+ * to a lightweight 1600px high-resolution JPEG (~200KB - 300KB).
+ * Eliminates mobile browser OOM (Out Of Memory) tab crashes during multi-image parallel scans.
+ */
+function optimizeImageFile(file: File): Promise<{ dataUrl: string; size: number }> {
+  return new Promise((resolve) => {
+    if (!file.type.startsWith('image/') || file.type.includes('svg')) {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ dataUrl: reader.result as string, size: file.size });
+      reader.onerror = () => resolve({ dataUrl: '', size: 0 });
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX_DIM = 1600;
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+
+        if (w > MAX_DIM || h > MAX_DIM) {
+          if (w > h) {
+            h = Math.round((h * MAX_DIM) / w);
+            w = MAX_DIM;
+          } else {
+            w = Math.round((w * MAX_DIM) / h);
+            h = MAX_DIM;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressed = canvas.toDataURL('image/jpeg', 0.82);
+          const approxBytes = Math.round((compressed.length * 3) / 4);
+          resolve({ dataUrl: compressed, size: approxBytes });
+        } else {
+          resolve({ dataUrl: e.target?.result as string, size: file.size });
+        }
+      };
+      img.onerror = () => resolve({ dataUrl: e.target?.result as string, size: file.size });
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve({ dataUrl: '', size: 0 });
+    reader.readAsDataURL(file);
+  });
+}
+
+
 function formatTimestamp(): string {
   return new Intl.DateTimeFormat('en-IN', {
     day: '2-digit',
@@ -178,7 +235,7 @@ export const useScanStore = create<ScanState>()(
 
     for (let i = 0; i < validFiles.length; i++) {
       const file = validFiles[i];
-      const dataUrl = await fileToDataUrl(file);
+      const { dataUrl, size } = await optimizeImageFile(file);
       const angleIndex = currentImages.length + i;
       const angleLabel = DEFAULT_ANGLE_LABELS[angleIndex] || `Angle ${angleIndex + 1}`;
 
@@ -186,7 +243,7 @@ export const useScanStore = create<ScanState>()(
         id: generateId(),
         file,
         name: file.name,
-        size: file.size,
+        size,
         dataUrl,
         addedAt: Date.now(),
         angleLabel,
@@ -278,7 +335,7 @@ export const useScanStore = create<ScanState>()(
 
       const progressPerImage = new Array(totalImages).fill(0);
       let completedCount = 0;
-      const PARALLEL_CONCURRENCY = Math.min(4, totalImages);
+      const PARALLEL_CONCURRENCY = Math.min(2, totalImages);
 
       // Process all images in parallel using bounded concurrency pool
       const angles: ScanAngle[] = await runParallelPool(

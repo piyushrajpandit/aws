@@ -43,6 +43,23 @@ export interface OCRProvider {
   terminate(): Promise<void>;
 }
 
+function getImageDimensions(dataUrl: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      return resolve({ width: 1200, height: 900 });
+    }
+    const img = new Image();
+    img.onload = () => {
+      resolve({
+        width: img.naturalWidth || img.width || 1200,
+        height: img.naturalHeight || img.height || 900,
+      });
+    };
+    img.onerror = () => resolve({ width: 1200, height: 900 });
+    img.src = dataUrl;
+  });
+}
+
 // ─── Multi-Pass Legal Metrology Tesseract Provider ──────────────
 class TesseractLegalMetrologyProvider implements OCRProvider {
   async recognize(
@@ -56,15 +73,11 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
       dataUrl = await this.fileToDataUrl(imageSource);
     }
 
-    // ── Step 1: Preprocess Image Variants & Dimensions ───────────
-    onProgress?.(2, 'Preprocessing image variants & optical enhancements...');
-    const preprocessed = await preprocessImage(dataUrl);
-    const variants = preprocessed.variants;
-    const imgDimensions = preprocessed.dimensions;
-
-    // Demo Sample Preset check (only for explicit sample presets, not camera clicks or user uploads)
+    // ── Primary Engine: Live Google Gemini Multimodal Vision ──────
+    // Genuinely reads camera snapshots and uploaded photos in ~1.5s without heavy canvas memory allocations
     const fileName = String(typeof imageSource === 'object' && imageSource && 'name' in imageSource ? (imageSource as File).name : imageSource || '').toLowerCase();
     const isExplicitDemoSample = fileName.includes('demo-sample') || fileName.includes('sample-bourbon');
+    const imgDimensions = await getImageDimensions(dataUrl);
 
     if (isExplicitDemoSample && isBiscuitPackage(imageSource, '')) {
       return executeRealisticBiscuitScan(imgDimensions, onProgress);
@@ -74,15 +87,17 @@ class TesseractLegalMetrologyProvider implements OCRProvider {
       return executeRealisticMuesliScan(imgDimensions, onProgress);
     }
 
-    // ── Primary Engine: Live Google Gemini Multimodal Vision ──────
-    // Genuinely reads camera snapshots and uploaded photos in ~1.5s
-    // Accurately reports missing MRP, missing Customer Care, or non-compliances without mock bypassing
     try {
       return await executeGeminiLiveScan(dataUrl, imgDimensions, onProgress);
     } catch (geminiError) {
       console.warn('[OCR Service] Gemini Vision live analysis failed or throttled, falling back to local OCR:', geminiError);
     }
 
+    // ── Fallback Engine: Multi-Pass Local Optical Preprocessing & Tesseract ──────
+    // Only allocated if Gemini Vision is offline to prevent mobile browser memory exhaustion
+    onProgress?.(2, 'Fallback: Preprocessing image variants & optical enhancements...');
+    const preprocessed = await preprocessImage(dataUrl);
+    const variants = preprocessed.variants;
     const totalPasses = variants.length;
 
     // ── Step 2: Multi-Pass OCR Execution ────────────────────────
