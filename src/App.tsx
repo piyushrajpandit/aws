@@ -17,6 +17,7 @@ import { EcommerceCrawler } from './pages/dashboard/EcommerceCrawler';
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 
 import { TechnicalBlogPage } from './pages/TechnicalBlogPage';
+import { AiCopilotWidget } from './components/ai/AiCopilotWidget';
 
 export function App() {
   return (
@@ -24,7 +25,7 @@ export function App() {
       <ScrollToAnchor />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<AboutPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/technical-blog" element={<TechnicalBlogPage />} />
         <Route path="/tech-blog" element={<Navigate to="/technical-blog" replace />} />
@@ -50,6 +51,8 @@ export function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {/* AI Copilot — Floating chat widget (additive, does not affect existing UI) */}
+      <AiCopilotWidget />
     </BrowserRouter>
   );
 }
