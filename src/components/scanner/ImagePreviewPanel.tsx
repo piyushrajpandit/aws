@@ -54,16 +54,29 @@ export const ImagePreviewPanel: React.FC = () => {
               key={image.id}
               className="group relative rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shadow-2xs"
             >
-              <div className="aspect-square relative">
+              <div className="aspect-square relative overflow-hidden">
                 <img
                   src={image.dataUrl}
                   alt={image.name}
                   className="w-full h-full object-cover"
                 />
 
+                {/* Hardware AI Laser Scan Beam Overlay */}
+                {isProcessing && (
+                  <div className="absolute inset-0 pointer-events-none z-10">
+                    {/* Glowing Scanning Line */}
+                    <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_3px_rgba(6,182,212,0.85)] animate-laser-sweep" />
+                    {/* Subtle grid HUD overlay */}
+                    <div className="absolute inset-0 bg-cyan-950/20 mix-blend-overlay backdrop-contrast-125" />
+                    <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-cyan-950/80 text-[9px] font-mono text-cyan-300 font-bold tracking-wider uppercase border border-cyan-500/40">
+                      OCR Inspecting...
+                    </div>
+                  </div>
+                )}
+
                 {/* Angle Tag Badge */}
                 {isMultiAngle && (
-                  <div className="absolute top-1.5 left-1.5">
+                  <div className="absolute top-1.5 left-1.5 z-20">
                     <span className="px-2 py-0.5 rounded-md bg-slate-900/85 text-white text-[10px] font-bold shadow-xs backdrop-blur-xs">
                       Angle {idx + 1}
                     </span>
