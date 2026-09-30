@@ -676,12 +676,3 @@ This project is released under the **MIT License**.
 See [`LICENSE`](LICENSE) for details.
 
 ---
-
-## Smart India Hackathon 2026
-
-**Problem Statement:** SIH26034
-
-**SatyaDrishti · सत्यदृष्टि**
-
-*Technology for transparent, scalable and evidence-backed compliance.*
-# aws
