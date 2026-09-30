@@ -782,14 +782,23 @@ export const OCRResultsPanel: React.FC = () => {
                         const severity = getSeverity(field);
                         const isPass = field.validationStatus === 'compliant';
 
+                        const borderAccent = isPass
+                          ? 'hover:border-l-4 hover:border-l-emerald-500'
+                          : field.validationStatus === 'warning'
+                          ? 'hover:border-l-4 hover:border-l-amber-500'
+                          : 'hover:border-l-4 hover:border-l-rose-500';
+
                         return (
                           <tr
                             key={field.key}
                             onMouseEnter={() => setHighlightedKey(field.key)}
                             onMouseLeave={() => setHighlightedKey(null)}
                             className={cn(
-                              'transition-colors group',
-                              isHighlighted ? 'bg-blue-50/30' : 'hover:bg-slate-50/60'
+                              'transition-all duration-150 group cursor-default select-none border-l-4 border-l-transparent',
+                              borderAccent,
+                              isHighlighted
+                                ? 'bg-blue-50/50 dark:bg-blue-950/30 shadow-xs'
+                                : 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40'
                             )}
                           >
                             {/* Column 1: # */}
@@ -866,9 +875,14 @@ export const OCRResultsPanel: React.FC = () => {
                               </div>
                             </td>
 
-                            {/* Column 3: Rule Code */}
-                            <td className="py-3 px-3 font-mono text-[11px] text-slate-500 align-middle whitespace-nowrap">
-                              {field.ruleCode}
+                            {/* Column 3: Rule Code with Interactive Tooltip */}
+                            <td className="py-3 px-3 align-middle whitespace-nowrap">
+                              <span
+                                title={field.ruleDescription || `Legal Metrology Rule: ${field.ruleCode}`}
+                                className="inline-flex items-center gap-1 font-mono text-[10px] sm:text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold border border-slate-200 dark:border-slate-700/80 group-hover:border-blue-400/60 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors shadow-2xs"
+                              >
+                                ⚖️ {field.ruleCode}
+                              </span>
                             </td>
 
                             {/* Column 4: Evidence */}
