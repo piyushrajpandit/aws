@@ -3,6 +3,7 @@ import { Camera, RefreshCw, X, AlertCircle, ShieldAlert, CheckCircle2, ChevronDo
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useScanStore } from '../../store/scanStore';
+import { cn } from '../../lib/utils';
 
 export const LiveProductCapture: React.FC = () => {
   const { addImages, isProcessing, uploadedImages } = useScanStore();
@@ -178,12 +179,21 @@ export const LiveProductCapture: React.FC = () => {
     });
   };
 
+  const [isCapturing, setIsCapturing] = useState(false);
+
   const handleCapturePhoto = async () => {
+    setIsCapturing(true);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([40, 60, 40]); // Native dual-pulse camera shutter haptic
+    }
     const file = await captureCanvasBlob();
     if (file) {
       await addImages([file]);
     }
-    stopCamera();
+    setTimeout(() => {
+      setIsCapturing(false);
+      stopCamera();
+    }, 250);
   };
 
 
@@ -342,16 +352,34 @@ export const LiveProductCapture: React.FC = () => {
                 <X className="h-5 w-5" />
               </button>
 
-              {/* Shutter Trigger */}
-              <button
-                type="button"
-                onClick={handleCapturePhoto}
-                className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white flex items-center justify-center shadow-lg ring-4 ring-indigo-300 dark:ring-indigo-900/60 transition-all focus:outline-none"
-                title="Capture Photo"
-                aria-label="Capture photo of packaging"
-              >
-                <Camera className="h-7 w-7" />
-              </button>
+              {/* Native Mobile Shutter Trigger with Dual-Ring Pulse */}
+              <div className="relative flex items-center justify-center">
+                {/* Outer animated ripple aura */}
+                <div className="absolute inset-0 -m-2 rounded-full border-2 border-indigo-400/40 animate-ping pointer-events-none" />
+                <button
+                  type="button"
+                  onClick={handleCapturePhoto}
+                  disabled={isCapturing}
+                  className={cn(
+                    "relative w-18 h-18 rounded-full flex items-center justify-center transition-all duration-150 focus:outline-none select-none shadow-xl",
+                    isCapturing
+                      ? "scale-90 bg-white ring-8 ring-indigo-400"
+                      : "bg-white hover:bg-slate-50 active:scale-95 ring-4 ring-white/80 dark:ring-slate-800 shadow-indigo-950/30"
+                  )}
+                  title="Snap photo"
+                  aria-label="Snap photo of product packaging"
+                >
+                  {/* Inner Shutter Core (Redesigned native camera lens look) */}
+                  <div className={cn(
+                    "w-14 h-14 rounded-full flex items-center justify-center transition-all",
+                    isCapturing
+                      ? "bg-indigo-600"
+                      : "bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  )}>
+                    <Camera className="h-6 w-6 text-white transition-transform active:rotate-12" />
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         )}
