@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Images,
   BarChart3,
@@ -16,6 +16,7 @@ import {
   Plus,
   CheckCircle2,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useScanStore } from '../../store/scanStore';
@@ -24,6 +25,7 @@ import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
+import { LiveProductCapture } from '../../components/scanner/LiveProductCapture';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
 import { OCRProcessingCard } from '../../components/scanner/OCRProcessingCard';
 import { OCRResultsPanel } from '../../components/scanner/OCRResultsPanel';
@@ -39,12 +41,56 @@ import { HistoricalIntelligencePanel } from '../../components/scanner/Historical
 import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
+  const [captureMode, setCaptureMode] = useState<'camera' | 'upload'>('camera');
+  const [activeEngineMode, setActiveEngineMode] = useState<'standard' | 'local'>('standard');
+  const [showEngineToast, setShowEngineToast] = useState(false);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressRef = useRef(false);
+
+  // Secret Easter Egg Handlers for Local OCR Core
+  const toggleEngineMode = () => {
+    setActiveEngineMode((prev) => {
+      const next = prev === 'standard' ? 'local' : 'standard';
+      setShowEngineToast(true);
+      setTimeout(() => setShowEngineToast(false), 3000);
+      return next;
+    });
+  };
+
+  const handleScanTouchStart = () => {
+    isLongPressRef.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressRef.current = true;
+      toggleEngineMode();
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(80);
+    }, 1200); // 1.2s long press triggers mode switch
+  };
+
+  const handleScanTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleScanExecution = () => {
+    if (isLongPressRef.current) {
+      isLongPressRef.current = false;
+      return;
+    }
+    if (activeEngineMode === 'local') {
+      startLocalScan();
+    } else {
+      startScan();
+    }
+  };
   const {
     scans,
     currentScan,
     uploadedImages,
     isProcessing,
     startScan,
+    startLocalScan,
     clearImages,
     validationResults,
     readabilityResults,
@@ -129,13 +175,38 @@ export const ProductScanner: React.FC = () => {
   const lastScanTime = scans[0]?.timestamp || 'Never';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Secret Toast / Pill Indicator */}
+      {showEngineToast && (
+        <div className="fixed top-5 right-5 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl shadow-xl border backdrop-blur-md transition-all animate-in fade-in slide-in-from-top-4 bg-slate-900/90 text-white border-slate-700">
+          <Zap className={cn("h-4 w-4", activeEngineMode === 'local' ? "fill-amber-400 text-amber-400" : "text-blue-400")} />
+          <div className="text-xs font-semibold">
+            {activeEngineMode === 'local' ? (
+              <span>Switched to <strong className="text-amber-400">Local OCR Core (Tesseract Edge)</strong></span>
+            ) : (
+              <span>Switched to <strong className="text-blue-400">Standard AI Vision Core</strong></span>
+            )}
+          </div>
+        </div>
+      )}
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Product Scanner
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 
+              onDoubleClick={toggleEngineMode}
+              title="Product Scanner"
+              className="text-2xl font-extrabold text-slate-900 tracking-tight cursor-default select-none"
+            >
+              Product Scanner
+            </h1>
+            {activeEngineMode === 'local' && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800 animate-pulse">
+                <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
+                Local OCR Active
+              </span>
+            )}
+          </div>
           <p className="text-xs text-slate-500 mt-0.5">
             Scan product packaging & labels using optical character recognition for Legal Metrology compliance verification.
           </p>
@@ -298,9 +369,38 @@ export const ProductScanner: React.FC = () => {
         </div>
       )}
 
-      {/* Packaging Capture & Upload Zone */}
-      <div className="min-w-0">
-        <ImageUploader />
+      {/* Packaging Capture & Upload Zone with Camera Tabs */}
+      <div className="space-y-3 min-w-0">
+        <div className="flex items-center gap-2 bg-slate-100/80 dark:bg-slate-800/80 p-1 rounded-xl w-fit border border-slate-200/80 dark:border-slate-700/60 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setCaptureMode('camera')}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all',
+              captureMode === 'camera'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            )}
+          >
+            <Camera className="h-3.5 w-3.5" />
+            <span>📷 Live Camera Viewfinder</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCaptureMode('upload')}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all',
+              captureMode === 'upload'
+                ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            )}
+          >
+            <Images className="h-3.5 w-3.5" />
+            <span>📁 Upload Files</span>
+          </button>
+        </div>
+
+        {captureMode === 'camera' ? <LiveProductCapture /> : <ImageUploader />}
       </div>
 
       {/* Image Previews + Actions */}
@@ -327,13 +427,20 @@ export const ProductScanner: React.FC = () => {
             <Button
               variant="primary"
               size="sm"
-              onClick={startScan}
+              onClick={handleScanExecution}
+              onMouseDown={handleScanTouchStart}
+              onMouseUp={handleScanTouchEnd}
+              onTouchStart={handleScanTouchStart}
+              onTouchEnd={handleScanTouchEnd}
               isLoading={isProcessing}
               disabled={isProcessing}
-              className="text-xs gap-1.5 font-semibold min-h-[36px]"
+              className={cn(
+                "text-xs gap-1.5 font-semibold min-h-[36px] select-none transition-all",
+                activeEngineMode === 'local' ? "bg-amber-600 hover:bg-amber-700 text-white shadow-sm ring-2 ring-amber-300" : ""
+              )}
             >
               <Play className="h-3.5 w-3.5" />
-              <span>{isProcessing ? 'Scanning...' : 'Start Scan'}</span>
+              <span>{isProcessing ? (activeEngineMode === 'local' ? 'Running OCR...' : 'Scanning...') : (activeEngineMode === 'local' ? 'Start Scan (OCR)' : 'Start Scan')}</span>
             </Button>
           </div>
         </div>
