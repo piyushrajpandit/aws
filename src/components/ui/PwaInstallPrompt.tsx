@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, X, Smartphone, Share2, PlusSquare, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Download, X, Smartphone, Share2, PlusSquare, ShieldCheck, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from './Button';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -19,6 +19,7 @@ export const PwaInstallPrompt: React.FC = () => {
   const [showBanner, setShowBanner] = useState(false);
   const [showIosModal, setShowIosModal] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
     // Check if running in standalone mode (already installed as PWA)
@@ -119,7 +120,7 @@ export const PwaInstallPrompt: React.FC = () => {
 
   return (
     <>
-      {/* Floating Bottom Banner */}
+      {/* Floating Bottom Banner — Collapsible & Non-Obtrusive */}
       <AnimatePresence>
         {showBanner && (
           <motion.div
@@ -127,45 +128,71 @@ export const PwaInstallPrompt: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 pointer-events-auto"
+            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 pointer-events-auto"
           >
-            <div className="bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-4 shadow-2xl shadow-blue-950/40 text-white flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center p-2.5 shadow-md shadow-blue-500/20 shrink-0">
+            {isMinimized ? (
+              /* Minimized Subtle Pill (Doesn't block any audit cards) */
+              <div
+                onClick={() => setIsMinimized(false)}
+                className="cursor-pointer bg-slate-900/90 hover:bg-slate-900 backdrop-blur-xl border border-blue-500/40 rounded-full px-3.5 py-1.5 shadow-xl text-white flex items-center gap-2 ml-auto w-fit transition-all hover:scale-105"
+                title="Click to view PWA installation options"
+              >
+                <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center p-1 shrink-0">
                   <ShieldCheck className="h-full w-full text-white" />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-sm leading-tight text-white flex items-center gap-1.5">
-                    Download App
-                    <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.5 rounded-full font-medium">
-                      PWA
-                    </span>
-                  </h4>
-                  <p className="text-xs text-slate-300 mt-0.5">
-                    Install SatyaDrishti on your phone for quick 1-tap access & offline support.
-                  </p>
+                <span className="text-xs font-semibold">Install PWA App</span>
+                <span className="text-[9px] bg-blue-500/30 text-blue-300 px-1.5 py-0.2 rounded-full font-mono">Mobile</span>
+                <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
+              </div>
+            ) : (
+              /* Expanded Full Card with Minimize & Close Options */
+              <div className="bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl shadow-blue-950/40 text-white flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center p-2 shadow-md shadow-blue-500/20 shrink-0">
+                    <ShieldCheck className="h-full w-full text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-xs sm:text-sm leading-tight text-white flex items-center gap-1.5">
+                      Download App
+                      <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.2 rounded-full font-medium">
+                        PWA
+                      </span>
+                    </h4>
+                    <p className="text-[11px] text-slate-300 mt-0.5 line-clamp-1 sm:line-clamp-none">
+                      Install on phone for 1-tap offline access.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={handleInstallClick}
+                    className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-2.5 py-1.5 h-auto rounded-lg flex items-center gap-1 shadow-md shadow-blue-600/30"
+                  >
+                    <Download className="h-3 w-3" />
+                    Install
+                  </Button>
+                  <button
+                    onClick={() => setIsMinimized(true)}
+                    title="Minimize prompt"
+                    aria-label="Minimize prompt"
+                    className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleDismiss}
+                    title="Dismiss prompt"
+                    aria-label="Dismiss install prompt"
+                    className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={handleInstallClick}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 h-auto rounded-lg flex items-center gap-1.5 shadow-lg shadow-blue-600/30"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Install
-                </Button>
-                <button
-                  onClick={handleDismiss}
-                  aria-label="Dismiss install prompt"
-                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
