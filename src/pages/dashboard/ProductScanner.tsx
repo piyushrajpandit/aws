@@ -39,6 +39,10 @@ import { ComplianceReportModal } from '../../components/scanner/ComplianceReport
 import { ReportHistoryModal } from '../../components/scanner/ReportHistoryModal';
 import { HistoricalIntelligencePanel } from '../../components/scanner/HistoricalIntelligencePanel';
 import { PersonalHealthVerdictCard } from '../../components/scanner/PersonalHealthVerdictCard';
+import { HealthProfileSelector } from '../../components/scanner/HealthProfileSelector';
+import { StagePresetsBar } from '../../components/scanner/StagePresetsBar';
+import { TruthAndSafetyResultsCard } from '../../components/scanner/TruthAndSafetyResultsCard';
+import { useHealthStore } from '../../store/healthStore';
 import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
@@ -111,6 +115,31 @@ export const ProductScanner: React.FC = () => {
   }, [currentScan, scans, viewScan]);
 
   const { reports, addReport } = useReportStore();
+  const { runAudit, currentAuditResult } = useHealthStore();
+
+  // Automatically run Truth & Health audit when a scan finishes or is selected
+  useEffect(() => {
+    if (currentScan?.status === 'completed' && currentScan.extractedData) {
+      const rawText = currentScan.extractedData.rawText || '';
+      const productName = currentScan.extractedData.productName || currentScan.imageName || 'Scanned Commodity';
+      
+      const proteinMatch = rawText.match(/protein[^\d]*(\d+(\.\d+)?)/i);
+      const sugarMatch = rawText.match(/sugar[^\d]*(\d+(\.\d+)?)/i);
+      const sodiumMatch = rawText.match(/sodium[^\d]*(\d+(\.\d+)?)/i);
+
+      runAudit(
+        rawText,
+        {
+          energyKcal: 420,
+          protein: proteinMatch ? parseFloat(proteinMatch[1]) : 4.0,
+          carbohydrates: 55,
+          totalSugars: sugarMatch ? parseFloat(sugarMatch[1]) : 12.0,
+          sodium: sodiumMatch ? parseFloat(sodiumMatch[1]) : 380,
+        },
+        [productName, 'High Quality Product']
+      );
+    }
+  }, [currentScan?.id, currentScan?.status, runAudit]);
 
   const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -196,11 +225,14 @@ export const ProductScanner: React.FC = () => {
           <div className="flex items-center gap-2">
             <h1 
               onDoubleClick={toggleEngineMode}
-              title="Product Scanner"
-              className="text-2xl font-extrabold text-slate-900 tracking-tight cursor-default select-none"
+              title="SatyaDrishti Truth & Safety Copilot"
+              className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight cursor-default select-none"
             >
-              Product Scanner
+              SatyaDrishti (सत्यदृष्टि)
             </h1>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800">
+              AI Truth & Safety Copilot
+            </span>
             {activeEngineMode === 'local' && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800 animate-pulse">
                 <Zap className="h-3 w-3 fill-amber-500 text-amber-500" />
@@ -208,8 +240,8 @@ export const ProductScanner: React.FC = () => {
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Scan product packaging & labels using optical character recognition for Legal Metrology compliance verification.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Exposing deceptive claims (Front vs Back), hidden health traps (Gym, Diabetes, Allergens), and Legal Metrology shrinkflation.
           </p>
         </div>
 
@@ -369,6 +401,15 @@ export const ProductScanner: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* 1-Click Stage Demo Presets for Hackathon Pitching */}
+      <StagePresetsBar />
+
+      {/* Personal Health & Lifestyle Filter Selector */}
+      <HealthProfileSelector />
+
+      {/* Dynamic Truth & Safety Discrepancy Verdict */}
+      <TruthAndSafetyResultsCard />
 
       {/* Packaging Capture & Upload Zone with Camera Tabs */}
       <div className="space-y-3 min-w-0">
