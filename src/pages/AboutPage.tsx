@@ -13,37 +13,38 @@ import { ModernSoftFooter } from '../components/landing/ModernSoftFooter';
 
 export const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF9] font-sans antialiased selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white font-sans antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
       <LandingNavbar />
       <main className="flex-1">
-        {/* 1. Giant Bold Hero with Organic Artwork & Pill Buttons */}
+        {/* 1. Full-viewport editorial hero with live scan mockup */}
         <HeroSection />
 
-        {/* 2. Big Bold Manifesto Statement with Highlighted Words & Scattered Doodles */}
+        {/* 2. Dark manifesto statement + high-density stats strip */}
         <ManifestoStatementSection />
 
-        {/* 3. Tilted Soft Pastel Stats Cards (250k+, 98%, 2 sec, 100%) */}
+        {/* 3. Platform metrics Bento grid (4-column hover-to-dark) */}
         <TiltedPastelStatsSection />
 
-        {/* 4. Interactive Live Truth Radar Simulator */}
+        {/* 4. Interactive truth radar / live scanner demo */}
         <InteractiveTruthRadarSection />
 
-        {/* 5. 3-Step Protection Workflow with Numbered Badges & Circles */}
+        {/* 5. How it works — industrial step navigator */}
         <StepWorkflowSection />
 
-        {/* 6. Arched Cards Grid Busting Packaging Deceptions */}
+        {/* 6. Common traps 2x2 editorial Bento */}
         <ArchedPillCardsSection />
 
-        {/* 7. Soft Pastel Testimonial Quote Cards */}
+        {/* 7. Testimonials on dark editorial strip */}
         <TestimonialQuotesSection />
 
-        {/* 8. Clean Rounded Pill Accordion FAQ */}
+        {/* 8. FAQ — editorial two-column accordion */}
         <PillAccordionFaqSection />
 
-        {/* 9. High-Contrast Playful Bottom Callout Banner */}
+        {/* 9. Dark editorial CTA banner */}
         <PlayfulBottomBanner />
       </main>
-      {/* 10. Minimalist Modern Footer with Scroll-to-Top Button */}
+
+      {/* 10. Structured grid footer */}
       <ModernSoftFooter />
     </div>
   );

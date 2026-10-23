@@ -1,130 +1,140 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Flame, Sparkles, TrendingDown, ShieldAlert, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
+
+const TRAPS = [
+  {
+    id: 'A',
+    category: 'Ingredient Substitution',
+    title: 'Honey & Invert Sugar Dilution',
+    description:
+      'Brands claim "100% Pure Natural Honey" on the front, while the back ingredient panel lists Invert Sugar Syrup and Liquid Glucose as the top sweeteners by weight.',
+    statutoryTag: 'CCPA 2022 Misleading Advertisement',
+    impact: 'Affects 340M households consuming honey annually',
+    accentColor: '#D97706', // amber-600
+    bgColor: '#FFFBEB',
+    borderColor: '#FDE68A',
+  },
+  {
+    id: 'B',
+    category: 'Fitness Nutrition Trap',
+    title: 'The Gym "Protein Washing" Scam',
+    description:
+      'Snack bars display bold "15g Protein*" claims, asterisking to the entire 3-bar multipack (150g) rather than one bar. 70% of calories come from palm oil.',
+    statutoryTag: 'Asterisk Loophole · PCR Rule 6',
+    impact: '62M gym-going Indians misled on protein intake',
+    accentColor: '#E11D48', // rose-600
+    bgColor: '#FFF1F2',
+    borderColor: '#FECDD3',
+  },
+  {
+    id: 'C',
+    category: 'Metabolic Health Risk',
+    title: 'The Diabetic Maltodextrin Danger',
+    description:
+      '"Zero Added Cane Sugar" digestive biscuits replace sugar with Maltodextrin (Glycemic Index 110), spiking insulin faster than pure table glucose.',
+    statutoryTag: 'High Glycemic Trigger · FSSAI Regs 2019',
+    impact: '101M diabetics exposed to unlabelled GI risk',
+    accentColor: '#0D9488', // teal-600
+    bgColor: '#F0FDFA',
+    borderColor: '#99F6E4',
+  },
+  {
+    id: 'D',
+    category: 'Quick-Commerce Price Abuse',
+    title: 'Shrinkflation & Stealth Hikes',
+    description:
+      'Popular dry fruit and chip packages quietly downsize from 250g to 180g on Blinkit and Zepto while retaining identical prices and omitting unit sale prices.',
+    statutoryTag: 'Legal Metrology PCR Rule 6 Violation',
+    impact: 'Detected in 38k+ SKUs across quick-commerce',
+    accentColor: '#7C3AED', // violet-600
+    bgColor: '#F5F3FF',
+    borderColor: '#DDD6FE',
+  },
+];
 
 export const ArchedPillCardsSection: React.FC = () => {
-  const cards = [
-    {
-      title: 'Honey & Invert Sugar Dilution',
-      category: 'Ingredient Substitution',
-      description:
-        'Brands claim "100% Pure Natural Honey" on the front, while the back ingredient panel lists Invert Sugar Syrup and Liquid Glucose as the top sweeteners.',
-      icon: Sparkles,
-      iconBg: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-      archColor: 'from-amber-100 to-orange-100 dark:from-amber-950/60 dark:to-orange-950/40',
-      statutoryTag: 'CCPA 2022 Misleading Ad',
-    },
-    {
-      title: 'The Gym "Protein Washing" Scam',
-      category: 'Fitness Nutrition Trap',
-      description:
-        'Snack bars display bold "15g Protein*" claims, referencing the entire 3-bar multi-pack rather than a single serving, with 70% calories coming from palm oil.',
-      icon: Flame,
-      iconBg: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400',
-      archColor: 'from-rose-100 to-pink-100 dark:from-rose-950/60 dark:to-pink-950/40',
-      statutoryTag: 'Asterisk Loophole Flagged',
-    },
-    {
-      title: 'The Diabetic Maltodextrin Danger',
-      category: 'Metabolic Health Risk',
-      description:
-        '"Zero Added Cane Sugar" digestive biscuits replace sugar with Maltodextrin (Glycemic Index 110), spiking insulin faster than pure table glucose.',
-      icon: ShieldAlert,
-      iconBg: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400',
-      archColor: 'from-teal-100 to-emerald-100 dark:from-teal-950/60 dark:to-emerald-950/40',
-      statutoryTag: 'High Glycemic Trigger',
-    },
-    {
-      title: 'Shrinkflation & Stealth Hikes',
-      category: 'Quick-Commerce Price Abuse',
-      description:
-        'Popular dry fruit and chip packages quietly downsize from 250g to 180g on quick-commerce apps while retaining identical prices and missing unit sale prices.',
-      icon: TrendingDown,
-      iconBg: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
-      archColor: 'from-purple-100 to-indigo-100 dark:from-purple-950/60 dark:to-indigo-950/40',
-      statutoryTag: 'PCR Rule 6 Violation',
-    },
-  ];
-
   return (
-    <section className="py-20 sm:py-28 bg-[#FAFAF9] dark:bg-[#0B0F19] transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-mono uppercase font-bold px-3 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 mb-3 inline-block">
-            Truth In Action
-          </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black font-display text-slate-900 dark:text-white tracking-tight">
-            Common Traps We Expose Every Day
-          </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-500 dark:text-slate-400 font-sans leading-relaxed">
-            From misleading health promises to silent quantity shrinkages, SatyaDrishti reads between the lines.
-          </p>
+    <section className="bg-white border-t border-slate-900/8">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        {/* Section header bar */}
+        <div className="flex items-center gap-4 py-6 border-b border-slate-900/8">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-red-500" />
+            <span className="text-[10px] font-black uppercase tracking-[0.16em] font-mono text-slate-500">
+              Truth In Action — Common Traps We Expose
+            </span>
+          </div>
+          <div className="flex-1 h-px bg-slate-900/6" />
         </div>
 
-        {/* 4 Tall Cards with Arched Graphic Windows */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cards.map((card, idx) => {
-            const Icon = card.icon;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="bg-white dark:bg-slate-900 rounded-[2.25rem] p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-              >
-                <div>
-                  {/* Arched Illustration Window */}
-                  <div
-                    className={`relative w-full aspect-[4/5] rounded-[1.75rem] rounded-t-[3.5rem] bg-gradient-to-b ${card.archColor} flex flex-col items-center justify-center p-6 overflow-hidden mb-5`}
+        {/* Bento grid: 2x2 with an asymmetric editorial layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-slate-900/8">
+          {TRAPS.map((trap, idx) => (
+            <div
+              key={trap.id}
+              className={`p-8 lg:p-10 border-slate-900/8 group hover:bg-slate-950 transition-colors duration-200 ${
+                idx % 2 === 0 ? 'md:border-r' : ''
+              } ${idx < 2 ? 'border-b' : ''}`}
+            >
+              {/* Category + ID */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-[10px] font-black font-mono uppercase tracking-[0.14em]"
+                    style={{ color: trap.accentColor }}
                   >
-                    {/* Top Right Dark Badge */}
-                    <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-md">
-                      <Icon className="w-4 h-4" />
-                    </div>
-
-                    <div
-                      className={`w-14 h-14 rounded-2xl ${card.iconBg} flex items-center justify-center shadow-sm mb-3`}
-                    >
-                      <Icon className="w-7 h-7 stroke-[2]" />
-                    </div>
-
-                    <span className="text-[10px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/80 dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 shadow-2xs">
-                      {card.statutoryTag}
-                    </span>
-                  </div>
-
-                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1">
-                    {card.category}
+                    {trap.category}
                   </span>
-
-                  <h3 className="text-base font-bold font-display text-slate-900 dark:text-white mb-2 leading-snug">
-                    {card.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
-                    {card.description}
-                  </p>
                 </div>
+                <span className="text-[40px] font-black font-mono text-slate-100 group-hover:text-slate-800 leading-none transition-colors select-none">
+                  {trap.id}
+                </span>
+              </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  <Link
-                    to="/dashboard/scanner"
-                    className="inline-flex items-center gap-1 text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    <span>Test on Scanner</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </Link>
-                  <span className="font-mono text-[10px] text-slate-400">0{idx + 1}</span>
-                </div>
-              </motion.div>
-            );
-          })}
+              {/* Title */}
+              <h3
+                className="font-black text-slate-950 group-hover:text-white leading-tight mb-3 transition-colors"
+                style={{ fontSize: 'clamp(1.25rem, 2vw, 1.6rem)', letterSpacing: '-0.02em' }}
+              >
+                {trap.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-sm text-slate-500 group-hover:text-slate-400 leading-relaxed font-sans mb-6 transition-colors">
+                {trap.description}
+              </p>
+
+              {/* Statutory tag */}
+              <div
+                className="inline-block text-[10px] font-black font-mono uppercase tracking-[0.1em] px-2.5 py-1 mb-4 border"
+                style={{
+                  color: trap.accentColor,
+                  borderColor: trap.borderColor,
+                  backgroundColor: trap.bgColor,
+                }}
+              >
+                {trap.statutoryTag}
+              </div>
+
+              {/* Impact stat */}
+              <div className="pt-4 border-t border-slate-900/8 group-hover:border-white/10 flex items-center justify-between transition-colors">
+                <span className="text-[10px] font-mono text-slate-400 group-hover:text-slate-500">
+                  {trap.impact}
+                </span>
+                <Link
+                  to="/dashboard/scanner"
+                  className="text-[10px] font-mono font-black uppercase tracking-[0.1em] text-slate-400 hover:text-slate-950 group-hover:text-white flex items-center gap-1 transition-colors"
+                >
+                  Test on Scanner <ArrowUpRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 };
+
+export default ArchedPillCardsSection;

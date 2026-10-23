@@ -1,136 +1,169 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ShieldCheck, Eye, Sparkles, Flame, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, Check } from 'lucide-react';
+
+const STEPS = [
+  {
+    index: '01',
+    title: 'Spatial Label & Nutrition Extraction',
+    description:
+      'Multi-stage computer vision unwraps curved bottles and reflective pouches, extracting mandatory declaration fields, nutritional micro-tables, and MRP typographic measurements.',
+    badge: 'Vision + OCR',
+    highlight: 'Rule 8 Font Heights · Mandatory Fields · Spatial Layout',
+    lawRef: 'Legal Metrology PCR, 2011 Rule 8',
+    color: 'amber',
+  },
+  {
+    index: '02',
+    title: 'Deceptive Claim & Discrepancy Matching',
+    description:
+      'Cross-checks front marketing slogans against back quantitative ingredients to uncover sugar syrups posing as natural honey, or 80% maida in "whole wheat" snacks.',
+    badge: 'CCPA 2022 Aligned',
+    highlight: 'Front vs. Back Discrepancies · Asterisk Loophole Detection',
+    lawRef: 'CCPA Misleading Ads Guidelines, 2022',
+    color: 'rose',
+  },
+  {
+    index: '03',
+    title: 'Personalized Health & Risk Guardrails',
+    description:
+      'Filters every product against your personal lifestyle profile: flags Maltodextrin (GI 110) for diabetics, protein washing for gym-goers, and hidden gluten for celiac patients.',
+    badge: 'Personalized Protection',
+    highlight: 'Gym · Diabetic · Allergens · Pregnancy · Cardiac Risk',
+    lawRef: 'FSSAI Labelling Regs, 2019',
+    color: 'teal',
+  },
+];
+
+const COLOR_MAP: Record<string, { accent: string; tag: string; check: string }> = {
+  amber: { accent: 'bg-amber-400', tag: 'text-amber-600 bg-amber-50 border-amber-200', check: 'text-amber-600' },
+  rose: { accent: 'bg-rose-500', tag: 'text-rose-600 bg-rose-50 border-rose-200', check: 'text-rose-600' },
+  teal: { accent: 'bg-teal-500', tag: 'text-teal-600 bg-teal-50 border-teal-200', check: 'text-teal-600' },
+};
 
 export const StepWorkflowSection: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
-
-  const steps = [
-    {
-      num: '01',
-      title: 'Spatial Label & Nutrition Extraction',
-      description:
-        'Multi-stage computer vision unwraps curved bottles and reflective pouches, extracting mandatory declaration fields and nutritional micro-tables.',
-      badge: 'Vision & OCR',
-      highlight: 'Rule 8 Font Heights',
-    },
-    {
-      num: '02',
-      title: 'Deceptive Claim & Discrepancy Matching',
-      description:
-        'Cross-checks front marketing slogans against back quantitative ingredients to uncover sugar syrups posing as natural honey, or 80% maida in "whole wheat" snacks.',
-      badge: 'CCPA 2022 Aligned',
-      highlight: 'Front vs. Back Discrepancies',
-    },
-    {
-      num: '03',
-      title: 'Personalized Health & Risk Guardrails',
-      description:
-        'Filters every product against your personal lifestyle: flags Maltodextrin (GI 110) for diabetics, protein washing for gym-goers, and hidden gluten for celiac patients.',
-      badge: 'Personalized Protection',
-      highlight: 'Gym • Diabetic • Allergens',
-    },
-  ];
+  const active = STEPS[activeStep];
+  const colors = COLOR_MAP[active.color];
 
   return (
-    <section className="py-20 sm:py-28 bg-white dark:bg-[#070B13] border-b border-slate-200/60 dark:border-slate-800/80 transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16 sm:mb-20">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black font-display text-slate-900 dark:text-white tracking-tight mb-4">
-            How SatyaDrishti Protects You
-          </h2>
-          <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-sans leading-relaxed">
-            Carrying out rigorous automated inspection so Indian families can trust the products in their shopping baskets.
-          </p>
+    <section id="how-it-works" className="bg-white border-t border-slate-900/8">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        {/* Section header bar */}
+        <div className="flex items-center gap-4 py-6 border-b border-slate-900/8">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-amber-400" />
+            <span className="text-[10px] font-black uppercase tracking-[0.16em] font-mono text-slate-500">
+              How It Works
+            </span>
+          </div>
+          <div className="flex-1 h-px bg-slate-900/6" />
+          <Link
+            to="/dashboard/scanner"
+            className="text-[10px] font-mono font-bold uppercase tracking-[0.1em] text-slate-400 hover:text-slate-950 flex items-center gap-1 transition-colors"
+          >
+            Try Live Scanner <ArrowUpRight className="w-3 h-3" />
+          </Link>
         </div>
 
-        {/* 2-Column Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          {/* Left: Interactive Step Indicator */}
-          <div className="lg:col-span-7 space-y-6">
-            {steps.map((step, idx) => {
-              const isActive = activeStep === idx;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => setActiveStep(idx)}
-                  className={`p-6 rounded-3xl border transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? 'bg-[#F8FAFC] dark:bg-slate-900/90 border-slate-900/20 dark:border-slate-700 shadow-md ring-1 ring-slate-900/5'
-                      : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/40 text-slate-400'
-                  }`}
-                >
-                  <div className="flex items-start gap-4">
-                    <span
-                      className={`text-lg sm:text-xl font-mono font-bold px-3 py-1 rounded-xl transition-all ${
-                        isActive
-                          ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                      }`}
-                    >
-                      {step.num}
-                    </span>
-
-                    <div className="space-y-1.5 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3
-                          className={`text-lg sm:text-xl font-bold font-display ${
-                            isActive
-                              ? 'text-slate-900 dark:text-white'
-                              : 'text-slate-600 dark:text-slate-400'
-                          }`}
-                        >
-                          {step.title}
-                        </h3>
-                        <span className="text-[10px] font-mono uppercase font-semibold px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                          {step.badge}
-                        </span>
+        {/* 2-col layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+          {/* Left rail: step navigation */}
+          <div className="lg:col-span-5 lg:border-r border-slate-900/8 py-12 pr-0 lg:pr-12">
+            <div className="space-y-0">
+              {STEPS.map((step, idx) => {
+                const isActive = activeStep === idx;
+                const stepColors = COLOR_MAP[step.color];
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveStep(idx)}
+                    className={`w-full text-left p-6 border-b border-slate-900/6 transition-all duration-200 group ${
+                      isActive ? 'bg-slate-950 text-white' : 'bg-transparent hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Step index */}
+                      <div
+                        className={`text-sm font-black font-mono shrink-0 mt-0.5 transition-colors ${
+                          isActive ? 'text-slate-400' : 'text-slate-300 group-hover:text-slate-500'
+                        }`}
+                      >
+                        {step.index}
                       </div>
 
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
-                        {step.description}
-                      </p>
-
-                      {isActive && (
-                        <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>{step.highlight}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <h3
+                            className={`text-sm font-black leading-tight transition-colors ${
+                              isActive ? 'text-white' : 'text-slate-900'
+                            }`}
+                          >
+                            {step.title}
+                          </h3>
+                          {isActive && (
+                            <div className={`w-2 h-2 ${stepColors.accent} shrink-0`} />
+                          )}
                         </div>
-                      )}
+                        <p
+                          className={`text-[11px] font-mono transition-colors ${
+                            isActive ? 'text-slate-400' : 'text-slate-400'
+                          }`}
+                        >
+                          {step.badge}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Right: Graphic Card with Playful Arc Graphics & Illustration */}
-          <div className="lg:col-span-5 relative flex justify-center">
-            {/* Soft decorative background circles */}
-            <div className="w-72 h-72 sm:w-88 sm:h-88 rounded-full bg-gradient-to-tr from-teal-100 via-sky-100 to-amber-100 dark:from-slate-800 dark:to-slate-900 p-6 flex items-center justify-center relative shadow-xl">
-              {/* Circular Center Emblem */}
-              <div className="w-full h-full rounded-full border-4 border-white dark:border-slate-700 bg-white dark:bg-slate-900 p-8 flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden">
-                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 dark:bg-amber-400/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
-                  <ShieldCheck className="w-9 h-9 stroke-[2.2]" />
-                </div>
-                <div className="text-base sm:text-lg font-black font-display text-slate-900 dark:text-white mb-1">
-                  Verified Trust
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">
-                  Protecting 1.4B Indian consumers from retail dark patterns
-                </p>
+          {/* Right: active step detail */}
+          <div className="lg:col-span-7 lg:pl-12 py-12">
+            {/* Large step index */}
+            <div className="text-8xl font-black font-mono text-slate-100 leading-none mb-6 select-none">
+              {active.index}
+            </div>
 
-                {/* Floating Micro Badge */}
-                <div className="absolute top-4 right-4 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-300/60 dark:border-emerald-800">
-                  100% Law Grounded
-                </div>
+            <h2
+              className="font-black text-slate-950 leading-tight mb-5"
+              style={{ fontSize: 'clamp(1.6rem, 3vw, 2.5rem)', letterSpacing: '-0.025em' }}
+            >
+              {active.title}
+            </h2>
+
+            <p className="text-sm text-slate-500 leading-relaxed mb-8 font-sans max-w-xl">
+              {active.description}
+            </p>
+
+            {/* Capability tags */}
+            <div className="mb-8">
+              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.1em] text-slate-400 mb-3">
+                Detected Capabilities
               </div>
+              <div className="flex flex-wrap gap-2">
+                {active.highlight.split(' · ').map((tag) => (
+                  <span
+                    key={tag}
+                    className={`text-[11px] font-mono font-semibold px-3 py-1 border ${colors.tag}`}
+                  >
+                    <span className={`mr-1.5 ${colors.check}`}>✓</span>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
 
-              {/* Floating Pill Accent Graphic */}
-              <div className="absolute -bottom-3 -left-3 bg-white dark:bg-slate-800 px-3.5 py-1.5 rounded-full shadow-lg border border-slate-100 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span>Evidence-Grade SCN Ready</span>
+            {/* Law reference */}
+            <div className="bg-slate-50 border border-slate-200 p-4 flex items-start gap-3">
+              <div className={`w-0.5 h-full self-stretch ${colors.accent} shrink-0`} />
+              <div>
+                <div className="text-[10px] font-mono font-bold uppercase tracking-[0.1em] text-slate-400 mb-0.5">
+                  Legal Basis
+                </div>
+                <div className="text-[12px] font-semibold text-slate-700 font-mono">{active.lawRef}</div>
               </div>
             </div>
           </div>
@@ -139,3 +172,5 @@ export const StepWorkflowSection: React.FC = () => {
     </section>
   );
 };
+
+export default StepWorkflowSection;

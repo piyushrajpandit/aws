@@ -528,3 +528,16 @@
 .animate-laser-sweep {
   animation: laser-sweep 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
+
+/* ==========================================================================
+   Hero Ticker Marquee
+   ========================================================================== */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
