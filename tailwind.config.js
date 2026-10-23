@@ -20,9 +20,19 @@ export default {
           border: '#E2E8F0',
           muted: '#64748B',
         },
+        pastel: {
+          lavender: '#EEF2FF',
+          peach: '#FFF1F2',
+          mint: '#ECFDF5',
+          cream: '#FFFBEB',
+          sky: '#F0F9FF',
+          blush: '#FDF2F8',
+          yellow: '#FEF9C3',
+        },
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', '-apple-system', 'sans-serif'],
+        display: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       boxShadow: {
