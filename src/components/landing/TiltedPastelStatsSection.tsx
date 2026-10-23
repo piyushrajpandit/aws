@@ -1,85 +1,80 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+
+const STATS = [
+  {
+    value: '250k+',
+    description: 'Packaged commodities verified across Blinkit, Zepto, Instamart & retail shelves.',
+    index: 'VERIFIED METRIC 01',
+    bgColor: 'bg-[#EEF2FF]',
+    borderColor: 'border-[#E0E7FF]',
+    textColor: 'text-[#3730A3]',
+    indexColor: 'text-[#6366F1]',
+  },
+  {
+    value: '98.4%',
+    description: 'Accuracy detecting misleading marketing claims, asterisks, and font size violations.',
+    index: 'VERIFIED METRIC 02',
+    bgColor: 'bg-[#FDF2F8]',
+    borderColor: 'border-[#FCE7F3]',
+    textColor: 'text-[#9F1239]',
+    indexColor: 'text-[#F43F5E]',
+  },
+  {
+    value: '2 sec',
+    description: 'Average AI inference time to analyze nutrition tables and quantitative ingredients.',
+    index: 'VERIFIED METRIC 03',
+    bgColor: 'bg-[#F0FDFA]',
+    borderColor: 'border-[#CCFBF1]',
+    textColor: 'text-[#065F46]',
+    indexColor: 'text-[#10B981]',
+  },
+  {
+    value: '100%',
+    description: 'Deterministic legal grounding in Legal Metrology Act 2009 & CCPA Guidelines 2022.',
+    index: 'VERIFIED METRIC 04',
+    bgColor: 'bg-[#FEF3C7]',
+    borderColor: 'border-[#FDE68A]',
+    textColor: 'text-[#92400E]',
+    indexColor: 'text-[#D97706]',
+  },
+];
 
 export const TiltedPastelStatsSection: React.FC = () => {
-  const cards = [
-    {
-      stat: '250k+',
-      label: 'Packaged commodities verified across Blinkit, Zepto, Instamart & retail shelves.',
-      bgLight: 'bg-[#EEF2FF]',
-      textLight: 'text-indigo-900',
-      labelLight: 'text-indigo-900/70',
-      bgDark: 'dark:bg-indigo-950/40',
-      borderDark: 'dark:border-indigo-800/40',
-      tilt: '-rotate-2',
-    },
-    {
-      stat: '98.4%',
-      label: 'Accuracy detecting misleading marketing claims, asterisks, and font size violations.',
-      bgLight: 'bg-[#FFF1F2]',
-      textLight: 'text-rose-900',
-      labelLight: 'text-rose-900/70',
-      bgDark: 'dark:bg-rose-950/40',
-      borderDark: 'dark:border-rose-800/40',
-      tilt: 'rotate-1',
-    },
-    {
-      stat: '2 sec',
-      label: 'Average AI inference time to analyze nutrition tables and quantitative ingredients.',
-      bgLight: 'bg-[#ECFDF5]',
-      textLight: 'text-emerald-900',
-      labelLight: 'text-emerald-900/70',
-      bgDark: 'dark:bg-emerald-950/40',
-      borderDark: 'dark:border-emerald-800/40',
-      tilt: '-rotate-1',
-    },
-    {
-      stat: '100%',
-      label: 'Deterministic legal grounding in Legal Metrology Act 2009 & CCPA Guidelines 2022.',
-      bgLight: 'bg-[#FFFBEB]',
-      textLight: 'text-amber-900',
-      labelLight: 'text-amber-900/70',
-      bgDark: 'dark:bg-amber-950/40',
-      borderDark: 'dark:border-amber-800/40',
-      tilt: 'rotate-2',
-    },
-  ];
-
   return (
-    <section className="py-16 sm:py-24 bg-[#FAFAF9] dark:bg-[#0B0F19] transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-4 items-stretch">
-          {cards.map((card, idx) => (
-            <motion.div
+    <section className="pb-20 sm:pb-24 bg-white relative">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {STATS.map((stat, idx) => (
+            <div
               key={idx}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              whileHover={{ y: -6, rotate: 0, transition: { duration: 0.2 } }}
-              className={`p-6 sm:p-7 rounded-[2rem] border border-slate-200/40 ${card.bgLight} ${card.bgDark} ${card.borderDark} shadow-sm transition-all duration-300 flex flex-col justify-between ${card.tilt}`}
+              className={`${stat.bgColor} ${stat.borderColor} rounded-[26px] p-7 sm:p-8 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.05)] transition-all duration-300 flex flex-col justify-between min-h-[220px]`}
             >
               <div>
                 <div
-                  className={`text-4xl sm:text-5xl font-black font-display tracking-tight mb-3 ${card.textLight} dark:text-white`}
+                  className={`text-4xl sm:text-5xl font-black ${stat.textColor} tracking-tight leading-none mb-4 font-sans`}
                 >
-                  {card.stat}
+                  {stat.value}
                 </div>
-                <p
-                  className={`text-xs sm:text-sm font-medium leading-relaxed ${card.labelLight} dark:text-slate-300`}
-                >
-                  {card.label}
+                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal">
+                  {stat.description}
                 </p>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-black/5 dark:border-white/10 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider opacity-60 dark:opacity-40">
-                <span>Verified Metric</span>
-                <span>0{idx + 1}</span>
+              {/* Bottom line + metric index */}
+              <div className="pt-6 border-t border-black/5 flex items-center justify-between mt-6">
+                <span className={`text-[10px] font-mono font-bold tracking-wider uppercase ${stat.indexColor}`}>
+                  {stat.index}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  0{idx + 1}
+                </span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 };
+
+export default TiltedPastelStatsSection;

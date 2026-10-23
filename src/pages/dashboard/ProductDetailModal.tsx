@@ -3,6 +3,7 @@ import { Modal } from '../../components/ui/Modal';
 import { Badge } from '../../components/ui/Badge';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { Product } from '../../types/compliance';
 import { formatCurrency } from '../../lib/utils';
 import {
@@ -57,6 +58,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       maxWidth="4xl"
     >
       <div className="space-y-6 text-xs">
+        {/* Verification Brand Strip */}
+        <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
+          <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+          <span className="text-[11px] font-semibold text-slate-500 font-mono hidden sm:inline">
+            Statutory Inspection Dossier · CCPA & Legal Metrology
+          </span>
+        </div>
+
         {/* Dual MRP Fraud Alert Banner */}
         {isDualMrp && (
           <div className="p-4 rounded-xl border-2 border-red-500 bg-gradient-to-r from-red-50 via-rose-50 to-amber-50 shadow-sm space-y-3">

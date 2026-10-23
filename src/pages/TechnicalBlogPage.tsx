@@ -27,7 +27,7 @@ import {
   Clock
 } from 'lucide-react';
 import { LandingNavbar } from '../components/layout/LandingNavbar';
-import { LandingFooter } from '../components/layout/LandingFooter';
+import { ModernSoftFooter } from '../components/landing/ModernSoftFooter';
 import { Button } from '../components/ui/Button';
 
 export const TechnicalBlogPage: React.FC = () => {
@@ -74,122 +74,131 @@ export const TechnicalBlogPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] dark:bg-[#020617] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#FDFCF9] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-amber-200 selection:text-slate-900">
       <LandingNavbar />
 
-      {/* Hero Banner Header */}
-      <header className="relative pt-10 pb-14 border-b border-slate-200 dark:border-slate-800/80 bg-gradient-to-b from-white via-slate-50 to-[#F8FAFC] dark:from-slate-950 dark:via-slate-900 dark:to-[#020617] overflow-hidden transition-colors duration-300">
-        <div className="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:32px_32px] opacity-20 pointer-events-none" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-indigo-500/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Editorial White Paper Header */}
+      <header className="relative pt-12 pb-14 border-b border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center gap-2 mb-6">
-            <Link to="/about" className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 transition-colors">
+            <Link to="/about" className="text-xs font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-1 transition-colors">
               <span>About Platform</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
-            <span className="text-slate-400 dark:text-slate-600 text-xs">/</span>
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Engineering Blog</span>
+            <span className="text-slate-300 dark:text-slate-700 text-xs">/</span>
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Engineering White Paper</span>
           </div>
 
-          <div className="max-w-4xl space-y-5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-              <span>SatyaDrishti Technical Case Study &amp; Architecture Journey</span>
+          <div className="max-w-4xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+              <span>SatyaDrishti Architecture Journey &amp; Technical Case Study</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-              SatyaDrishti — <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 dark:from-blue-400 dark:via-sky-300 dark:to-indigo-400">The Beginning</span>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-950 dark:text-white tracking-tight leading-[1.12]">
+              Inside SatyaDrishti: Engineering an Autonomous Legal Metrology Compliance Engine
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-              An inside look into how our team built an autonomous legal metrology compliance platform — solving low-contrast OCR, eliminating vision model hallucinations with deterministic rule engines, engineering a versioned statutory RAG pipeline, and scaling GIS risk intelligence.
+            <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl font-normal">
+              How our team eliminated vision LLM hallucinations with deterministic statutory state machines, solved high-density micro-label OCR, built a versioned regulatory RAG pipeline, and scaled geospatial risk surveillance.
             </p>
 
-            <div className="flex flex-wrap items-center gap-6 pt-4 border-t border-slate-200 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400 font-mono">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs shadow-md">
-                  SS
+            <div className="flex flex-wrap items-center gap-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  SD
                 </div>
                 <div>
-                  <div className="text-slate-900 dark:text-white font-sans font-semibold">SatyaSetu Core Team</div>
-                  <div className="text-[10px] text-slate-500">SIH National Finalists</div>
+                  <div className="text-slate-900 dark:text-white font-bold">SatyaDrishti Engineering Team</div>
+                  <div className="text-[10px] text-slate-500 font-medium">Smart India Hackathon · National Finalists</div>
                 </div>
               </div>
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-800 hidden sm:block" />
-              <div className="flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+              <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+              <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                <Clock className="h-3.5 w-3.5 text-slate-400" />
                 <span>11 Min Read</span>
               </div>
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-800 hidden sm:block" />
-              <div className="flex items-center gap-1.5">
+              <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block" />
+              <div className="flex items-center gap-1.5 font-mono text-[11px]">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>Legal Metrology (Packaged Commodities) Rules 2011</span>
+                <span>Legal Metrology (PCR) 2011 &amp; CPA 2019</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content Layout with Sticky Sidebar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      {/* Main Content Layout with Clean Editorial Sidebar */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           {/* Sticky Left Table of Contents */}
-          <aside className="hidden lg:block lg:col-span-3 sticky top-24 space-y-6">
-            <div className="bg-white dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 backdrop-blur-md shadow-sm dark:shadow-xl">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <span>Table of Contents</span>
+          <aside className="hidden lg:block lg:col-span-4 sticky top-24 space-y-6">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-xl p-5 shadow-xs">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
+                <BookOpen className="h-3.5 w-3.5 text-slate-900 dark:text-white" />
+                <span>Index of Sections</span>
               </h3>
-              <nav className="space-y-1">
-                {sections.map((sec) => (
-                  <button
-                    key={sec.id}
-                    onClick={() => scrollToSection(sec.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-between ${
-                      activeSection === sec.id
-                        ? 'bg-blue-50 dark:bg-blue-600/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 font-semibold shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                    }`}
-                  >
-                    <span className="truncate">{sec.title}</span>
-                    {activeSection === sec.id && (
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
-                    )}
-                  </button>
-                ))}
+              <nav className="space-y-0.5">
+                {sections.map((sec) => {
+                  const isActive = activeSection === sec.id;
+                  return (
+                    <button
+                      key={sec.id}
+                      onClick={() => scrollToSection(sec.id)}
+                      className={`w-full text-left py-2 px-3 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                        isActive
+                          ? 'bg-slate-100 dark:bg-slate-800 text-slate-950 dark:text-white font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      }`}
+                    >
+                      <span className="leading-snug">{sec.title}</span>
+                      {isActive && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0F172A] dark:bg-white shrink-0 ml-2" />
+                      )}
+                    </button>
+                  );
+                })}
               </nav>
             </div>
 
-            {/* Quick Tech Stack Card */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-blue-950/40 dark:to-slate-900 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 space-y-3 shadow-xs">
-              <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
-                <Cpu className="h-4 w-4" />
-                <span>Tech Stack Highlights</span>
+            {/* Architectural Highlights Card */}
+            <div className="bg-[#FAF9F5] dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-5 space-y-3">
+              <div className="flex items-center gap-2 text-slate-900 dark:text-white text-xs font-bold uppercase tracking-wider">
+                <Cpu className="h-3.5 w-3.5 text-slate-700 dark:text-slate-300" />
+                <span>Architecture Pillars</span>
               </div>
-              <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-1.5 font-mono">
-                <li>• Multi-Pass Tesseract OCR</li>
-                <li>• Pollinations AI Text LLM</li>
-                <li>• Hybrid Vector RAG (BM25 + Cosine)</li>
-                <li>• Deterministic Rule Engine</li>
-                <li>• GIS Risk Surveillance</li>
-                <li>• FastAPI + React + Tailwind</li>
+              <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-2 font-mono">
+                <li className="flex items-start gap-1.5">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>Deterministic Rule Validation (0% Hallucination)</span>
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>Hybrid Vector + BM25 Regulatory RAG</span>
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>Multi-Pass Edge OCR Optical Pipelines</span>
+                </li>
+                <li className="flex items-start gap-1.5">
+                  <span className="text-emerald-600 font-bold">✓</span>
+                  <span>GIS Geospatial Risk Clusters &amp; SCNs</span>
+                </li>
               </ul>
             </div>
           </aside>
 
           {/* Center Blog Article Content */}
-          <main className="lg:col-span-9 space-y-14 text-slate-700 dark:text-slate-300 text-base leading-relaxed">
+          <main className="lg:col-span-8 space-y-16 text-slate-700 dark:text-slate-300 text-base leading-relaxed">
 
             {/* SECTION 1 */}
             <section id="inspiration" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   01
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   Inspiration — The Hidden Compliance Challenge
                 </h2>
               </div>
@@ -277,10 +286,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 2 */}
             <section id="problem-scope" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   02
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   The Problem Became Bigger Than We Expected
                 </h2>
               </div>
@@ -335,10 +344,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 3 */}
             <section id="first-mistake" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   03
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   Our First Mistake — Relying Solely on End-to-End Vision Models
                 </h2>
               </div>
@@ -368,10 +377,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 4 */}
             <section id="architecture-pivot" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   04
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   The Decision That Changed Everything — Deterministic Rules vs AI
                 </h2>
               </div>
@@ -442,10 +451,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 5 */}
             <section id="legal-knowledge" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   05
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   The Question That Forced Us To Think Differently
                 </h2>
               </div>
@@ -500,10 +509,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 6 */}
             <section id="relative-font" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   06
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   The Question That Ruined Our Weekend — Relative Font Geometry
                 </h2>
               </div>
@@ -544,10 +553,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 7 */}
             <section id="ecommerce-crawler" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-sky-100 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-200 dark:border-sky-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   07
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   When E-Commerce Entered The Conversation
                 </h2>
               </div>
@@ -588,10 +597,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 8 */}
             <section id="crowdsourced" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   08
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   The Moment We Realized Inspectors Can't Be Everywhere
                 </h2>
               </div>
@@ -618,10 +627,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 9 */}
             <section id="gis-risk" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   09
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   From Individual Violations To GIS Compliance Intelligence
                 </h2>
               </div>
@@ -666,10 +675,10 @@ export const TechnicalBlogPage: React.FC = () => {
             {/* SECTION 10 */}
             <section id="lessons-future" className="space-y-6 scroll-mt-24">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 font-bold font-mono text-sm">
+                <span className="font-mono text-xs font-black text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md">
                   10
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                   What We Learned &amp; What's Next for SatyaDrishti
                 </h2>
               </div>
@@ -732,27 +741,28 @@ export const TechnicalBlogPage: React.FC = () => {
                 </div>
 
                 {/* Bottom Call to Action */}
-                <div className="mt-12 p-8 rounded-3xl bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/40 dark:via-indigo-900/50 dark:to-purple-900/40 border border-blue-200 dark:border-blue-500/30 text-center space-y-4 shadow-lg dark:shadow-2xl">
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Experience SatyaDrishti Live in Action</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 max-w-lg mx-auto">
-                    Test the real OCR + Pollinations AI LLM statutory packaging verification engine or explore the public product directory.
+                <div className="mt-12 p-8 rounded-2xl bg-[#0F172A] text-white text-center space-y-4 shadow-xl">
+                  <h3 className="text-2xl font-black text-white">Experience SatyaDrishti Live in Action</h3>
+                  <p className="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                    Test the real multi-pass OCR statutory packaging verification engine or explore verified commodities in the public directory.
                   </p>
-                  <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <Link to="/dashboard/scanner">
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold text-xs sm:text-sm text-slate-900 bg-white hover:bg-slate-100 transition-colors shadow-sm cursor-pointer"
+                      >
+                        <Zap className="h-4 w-4 text-amber-600 shrink-0" />
+                        <span>Launch Scanner Copilot</span>
+                      </button>
+                    </Link>
                     <Link to="/directory">
                       <button
                         type="button"
-                        className="inline-flex items-center justify-center gap-3 px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl font-bold text-sm sm:text-base text-white bg-blue-600 hover:bg-blue-500 shadow-xl shadow-blue-600/25 hover:shadow-2xl hover:shadow-blue-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all border border-blue-400/30 cursor-pointer"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-bold text-xs sm:text-sm text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
                       >
-                        <ShieldCheck className="h-5 w-5 text-blue-100 shrink-0" />
-                        <span>Product Verification Directory</span>
-                      </button>
-                    </Link>
-                    <Link to="/about">
-                      <button
-                        type="button"
-                        className="inline-flex items-center justify-center gap-3 px-7 py-3.5 sm:px-8 sm:py-4 rounded-xl font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-md hover:shadow-lg border border-slate-300 dark:border-slate-700 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
-                      >
-                        <span>Back to About Platform</span>
+                        <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+                        <span>Public Consumer Directory</span>
                       </button>
                     </Link>
                   </div>
@@ -765,7 +775,7 @@ export const TechnicalBlogPage: React.FC = () => {
         </div>
       </div>
 
-      <LandingFooter />
+      <ModernSoftFooter />
     </div>
   );
 };

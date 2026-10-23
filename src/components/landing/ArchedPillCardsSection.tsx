@@ -1,130 +1,202 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Flame, Sparkles, TrendingDown, ShieldAlert, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
+import {
+  HoneyTrapDoodle,
+  ProteinWashingDoodle,
+  DiabeticMaltodextrinDoodle,
+  ShrinkflationDoodle,
+  DoodleSquiggle,
+  DoodleSparkle,
+  DoodleStar,
+} from '../doodles/DoodleIcons';
+
+interface TrapCard {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  statutoryTag: string;
+  impact: string;
+  archBg: string;
+  badgeBg: string;
+  badgeText: string;
+  illustration: React.ReactNode;
+}
+
+const TRAPS: TrapCard[] = [
+  {
+    id: '01',
+    category: 'Ingredient Substitution',
+    title: 'Honey & Invert Sugar Dilution',
+    description:
+      'Brands claim "100% Pure Natural Honey" on the front, while the back ingredient panel lists Invert Sugar Syrup and Liquid Glucose as the top sweeteners by weight.',
+    statutoryTag: 'CCPA 2022 Misleading Ad',
+    impact: 'Affects 340M households consuming honey',
+    archBg: 'bg-amber-50',
+    badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
+    badgeText: 'text-amber-800',
+    illustration: <HoneyTrapDoodle className="w-full h-44" />,
+  },
+  {
+    id: '02',
+    category: 'Fitness Nutrition Trap',
+    title: 'The Gym "Protein Washing" Scam',
+    description:
+      'Snack bars display bold "15g Protein*" claims, asterisking to the entire 3-bar multipack rather than a single bar. 70% of calories come from hidden palm oil.',
+    statutoryTag: 'Asterisk Loophole Flagged',
+    impact: '62M gym-going Indians misled on intake',
+    archBg: 'bg-rose-50',
+    badgeBg: 'bg-rose-100 text-rose-900 border-rose-300',
+    badgeText: 'text-rose-800',
+    illustration: <ProteinWashingDoodle className="w-full h-44" />,
+  },
+  {
+    id: '03',
+    category: 'Metabolic Health Risk',
+    title: 'The Diabetic Maltodextrin Danger',
+    description:
+      '"Zero Added Cane Sugar" digestive biscuits replace sugar with Maltodextrin (Glycemic Index 110), spiking insulin faster than pure table glucose.',
+    statutoryTag: 'High Glycemic Trigger',
+    impact: '101M diabetics exposed to unlabelled GI',
+    archBg: 'bg-emerald-50',
+    badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+    badgeText: 'text-emerald-800',
+    illustration: <DiabeticMaltodextrinDoodle className="w-full h-44" />,
+  },
+  {
+    id: '04',
+    category: 'Quick-Commerce Price Abuse',
+    title: 'Shrinkflation & Stealth Hikes',
+    description:
+      'Popular dry fruit and chip packages quietly downsize from 250g to 180g on Blinkit and Zepto while retaining identical prices and omitting unit sale prices.',
+    statutoryTag: 'PCR Rule 6 Violation',
+    impact: '38k+ SKUs downsized silently this year',
+    archBg: 'bg-violet-50',
+    badgeBg: 'bg-violet-100 text-violet-900 border-violet-300',
+    badgeText: 'text-violet-800',
+    illustration: <ShrinkflationDoodle className="w-full h-44" />,
+  },
+];
 
 export const ArchedPillCardsSection: React.FC = () => {
-  const cards = [
-    {
-      title: 'Honey & Invert Sugar Dilution',
-      category: 'Ingredient Substitution',
-      description:
-        'Brands claim "100% Pure Natural Honey" on the front, while the back ingredient panel lists Invert Sugar Syrup and Liquid Glucose as the top sweeteners.',
-      icon: Sparkles,
-      iconBg: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
-      archColor: 'from-amber-100 to-orange-100 dark:from-amber-950/60 dark:to-orange-950/40',
-      statutoryTag: 'CCPA 2022 Misleading Ad',
-    },
-    {
-      title: 'The Gym "Protein Washing" Scam',
-      category: 'Fitness Nutrition Trap',
-      description:
-        'Snack bars display bold "15g Protein*" claims, referencing the entire 3-bar multi-pack rather than a single serving, with 70% calories coming from palm oil.',
-      icon: Flame,
-      iconBg: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400',
-      archColor: 'from-rose-100 to-pink-100 dark:from-rose-950/60 dark:to-pink-950/40',
-      statutoryTag: 'Asterisk Loophole Flagged',
-    },
-    {
-      title: 'The Diabetic Maltodextrin Danger',
-      category: 'Metabolic Health Risk',
-      description:
-        '"Zero Added Cane Sugar" digestive biscuits replace sugar with Maltodextrin (Glycemic Index 110), spiking insulin faster than pure table glucose.',
-      icon: ShieldAlert,
-      iconBg: 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400',
-      archColor: 'from-teal-100 to-emerald-100 dark:from-teal-950/60 dark:to-emerald-950/40',
-      statutoryTag: 'High Glycemic Trigger',
-    },
-    {
-      title: 'Shrinkflation & Stealth Hikes',
-      category: 'Quick-Commerce Price Abuse',
-      description:
-        'Popular dry fruit and chip packages quietly downsize from 250g to 180g on quick-commerce apps while retaining identical prices and missing unit sale prices.',
-      icon: TrendingDown,
-      iconBg: 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400',
-      archColor: 'from-purple-100 to-indigo-100 dark:from-purple-950/60 dark:to-indigo-950/40',
-      statutoryTag: 'PCR Rule 6 Violation',
-    },
-  ];
-
   return (
-    <section className="py-20 sm:py-28 bg-[#FAFAF9] dark:bg-[#0B0F19] transition-colors duration-300">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 sm:py-28 bg-[#FAF9F5] relative overflow-hidden">
+      {/* Decorative floating doodles */}
+      <div className="absolute top-12 left-10 hidden lg:block pointer-events-none">
+        <DoodleSquiggle className="w-20 h-5" color="#F59E0B" />
+      </div>
+      <div className="absolute top-20 right-14 hidden lg:block pointer-events-none">
+        <DoodleSparkle className="w-7 h-7" color="#EC4899" />
+      </div>
+      <div className="absolute bottom-12 right-20 hidden lg:block pointer-events-none">
+        <DoodleStar className="w-8 h-8" color="#8B5CF6" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
+        {/* Section Header with friendly typography and doodles */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-mono uppercase font-bold px-3 py-1 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 mb-3 inline-block">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/80 border border-amber-200/80 text-amber-900 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             Truth In Action
-          </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black font-display text-slate-900 dark:text-white tracking-tight">
-            Common Traps We Expose Every Day
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+            Common deceptive traps{' '}
+            <span className="relative inline-block text-amber-600">
+              we expose
+              <svg
+                viewBox="0 0 180 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="absolute -bottom-2 left-0 w-full h-3 text-amber-400"
+              >
+                <path
+                  d="M2 11C40 2 120 2 178 9"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-500 dark:text-slate-400 font-sans leading-relaxed">
-            From misleading health promises to silent quantity shrinkages, SatyaDrishti reads between the lines.
+
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+            Real packaging tricks brands use every day on Indian grocery shelves — and how our computer vision catches them in seconds.
           </p>
         </div>
 
-        {/* 4 Tall Cards with Arched Graphic Windows */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cards.map((card, idx) => {
-            const Icon = card.icon;
-            return (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="bg-white dark:bg-slate-900 rounded-[2.25rem] p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-              >
-                <div>
-                  {/* Arched Illustration Window */}
-                  <div
-                    className={`relative w-full aspect-[4/5] rounded-[1.75rem] rounded-t-[3.5rem] bg-gradient-to-b ${card.archColor} flex flex-col items-center justify-center p-6 overflow-hidden mb-5`}
-                  >
-                    {/* Top Right Dark Badge */}
-                    <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-md">
-                      <Icon className="w-4 h-4" />
-                    </div>
-
-                    <div
-                      className={`w-14 h-14 rounded-2xl ${card.iconBg} flex items-center justify-center shadow-sm mb-3`}
+        {/* The 4 Arched Cards with Bespoke Hand-Drawn Doodle Illustrations */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {TRAPS.map((trap) => (
+            <div
+              key={trap.id}
+              className="group bg-white rounded-[28px] border border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col overflow-hidden"
+            >
+              {/* Arched Illustration Container at Top */}
+              <div className="p-4 pb-0">
+                <div
+                  className={`${trap.archBg} rounded-t-[22px] rounded-b-[18px] p-4 flex flex-col items-center justify-center relative border border-slate-200/50 group-hover:scale-[1.01] transition-transform duration-300 overflow-hidden`}
+                  style={{ minHeight: '190px' }}
+                >
+                  {/* Top pill with statutory tag & index */}
+                  <div className="w-full flex items-center justify-between mb-2">
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${trap.badgeBg} shadow-xs`}
                     >
-                      <Icon className="w-7 h-7 stroke-[2]" />
-                    </div>
-
-                    <span className="text-[10px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/80 dark:bg-slate-900/80 text-slate-800 dark:text-slate-200 shadow-2xs">
-                      {card.statutoryTag}
+                      {trap.statutoryTag}
+                    </span>
+                    <span className="text-xs font-mono font-black text-slate-400 group-hover:text-slate-800 transition-colors">
+                      {trap.id}
                     </span>
                   </div>
 
-                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1">
-                    {card.category}
-                  </span>
+                  {/* Hand-Drawn Doodle Illustration */}
+                  <div className="w-full flex items-center justify-center py-1">
+                    {trap.illustration}
+                  </div>
+                </div>
+              </div>
 
-                  <h3 className="text-base font-bold font-display text-slate-900 dark:text-white mb-2 leading-snug">
-                    {card.title}
+              {/* Card Body with Warm, Human Typography */}
+              <div className="p-6 pt-5 flex-1 flex flex-col justify-between">
+                <div>
+                  {/* Category */}
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                    {trap.category}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-lg font-black text-slate-900 group-hover:text-amber-600 transition-colors leading-snug mb-3">
+                    {trap.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
-                    {card.description}
+                  {/* Description */}
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                    {trap.description}
                   </p>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
+                {/* Footer link & impact stat */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                  <span className="text-[11px] font-medium text-slate-400">
+                    {trap.impact}
+                  </span>
                   <Link
                     to="/dashboard/scanner"
-                    className="inline-flex items-center gap-1 text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-amber-600 transition-colors group-hover:translate-x-0.5"
                   >
-                    <span>Test on Scanner</span>
+                    Test on Scanner
                     <ArrowUpRight className="w-3.5 h-3.5" />
                   </Link>
-                  <span className="font-mono text-[10px] text-slate-400">0{idx + 1}</span>
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 };
+
+export default ArchedPillCardsSection;

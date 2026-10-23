@@ -24,6 +24,7 @@ import { useReportStore } from '../../store/reportStore';
 import { reportService } from '../../lib/reportService';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { ImageUploader } from '../../components/scanner/ImageUploader';
 import { LiveProductCapture } from '../../components/scanner/LiveProductCapture';
 import { ImagePreviewPanel } from '../../components/scanner/ImagePreviewPanel';
@@ -230,15 +231,10 @@ export const ProductScanner: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 
-              onDoubleClick={toggleEngineMode}
-              title="SatyaDrishti Truth & Safety Copilot"
-              className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight cursor-default select-none"
-            >
-              SatyaDrishti (सत्यदृष्टि)
-            </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <BrandLogo iconSize="w-7 h-7" textSize="text-2xl" />
+            <span className="text-slate-400 font-semibold text-sm">(सत्यदृष्टि)</span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border-indigo-800">
               AI Truth & Safety Copilot
             </span>
             {activeEngineMode === 'local' && (

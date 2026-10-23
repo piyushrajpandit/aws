@@ -44,6 +44,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { buildEvidenceBackedComplaintCase } from '../../lib/complaintCaseCorrelator';
 import { ProcessedEvidenceInput } from '../../lib/complaintOcrPipeline';
 import { useAuthStore } from '../../store/authStore';
@@ -357,6 +358,9 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           : 'bg-white border-slate-200 text-slate-900 dark:bg-slate-900 dark:border-slate-800 dark:text-white'
       }`}>
         <div className="space-y-2 lg:max-w-[70%]">
+          <div className="flex items-center gap-2.5 mb-1">
+            <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+          </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {isConsumer
               ? t('portalTitle')

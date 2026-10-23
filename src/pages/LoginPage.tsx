@@ -24,6 +24,7 @@ import { SupportedLanguage } from '../types/compliance';
 import { UserRole } from '../types/auth';
 import { GridPattern } from '../components/ui/GridPattern';
 import { AnimatedThemeToggler } from '../components/ui/AnimatedThemeToggler';
+import { BrandLogo } from '../components/ui/BrandLogo';
 import { cn } from '../lib/utils';
 
 type PortalTab = 'consumer' | 'inspector' | 'admin';
@@ -226,14 +227,17 @@ export const LoginPage: React.FC = () => {
       </div>
 
       {/* Main Title Section */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-4xl relative z-10 pt-14 sm:pt-10 text-center">
+      <div className="sm:mx-auto sm:w-full sm:max-w-4xl relative z-10 pt-8 sm:pt-4 flex flex-col items-center text-center">
+        <BrandLogo
+          to="/"
+          iconSize="w-9 h-9"
+          textSize="text-3xl"
+          className="justify-center mb-3"
+        />
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Zap className="h-3.5 w-3.5 text-blue-600 animate-pulse" />
           <span>Instant 1-Click Sandbox Portals</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-          Satya<span className="text-blue-600 dark:text-blue-400">Drishti</span> Platform
-        </h2>
         <p className="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
           Choose any role below to launch into the system instantly without credentials.
         </p>

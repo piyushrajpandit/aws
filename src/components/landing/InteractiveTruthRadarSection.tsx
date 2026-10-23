@@ -1,247 +1,342 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DEMO_PRESETS, DemoPresetProduct } from '../../data/demoPresets';
-import {
-  evaluateHealthAndClaims,
-  HEALTH_PROFILES,
-  HealthProfileId,
-} from '../../lib/healthProfileEngine';
-import {
-  Sparkles,
-  Zap,
-  TrendingDown,
-  ShieldAlert,
-  ArrowRight,
-  Flame,
-  CheckCircle2,
-  AlertTriangle,
-} from 'lucide-react';
+import { Sparkles, ArrowRight, AlertTriangle, ShieldAlert, Scale } from 'lucide-react';
+
+interface DemoProduct {
+  id: string;
+  category: string;
+  title: string;
+  summary: string;
+  truthScore: number;
+  promotedSlogan: string;
+  promotedBadge: string;
+  actualReality: string;
+  healthTriggers: {
+    icon: string;
+    title: string;
+    description: string;
+  }[];
+  shrinkflation: {
+    hike: string;
+    hikeSub: string;
+    violationTitle: string;
+    violationRule: string;
+  };
+}
+
+const PRODUCTS: DemoProduct[] = [
+  {
+    id: 'powerpro',
+    category: 'FITNESS NUTRITION',
+    title: 'PowerPro Active Almond & Honey Protein...',
+    summary: 'Claims "High Protein & 100% Real Honey", but 82% of calories come from Maida and Palm Oil.',
+    truthScore: 10,
+    promotedBadge: 'PROMOTED SLOGAN',
+    promotedSlogan: '"100% PURE KASHMIRI HONEY"',
+    actualReality: 'Honey is accompanied or dominated by cheap Invert Sugar / Liquid Glucose.',
+    healthTriggers: [
+      {
+        icon: '🚨',
+        title: 'Hidden Blood Sugar Trigger: MALTODEXTRIN',
+        description: 'Found "maltodextrin" in ingredients. Glycemic index of 110—spikes insulin faster than pure table sugar (GI 65)!',
+      },
+      {
+        icon: '⚠️',
+        title: 'Heavy Sugar Load Detected',
+        description: 'Contains 22g sugar per 100g, exceeding 30% of standard diabetic daily safe thresholds.',
+      },
+    ],
+    shrinkflation: {
+      hike: '+25% Stealth Price Hike',
+      hikeSub: 'Reduced from 125 g down to 100 g at identical ₹99.00.',
+      violationTitle: 'STATUTORY RULE VIOLATION',
+      violationRule: 'Rule 8(1): Mandatory Unit Sale Price font height is 1.2mm, below statutory minimum 3.0mm for 100g packaging area.',
+    },
+  },
+  {
+    id: 'sugarlite',
+    category: 'DIABETIC & LOW GI NUTRITION',
+    title: 'SugarLite GlucoDefend 100% Whole Grain...',
+    summary: 'Claims "Zero Added Sugar & Diabetic Friendly", secretly loads Maltodextrin with Glycemic Index 110.',
+    truthScore: 18,
+    promotedBadge: 'PROMOTED SLOGAN',
+    promotedSlogan: '"ZERO ADDED SUGAR & DIABETIC SAFE"',
+    actualReality: 'Replaces table sugar with Maltodextrin (GI 110), triggering acute postprandial glucose surges.',
+    healthTriggers: [
+      {
+        icon: '🔴',
+        title: 'Extreme Glycemic Trigger (GI 110)',
+        description: 'Maltodextrin spikes blood sugar higher and faster than pure dextrose or table sugar.',
+      },
+      {
+        icon: '🌾',
+        title: 'Maida Adulteration Warning',
+        description: 'Whole wheat is listed 3rd; 68% of composite flour is refined wheat flour (maida).',
+      },
+    ],
+    shrinkflation: {
+      hike: '+18% Hidden Markup',
+      hikeSub: 'Pack shrunk from 400g to 330g with unchanged ₹120 MRP.',
+      violationTitle: 'CCPA 2022 MISLEADING AD',
+      violationRule: 'Section 4: Claiming "Diabetic Safe" without statutory warning on high glycemic excipients violates CCPA Guidelines 2022.',
+    },
+  },
+  {
+    id: 'naturevalley',
+    category: 'DRY FRUITS & E-COMMERCE QUICK COMM',
+    title: 'NatureValley Royal Whole Roasted Jumbo...',
+    summary: 'Quietly dropped weight from 250g to 180g (+38% stealth price hike) on Blinkit/Zepto with missing USP.',
+    truthScore: 28,
+    promotedBadge: 'PROMOTED SLOGAN',
+    promotedSlogan: '"JUMBO VALUE PACK — BEST PRICE"',
+    actualReality: 'Silent weight downsize on quick-commerce apps while retaining identical barcode and price tag.',
+    healthTriggers: [
+      {
+        icon: '🧂',
+        title: 'Excessive Sodium Coating',
+        description: 'Marketed as "Heart Healthy Roasted", contains 640mg sodium per 100g in synthetic seasoning.',
+      },
+      {
+        icon: '🌿',
+        title: 'Palm Oil Glaze Detected',
+        description: 'Coated with hydrogenated vegetable palm fat to increase shelf weight.',
+      },
+    ],
+    shrinkflation: {
+      hike: '+38.8% Stealth Price Hike',
+      hikeSub: 'Quietly downsized from 250g to 180g on quick-commerce apps at same ₹299.',
+      violationTitle: 'LEGAL METROLOGY PCR RULE 6',
+      violationRule: 'Missing mandatory Unit Sale Price (USP per 100g) on quick-commerce app catalog listing.',
+    },
+  },
+];
 
 export const InteractiveTruthRadarSection: React.FC = () => {
-  const [selectedPresetId, setSelectedPresetId] = useState<string>(DEMO_PRESETS[0].id);
-  const [activeProfiles, setActiveProfiles] = useState<HealthProfileId[]>([
-    'gym',
-    'diabetic',
-    'nut_allergy',
+  const [selectedProduct, setSelectedProduct] = useState<string>('powerpro');
+  const [activeFilters, setActiveFilters] = useState<string[]>([
+    'diabetes',
+    'hypertension',
+    'heart',
+    'celiac',
   ]);
 
-  const currentPreset =
-    DEMO_PRESETS.find((p) => p.id === selectedPresetId) || DEMO_PRESETS[0];
-
-  const toggleProfile = (id: HealthProfileId) => {
-    setActiveProfiles((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+  const toggleFilter = (filterKey: string) => {
+    setActiveFilters((prev) =>
+      prev.includes(filterKey)
+        ? prev.filter((k) => k !== filterKey)
+        : [...prev, filterKey]
     );
   };
 
-  const auditResult = evaluateHealthAndClaims(
-    currentPreset.ingredientsText,
-    currentPreset.nutritionalInfo,
-    currentPreset.frontClaims,
-    activeProfiles
-  );
+  const product = PRODUCTS.find((p) => p.id === selectedProduct) || PRODUCTS[0];
 
   return (
-    <section className="py-20 sm:py-28 bg-[#FAFAF9] border-b border-slate-100 transition-colors">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 sm:py-28 bg-[#FAF9F5] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <span className="text-xs font-mono uppercase font-bold px-3 py-1 rounded-full bg-slate-200/80 text-slate-800">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-200/80 text-slate-700 text-xs font-mono font-bold uppercase tracking-wider mb-5">
             Interactive Verification
-          </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black font-display text-slate-900 tracking-tight">
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
             See How Truth is Uncovered in 2 Seconds
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-sans">
+
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
             Select a common supermarket trap below to see how our engine cross-examines front slogans against back reality.
           </p>
         </div>
 
-        {/* Preset Selector Tabs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-8">
-          {DEMO_PRESETS.map((preset) => {
-            const isSelected = preset.id === selectedPresetId;
+        {/* 3 Product Selector Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+          {PRODUCTS.map((p) => {
+            const isSelected = selectedProduct === p.id;
             return (
               <button
-                key={preset.id}
-                onClick={() => setSelectedPresetId(preset.id)}
-                className={`text-left p-5 rounded-[1.75rem] border transition-all duration-200 relative ${
+                key={p.id}
+                type="button"
+                onClick={() => setSelectedProduct(p.id)}
+                className={`text-left p-6 rounded-[22px] border transition-all duration-200 cursor-pointer relative flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-white border-slate-900 text-slate-900 shadow-lg ring-1 ring-slate-900/10'
-                    : 'bg-white/60 border-slate-200/80 text-slate-500 hover:bg-white hover:text-slate-800'
+                    ? 'bg-white border-slate-900 shadow-[0_12px_30px_rgba(0,0,0,0.08)] ring-1 ring-slate-900'
+                    : 'bg-white/80 border-slate-200/90 hover:bg-white hover:border-slate-300 shadow-xs'
                 }`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">
-                    {preset.category.split('/')[0]}
-                  </span>
-                  {isSelected && (
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  )}
-                </div>
-                <div className="text-sm font-bold font-display text-slate-900 mb-1 line-clamp-1">
-                  {preset.name}
-                </div>
-                <div className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                  {preset.tagline}
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                      {p.category}
+                    </span>
+                    {isSelected && (
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                    )}
+                  </div>
+                  <h3 className="text-sm font-black text-slate-900 leading-snug mb-2">
+                    {p.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {p.summary}
+                  </p>
                 </div>
               </button>
             );
           })}
         </div>
 
-        {/* Live Simulator Glass Dashboard */}
-        <div className="bg-white border border-slate-200/80 rounded-[2.5rem] p-6 sm:p-10 shadow-xl">
-          {/* Top Bar: Profile Filters */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        {/* Big White Container with Verification Details */}
+        <div className="bg-white rounded-[32px] border border-slate-200/90 p-6 sm:p-10 shadow-[0_16px_40px_rgba(0,0,0,0.04)]">
+          {/* Top Bar: Active Consumer Filters + Truth Score */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-8 border-b border-slate-100">
             <div>
-              <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold block mb-2">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-3">
                 Active Consumer Filters:
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {HEALTH_PROFILES.slice(0, 4).map((profile) => {
-                  const isActive = activeProfiles.includes(profile.id);
+              </div>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  { key: 'diabetes', label: 'Diabetes & Blood Sugar', icon: '🩺' },
+                  { key: 'hypertension', label: 'High BP & Hypertension', icon: '❤️' },
+                  { key: 'heart', label: 'Heart & High Cholesterol', icon: '🫀' },
+                  { key: 'celiac', label: 'Celiac & Gluten Free', icon: '🌾' },
+                ].map((f) => {
+                  const isActive = activeFilters.includes(f.key);
                   return (
                     <button
-                      key={profile.id}
-                      onClick={() => toggleProfile(profile.id)}
-                      className={`text-xs px-3.5 py-1.5 rounded-full border font-semibold flex items-center gap-1.5 transition-all ${
+                      key={f.key}
+                      type="button"
+                      onClick={() => toggleFilter(f.key)}
+                      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
                         isActive
-                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-xs'
+                          : 'bg-slate-50 text-slate-400 border-slate-200'
                       }`}
                     >
-                      <span>{profile.icon}</span>
-                      <span>{profile.label}</span>
+                      <span>{f.icon}</span>
+                      <span>{f.label}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-3xl font-black font-display text-rose-600">
-                  {auditResult.overallSafetyScore} / 100
-                </div>
-                <div className="text-[10px] uppercase font-bold text-slate-400">
-                  Truth Index
-                </div>
+            {/* Truth Score */}
+            <div className="text-left lg:text-right shrink-0">
+              <div className="text-4xl sm:text-5xl font-black text-rose-600 leading-none mb-1 font-sans">
+                {product.truthScore} <span className="text-slate-300 font-normal">/ 100</span>
+              </div>
+              <div className="text-[10px] font-mono font-black uppercase tracking-[0.14em] text-slate-400">
+                Truth Index
               </div>
             </div>
           </div>
 
-          {/* 3-Column Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6">
-            {/* Column 1: Marketing Discrepancy */}
-            <div className="p-5 rounded-2xl bg-[#FFFBEB] border border-amber-100 space-y-3">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span>Front Slogan vs Reality</span>
-              </div>
+          {/* 3 Detail Breakdown Columns */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
+            {/* 1. FRONT SLOGAN VS REALITY */}
+            <div className="bg-[#FFFDF5] rounded-[22px] border border-amber-200/80 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-mono font-black uppercase tracking-wider text-amber-800 mb-5">
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  Front Slogan vs Reality
+                </div>
 
-              {auditResult.discrepancies.length > 0 ? (
-                <div className="space-y-2.5">
-                  <div className="p-3 rounded-xl bg-white border border-amber-200/60 text-xs">
-                    <span className="text-[10px] text-emerald-700 font-bold uppercase block mb-1">
-                      🟢 Promoted Slogan
-                    </span>
-                    <span className="font-semibold text-slate-900">
-                      "{auditResult.discrepancies[0].frontClaim}"
-                    </span>
+                <div className="space-y-4">
+                  {/* Promoted Slogan */}
+                  <div className="p-4 rounded-xl bg-white border border-amber-200/70 shadow-xs">
+                    <div className="flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 mb-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                      {product.promotedBadge}
+                    </div>
+                    <div className="text-sm font-black text-slate-900 leading-snug">
+                      {product.promotedSlogan}
+                    </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200/70 text-xs">
-                    <span className="text-[10px] text-rose-700 font-bold uppercase block mb-1">
-                      🔴 Actual Ingredient Reality
-                    </span>
-                    <span className="text-rose-950 font-medium">
-                      {auditResult.discrepancies[0].backReality}
-                    </span>
+                  {/* Actual Ingredient Reality */}
+                  <div className="p-4 rounded-xl bg-rose-50/70 border border-rose-200/70 shadow-xs">
+                    <div className="flex items-center gap-2 text-[10px] font-mono font-bold uppercase tracking-wider text-rose-700 mb-1.5">
+                      <span className="w-2 h-2 rounded-full bg-rose-500" />
+                      Actual Ingredient Reality
+                    </div>
+                    <div className="text-xs text-rose-950 font-medium leading-relaxed">
+                      {product.actualReality}
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <p className="text-xs text-slate-500">No discrepancies flagged for this item.</p>
-              )}
+              </div>
             </div>
 
-            {/* Column 2: Health / Risk Traps */}
-            <div className="p-5 rounded-2xl bg-[#ECFDF5] border border-emerald-100 space-y-3">
-              <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs uppercase tracking-wider">
-                <ShieldAlert className="w-4 h-4 text-emerald-600" />
-                <span>Health & Allergen Impact</span>
-              </div>
+            {/* 2. HEALTH & ALLERGEN IMPACT */}
+            <div className="bg-[#F6FEFA] rounded-[22px] border border-emerald-200/80 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-mono font-black uppercase tracking-wider text-emerald-800 mb-5">
+                  <ShieldAlert className="w-4 h-4 text-emerald-600" />
+                  Health & Allergen Impact
+                </div>
 
-              {auditResult.alerts.length > 0 ? (
-                <div className="space-y-2.5">
-                  {auditResult.alerts.slice(0, 2).map((alert) => (
+                <div className="space-y-3.5">
+                  {product.healthTriggers.map((t, idx) => (
                     <div
-                      key={alert.id}
-                      className="p-3 rounded-xl bg-white border border-emerald-200/60 text-xs"
+                      key={idx}
+                      className="p-4 rounded-xl bg-white border border-emerald-200/70 shadow-xs"
                     >
-                      <div className="font-bold text-slate-900 mb-1 flex items-center justify-between">
-                        <span>{alert.title}</span>
+                      <div className="text-xs font-black text-slate-900 mb-1.5 flex items-start gap-1.5 leading-snug">
+                        <span>{t.icon}</span>
+                        <span>{t.title}</span>
                       </div>
-                      <p className="text-slate-600 text-[11px] leading-relaxed">
-                        {alert.explanation}
+                      <p className="text-xs text-slate-600 leading-relaxed">
+                        {t.description}
                       </p>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-xs text-slate-500">No active health risks triggered.</p>
-              )}
+              </div>
             </div>
 
-            {/* Column 3: Shrinkflation & Legal Metrology */}
-            <div className="p-5 rounded-2xl bg-[#EEF2FF] border border-indigo-100 space-y-3">
-              <div className="flex items-center gap-2 text-indigo-900 font-bold text-xs uppercase tracking-wider">
-                <TrendingDown className="w-4 h-4 text-indigo-600" />
-                <span>Shrinkflation & Law</span>
-              </div>
+            {/* 3. SHRINKFLATION & LAW */}
+            <div className="bg-[#FAF8FF] rounded-[22px] border border-violet-200/80 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-mono font-black uppercase tracking-wider text-violet-800 mb-5">
+                  <Scale className="w-4 h-4 text-violet-600" />
+                  Shrinkflation & Law
+                </div>
 
-              {currentPreset.shrinkflation.detected ? (
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 rounded-xl bg-white border border-indigo-200/60">
-                    <span className="text-indigo-950 font-bold block mb-1">
-                      +{currentPreset.shrinkflation.stealthPriceHikePercent}% Stealth Price Hike
-                    </span>
-                    <span className="text-slate-600 text-[11px] leading-relaxed">
-                      Reduced from {currentPreset.shrinkflation.previousWeight} down to{' '}
-                      {currentPreset.shrinkflation.currentWeight} at identical {currentPreset.mrp}.
-                    </span>
+                <div className="space-y-3.5">
+                  {/* Price hike */}
+                  <div className="p-4 rounded-xl bg-white border border-violet-200/70 shadow-xs">
+                    <div className="text-sm font-black text-slate-900 mb-1">
+                      {product.shrinkflation.hike}
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {product.shrinkflation.hikeSub}
+                    </p>
+                  </div>
+
+                  {/* Violation */}
+                  <div className="p-4 rounded-xl bg-white border border-violet-200/70 shadow-xs">
+                    <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 mb-1">
+                      {product.shrinkflation.violationTitle}
+                    </div>
+                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                      {product.shrinkflation.violationRule}
+                    </p>
                   </div>
                 </div>
-              ) : (
-                <div className="p-3 rounded-xl bg-white border border-indigo-200/60 text-xs text-slate-500">
-                  Standard packaging weight retained.
-                </div>
-              )}
-
-              {currentPreset.statutoryViolations.length > 0 && (
-                <div className="p-3 rounded-xl bg-white border border-indigo-200/60 text-xs">
-                  <span className="text-indigo-950 font-semibold block text-[10px] uppercase">
-                    Statutory Rule Violation
-                  </span>
-                  <span className="text-slate-600 text-[11px]">
-                    {currentPreset.statutoryViolations[0].ruleCode}:{' '}
-                    {currentPreset.statutoryViolations[0].description}
-                  </span>
-                </div>
-              )}
+              </div>
             </div>
           </div>
 
-          {/* Footer Call to Action */}
-          <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="text-xs text-slate-500 font-medium">
+          {/* Bottom Callout Bar */}
+          <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs sm:text-sm text-slate-600 font-medium">
               Want to verify your own packaged snack, biscuit, or online order?
-            </div>
+            </span>
+
             <Link
               to="/dashboard/scanner"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-md transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
-              <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+              <span>⚡</span>
               <span>Open Scanner</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>

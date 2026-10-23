@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { Download, Sparkles, ShieldCheck, Scale, AlertOctagon, UserCheck, Search, Award, FileText, CheckCircle2, Building2 } from 'lucide-react';
 import {
   COMPLIANCE_TRENDS,
@@ -58,6 +59,9 @@ export const AnalyticsIntelligence: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2.5 mb-1">
+            <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+          </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Compliance & Enforcement Analytics
           </h1>

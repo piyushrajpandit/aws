@@ -1,85 +1,59 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Zap, ShieldCheck } from 'lucide-react';
+import { Zap, Search } from 'lucide-react';
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="relative bg-[#FAFAF9] pt-14 pb-20 sm:pt-20 sm:pb-28 overflow-hidden">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        {/* Micro-Overline */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex justify-center mb-3"
-        >
-          <span className="text-sm sm:text-base font-semibold text-slate-800 font-sans tracking-tight">
-            Find truth in packaging
-          </span>
-        </motion.div>
+    <section className="bg-white pt-12 pb-16 sm:pt-16 sm:pb-20 text-center relative overflow-hidden">
+      <div className="max-w-5xl mx-auto px-5 sm:px-8 relative z-10 flex flex-col items-center">
+        {/* Top small category label */}
+        <div className="text-xs sm:text-sm font-semibold text-slate-800 tracking-normal mb-3">
+          Find truth in packaging
+        </div>
 
-        {/* Giant Bold Lowercase Title */}
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-6xl sm:text-8xl md:text-9xl font-black font-display text-slate-950 tracking-tight leading-none mb-10 sm:mb-14 lowercase select-none"
+        {/* Massive brand title */}
+        <h1
+          className="text-6xl sm:text-7xl md:text-8xl lg:text-[110px] font-black text-[#0A0D14] tracking-[-0.04em] leading-none mb-10 select-none"
+          style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}
         >
           satyadrishti
-        </motion.h1>
+        </h1>
 
-        {/* First Image - Full Size Hero Centerpiece (Unobstructed & Majestic) */}
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="relative max-w-2xl sm:max-w-3xl mx-auto mb-12"
-        >
-          <div className="relative rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden border border-slate-200/80 shadow-2xl shadow-slate-200/80 bg-white">
-            <img
-              src="/hero-officer.jpg"
-              alt="SatyaDrishti Packaging Truth & Consumer Protection"
-              className="w-full h-auto object-cover object-center block"
-            />
-          </div>
-        </motion.div>
+        {/* Central Hero Officer Card with Soft Rounded Corners */}
+        <div className="w-full max-w-xl sm:max-w-2xl rounded-[36px] sm:rounded-[44px] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.09)] border border-slate-100/80 bg-white p-0 relative transition-transform duration-300 hover:scale-[1.005]">
+          <img
+            src="/hero-officer.jpg"
+            alt="SatyaDrishti National Packaging Consumer Protection Officer"
+            className="w-full h-auto object-cover block"
+            loading="eager"
+          />
+        </div>
 
-        {/* Warm & Honest Editorial Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-base sm:text-lg md:text-xl text-slate-600 max-w-xl mx-auto leading-relaxed mb-8 font-sans font-normal"
-        >
+        {/* Subtitle description below image */}
+        <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-lg mx-auto mt-8 sm:mt-10 mb-8 font-normal">
           Find solutions and support in difficult packaging claims with India's independent consumer verification platform.
-        </motion.p>
+        </p>
 
-        {/* Clean Pill Buttons (Matching Together Mockup) */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3.5"
-        >
-          {/* Solid Dark Charcoal Pill */}
+        {/* Two Rounded Pill Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
             to="/dashboard/scanner"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-full bg-slate-950 hover:bg-slate-800 text-white font-semibold text-sm shadow-lg shadow-slate-950/15 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            id="hero-launch-scanner-btn"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#0D1117] hover:bg-slate-800 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
           >
-            <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
-            <span>Launch Free Scanner</span>
+            <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            Launch Free Scanner
           </Link>
 
-          {/* Soft Pastel Gradient Pill */}
           <Link
             to="/directory"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-[#D7F5F5] to-[#D5EBFB] hover:opacity-90 text-slate-900 font-semibold text-sm border border-teal-200/60 shadow-xs transition-all hover:scale-[1.02]"
+            id="hero-browse-directory-btn"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#CCFBF1] hover:bg-[#99F6E4] text-[#0F766E] text-xs sm:text-sm font-bold transition-all duration-200 transform hover:-translate-y-0.5"
           >
-            <ShieldCheck className="w-4 h-4 text-teal-700" />
-            <span>Browse Directory</span>
+            <Search className="w-3.5 h-3.5 text-[#0F766E]" />
+            Browse Directory
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

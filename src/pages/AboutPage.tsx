@@ -3,9 +3,9 @@ import { LandingNavbar } from '../components/layout/LandingNavbar';
 import { HeroSection } from '../components/landing/HeroSection';
 import { ManifestoStatementSection } from '../components/landing/ManifestoStatementSection';
 import { TiltedPastelStatsSection } from '../components/landing/TiltedPastelStatsSection';
-import { InteractiveTruthRadarSection } from '../components/landing/InteractiveTruthRadarSection';
 import { StepWorkflowSection } from '../components/landing/StepWorkflowSection';
 import { ArchedPillCardsSection } from '../components/landing/ArchedPillCardsSection';
+import { InteractiveTruthRadarSection } from '../components/landing/InteractiveTruthRadarSection';
 import { TestimonialQuotesSection } from '../components/landing/TestimonialQuotesSection';
 import { PillAccordionFaqSection } from '../components/landing/PillAccordionFaqSection';
 import { PlayfulBottomBanner } from '../components/landing/PlayfulBottomBanner';
@@ -13,38 +13,38 @@ import { ModernSoftFooter } from '../components/landing/ModernSoftFooter';
 
 export const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF9] font-sans antialiased selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#FDFCF9] font-sans antialiased text-slate-900 selection:bg-amber-200 selection:text-slate-900">
       <LandingNavbar />
       <main className="flex-1">
-        {/* 1. Giant Bold Hero with Organic Artwork & Pill Buttons */}
+        {/* 1. Hero with warm typography & hand-drawn doodle illustration */}
         <HeroSection />
-
 
         {/* 2. Big Bold Manifesto Statement with Highlighted Words & Scattered Doodles */}
         <ManifestoStatementSection />
 
-        {/* 3. Tilted Soft Pastel Stats Cards (250k+, 98%, 2 sec, 100%) */}
+        {/* 3. 4 playful tilted pastel stat cards matching reference */}
         <TiltedPastelStatsSection />
 
-        {/* 4. Interactive Live Truth Radar Simulator */}
-        <InteractiveTruthRadarSection />
-
-        {/* 5. 3-Step Protection Workflow with Numbered Badges & Circles */}
+        {/* 4. How it works — 3 friendly steps with timeline graphic (#how-it-works) */}
         <StepWorkflowSection />
 
-        {/* 6. Arched Cards Grid Busting Packaging Deceptions */}
+        {/* 5. 4 Arched cards with rich bespoke hand-drawn doodle illustrations */}
         <ArchedPillCardsSection />
 
-        {/* 7. Soft Pastel Testimonial Quote Cards */}
+        {/* 6. Live demo truth radar simulator */}
+        <InteractiveTruthRadarSection />
+
+        {/* 7. Pastel testimonial cards with avatars & star ratings */}
         <TestimonialQuotesSection />
 
-        {/* 8. Clean Rounded Pill Accordion FAQ */}
+        {/* 8. FAQ — rounded accordion with soft rose active highlight (#faq) */}
         <PillAccordionFaqSection />
 
-        {/* 9. High-Contrast Playful Bottom Callout Banner */}
+        {/* 9. Dark rounded banner with joyful doodle character */}
         <PlayfulBottomBanner />
       </main>
-      {/* 10. Minimalist Modern Footer with Scroll-to-Top Button */}
+
+      {/* 10. Warm, friendly footer */}
       <ModernSoftFooter />
     </div>
   );
