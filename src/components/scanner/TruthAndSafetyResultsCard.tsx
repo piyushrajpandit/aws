@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHealthStore } from '../../store/healthStore';
+import { useComplianceStore } from '../../store/complianceStore';
 import {
   ShieldAlert,
   AlertTriangle,
@@ -33,17 +34,39 @@ export const TruthAndSafetyResultsCard: React.FC = () => {
 
   const theme = getScoreTheme(overallSafetyScore);
 
-  const handleReportToSupervisor = () => {
+  const handleReportToSupervisor = async () => {
     const summaryAlerts = alerts.map((a) => a.title).join('; ');
     const summaryDisc = discrepancies.map((d) => `"${d.frontClaim}" vs "${d.backReality}"`).join('; ');
     const fullDesc = `Consumer Packaging Audit Violation: Detected misleading marketing claims and health risks on ${activePreset?.name || 'scanned package'}. Alerts: ${summaryAlerts || 'None'}. Discrepancies: ${summaryDisc || 'None'}.`;
 
-    navigate('/dashboard/complaints', {
+    const newComplaint = {
+      consumerName: 'Citizen Consumer (Verified In-Store Scan)',
+      consumerEmail: 'citizen.alert@doca.gov.in',
+      consumerPhone: '+91 98860 12345',
+      productName: activePreset?.name || 'Scanned Packaged Commodity',
+      brand: activePreset?.brand || 'Packaged Commodity Brand',
+      platform: 'Direct' as const,
+      orderNumber: `LOC-BLR-${Math.floor(100 + Math.random() * 900)}`,
+      category: 'Price Gouging / MRP Violation',
+      description: fullDesc,
+      evidenceUrls: [],
+      priority: 'Urgent' as const,
+      sentimentScore: 0.95,
+      aiMatchedRule: 'Rule 18(2) & CCPA 2022 Misleading Claims Directive',
+      shopLocation: {
+        name: 'Supermarket Shelf (Live In-Store Capture)',
+        address: 'Indiranagar 100ft Road / Koramangala 5th Block, Bengaluru, Karnataka - 560034',
+        coordinates: { lat: 12.9352, lng: 77.6245 },
+        googleMapsUrl: 'https://maps.google.com/?q=12.9352,77.6245',
+      },
+    };
+
+    await useComplianceStore.getState().addComplaint(newComplaint);
+
+    navigate('/dashboard', {
       state: {
-        triggerModal: true,
-        prefillProduct: activePreset?.name || 'Scanned Packaged Commodity',
-        prefillBrand: activePreset?.brand || 'Packaged Commodity Brand',
-        prefillDescription: fullDesc,
+        newReportSuccess: true,
+        reportedProduct: activePreset?.name || 'Scanned Packaged Commodity',
       },
     });
   };

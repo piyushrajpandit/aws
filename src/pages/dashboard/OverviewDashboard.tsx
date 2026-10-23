@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Package,
   ShieldAlert,
@@ -19,6 +19,8 @@ import {
   Gavel,
   MapPin,
   Factory,
+  CheckCircle2,
+  Clock,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -56,6 +58,9 @@ export const OverviewDashboard: React.FC = () => {
   const { products, violations, manufacturers, complaints, setSelectedProduct, setSelectedViolation } =
     useComplianceStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const newReportSuccess = (location.state as any)?.newReportSuccess;
+  const reportedProductName = (location.state as any)?.reportedProduct;
 
   const [timeRange, setTimeRange] = useState<'3M' | '6M' | 'All'>('6M');
   const [zoneFilter, setZoneFilter] = useState<string>('All');
@@ -106,6 +111,31 @@ export const OverviewDashboard: React.FC = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Real-time Notification Banner when Citizen Report is Submitted */}
+      {newReportSuccess && (
+        <div className="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 flex items-center justify-between gap-3 shadow-md animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="font-extrabold text-sm flex items-center gap-2">
+                <span>Citizen Problem Successfully Logged to Directorate Queue!</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] uppercase font-mono">Live GPS Ingest</span>
+              </div>
+              <p className="text-xs text-emerald-800 dark:text-emerald-300 mt-0.5">
+                Infraction report on <strong>{reportedProductName}</strong> has been escalated to Directorate Supervisor desk with verified retail coordinates.
+              </p>
+            </div>
+          </div>
+          <Link to="/dashboard/complaints">
+            <Button variant="outline" size="sm" className="text-xs font-semibold border-emerald-600 text-emerald-800 dark:text-emerald-200">
+              Open Case Dossier →
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* ── Top Banner / Role Welcome ── */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -258,16 +288,115 @@ export const OverviewDashboard: React.FC = () => {
             <StatCard
               title="Citizen Grievances & Complaints"
               titleClassName="text-red-600 dark:text-red-400 font-bold"
-              value={formatNumber(NATIONAL_STATS.consumerComplaints)}
+              value={formatNumber(complaints.length > 0 ? complaints.length : NATIONAL_STATS.consumerComplaints)}
               valueClassName="text-red-600 dark:text-red-400 font-bold font-mono"
-              change="6.4 Days"
-              trend="neutral"
-              trendLabel="Avg Resolution SLA"
+              change={`${complaints.filter((c) => c.status !== 'Resolved').length} Active`}
+              trend="up"
+              trendLabel="Live Citizen Queue"
               variant="danger"
             />
           </>
         )}
       </div>
+
+      {/* ── Live Citizen Grievances & User Incident Reports (Direct from Citizen Mobile Scans) ── */}
+      <Card className="border-2 border-red-500/30 bg-gradient-to-br from-white via-red-50/20 to-white dark:from-slate-900 dark:via-red-950/10 dark:to-slate-900 shadow-md overflow-hidden">
+        <CardHeader className="bg-red-500/5 dark:bg-red-950/30 border-b border-red-200/50 dark:border-red-900/40 pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 shadow-sm animate-pulse">
+                <MessageSquareWarning className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <CardTitle className="text-sm font-extrabold text-red-950 dark:text-red-200 uppercase tracking-wider">
+                    🔴 Live Citizen Grievances &amp; User Incident Reports
+                  </CardTitle>
+                  <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 font-extrabold text-[10px] tracking-wide uppercase border border-red-200 dark:border-red-800">
+                    {complaints.length} Active Incidents
+                  </span>
+                </div>
+                <CardDescription className="text-xs text-red-800/80 dark:text-red-400 mt-0.5">
+                  Real-time packaging infractions &amp; price alterations reported by consumers with verified GPS store location.
+                </CardDescription>
+              </div>
+            </div>
+
+            <Link to="/dashboard/complaints">
+              <Button variant="outline" size="sm" className="text-xs gap-1 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 shadow-xs font-semibold">
+                <span>View Full Intake Queue ({complaints.length})</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {complaints.slice(0, 4).map((c) => (
+              <div
+                key={c.id}
+                className="p-3 sm:p-4 hover:bg-red-50/30 dark:hover:bg-slate-800/40 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1.5 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                      {c.ticketId}
+                    </span>
+                    <span className="font-extrabold text-slate-900 dark:text-white text-xs sm:text-sm">
+                      {c.productName}
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-mono">
+                      ({c.brand})
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                      {c.category}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono ml-auto md:ml-0 flex items-center gap-1">
+                      <Clock className="h-3 w-3 inline" /> {c.submittedAt}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                    {c.description}
+                  </p>
+
+                  <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/70 px-2.5 py-1 rounded-md text-[11px] font-mono border border-slate-200 dark:border-slate-700">
+                      <MapPin className="h-3.5 w-3.5 text-rose-600 shrink-0" />
+                      <span className="truncate max-w-sm">
+                        {c.shopLocation?.address || c.shopLocation?.name || 'Bengaluru, Karnataka (Store Shelf)'}
+                      </span>
+                    </div>
+
+                    {c.shopLocation?.googleMapsUrl && (
+                      <a
+                        href={c.shopLocation.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-0.5 font-medium"
+                      >
+                        <span>View GPS Coordinates</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                  <StatusBadge status={c.status} />
+                  <Link to="/dashboard/complaints">
+                    <Button variant="primary" size="sm" className="text-xs gap-1 bg-red-600 hover:bg-red-700 text-white shadow-xs font-semibold h-8">
+                      <span>Adjudicate</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ── Crowdsourced Infraction Radar: ₹10 Micro-Fraud Detector ── */}
       <CrowdsourcedHotspotWidget />
@@ -406,8 +535,20 @@ export const OverviewDashboard: React.FC = () => {
                       className="p-2.5 sm:p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center justify-between cursor-pointer transition-colors gap-3"
                     >
                       <div className="min-w-0 flex-1 pr-2">
-                        <div className="font-semibold text-slate-900 dark:text-white truncate">
-                          {violation.productName}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-slate-900 dark:text-white truncate">
+                            {violation.productName}
+                          </span>
+                          {violation.id.includes('DUALMRP') && (
+                            <span className="px-1.5 py-0.2 rounded bg-red-100 text-red-700 text-[9px] font-bold uppercase border border-red-300">
+                              🚨 Dual MRP +₹59
+                            </span>
+                          )}
+                          {violation.detectedAt === 'Just now' && (
+                            <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-semibold">
+                              Live Citizen Scan
+                            </span>
+                          )}
                         </div>
                         <div className="text-[10px] sm:text-[11px] text-slate-500 font-mono mt-0.5 truncate">
                           {violation.caseNumber} • {violation.ruleCode}

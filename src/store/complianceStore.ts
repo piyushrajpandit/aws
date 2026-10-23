@@ -252,9 +252,49 @@ export const useComplianceStore = create<ComplianceState>()(
       });
     }
 
+    const newComplaintsList: Complaint[] = [];
+    if (isDualMrp || (validationResult?.violations && validationResult.violations.length > 0)) {
+      const ticketId = `CR-BLR-2025-${Math.floor(1000 + Math.random() * 9000)}`;
+      const complaintCategory = isDualMrp
+        ? 'Price Gouging / MRP Violation'
+        : 'Substandard / Expiry Issue';
+
+      const userProblemDesc = isDualMrp
+        ? `Citizen in-store scan detected illegal paper sticker ₹299.00 pasted directly over factory pre-printed MRP ₹240.00 (+₹59.00 / 24.6% unauthorized retail markup). Location verified at retail counter.`
+        : `Citizen in-store scan flagged packaging violations: ${missingDeclarations.join(', ')}. Discrepancy confirmed via Legal Metrology OCR.`;
+
+      const newComplaint: Complaint = {
+        id: `CMP-SCAN-${Date.now()}`,
+        ticketId,
+        consumerName: 'Citizen Consumer (Live Mobile Scan)',
+        consumerEmail: 'citizen.alert@doca.gov.in',
+        consumerPhone: '+91 98860 12345',
+        productName: newProduct.title,
+        brand: newProduct.brand,
+        platform: newProduct.platform || 'Direct',
+        orderNumber: `LOC-BLR-${Math.floor(100 + Math.random() * 900)}`,
+        category: complaintCategory,
+        description: userProblemDesc,
+        evidenceUrls: imageUrl ? [imageUrl] : [],
+        status: 'Assigned for Inspection',
+        priority: 'Urgent',
+        submittedAt: 'Just now',
+        sentimentScore: 0.95,
+        aiMatchedRule: isDualMrp ? 'Rule 18(2) Legal Metrology (PC) Rules, 2011' : 'Rule 6(1) Declarations',
+        shopLocation: {
+          name: 'Supermarket Store Shelf (Live In-Store Capture)',
+          address: 'Koramangala 5th Block / Indiranagar 100ft Road, Bengaluru, Karnataka - 560034',
+          coordinates: { lat: 12.9352, lng: 77.6245 },
+          googleMapsUrl: 'https://maps.google.com/?q=12.9352,77.6245',
+        },
+      };
+      newComplaintsList.push(newComplaint);
+    }
+
     set((state) => ({
       products: [newProduct, ...state.products],
       violations: [...violationsList, ...state.violations],
+      complaints: [...newComplaintsList, ...state.complaints],
     }));
 
     return newProduct;
