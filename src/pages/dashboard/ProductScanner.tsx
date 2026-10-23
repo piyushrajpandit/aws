@@ -38,6 +38,7 @@ import { ScanHistoryTable } from '../../components/scanner/ScanHistoryTable';
 import { ComplianceReportModal } from '../../components/scanner/ComplianceReportModal';
 import { ReportHistoryModal } from '../../components/scanner/ReportHistoryModal';
 import { HistoricalIntelligencePanel } from '../../components/scanner/HistoricalIntelligencePanel';
+import { PersonalHealthVerdictCard } from '../../components/scanner/PersonalHealthVerdictCard';
 import type { ComplianceInspectionReport, ReportGenerationOptions } from '../../types/report';
 
 export const ProductScanner: React.FC = () => {
@@ -448,6 +449,9 @@ export const ProductScanner: React.FC = () => {
 
       {/* Processing Status */}
       <OCRProcessingCard />
+
+      {/* Personal Nutrition & Health Verdict Card */}
+      <PersonalHealthVerdictCard />
 
       {/* Side-by-Side: Statutory Declarations & Compliance Validation */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">

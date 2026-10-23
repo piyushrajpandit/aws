@@ -39,6 +39,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { NationalComplianceTrajectoryChart } from '../../components/dashboard/NationalComplianceTrajectoryChart';
 import { InspectorFieldTrajectoryChart } from '../../components/dashboard/InspectorFieldTrajectoryChart';
+import { CrowdsourcedHotspotWidget } from '../../components/dashboard/CrowdsourcedHotspotWidget';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
@@ -267,6 +268,9 @@ export const OverviewDashboard: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* ── Crowdsourced Infraction Radar: ₹10 Micro-Fraud Detector ── */}
+      <CrowdsourcedHotspotWidget />
 
       {/* ── MOBILE PROGRESSIVE DISCLOSURE: Toggle Detailed Analytics & Charts ── */}
       <div className="block lg:hidden">

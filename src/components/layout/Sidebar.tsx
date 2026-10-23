@@ -15,6 +15,7 @@ import {
   Sparkles,
   ExternalLink,
   BookOpen,
+  HeartPulse,
   X,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -85,10 +86,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       to: '/dashboard/scanner',
-      label: 'Product Scanner',
+      label: userRole === 'consumer' ? 'Scan & Health Check' : 'Product Scanner',
       icon: ScanLine,
       badge: undefined,
-      roles: ['admin', 'inspector'],
+      roles: ['admin', 'inspector', 'consumer'],
+    },
+    {
+      to: '/dashboard/health-profile',
+      label: 'Diet & Health Filter',
+      icon: HeartPulse,
+      badge: 'NEW',
+      badgeVariant: 'success' as const,
+      roles: ['admin', 'inspector', 'consumer'],
     },
     {
       to: '/dashboard/violations',

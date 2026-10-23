@@ -330,35 +330,6 @@ export const ConsumerComplaintsPortal: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Multilingual Language Selector Bar */}
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <Languages className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <span>{t('selectLanguage')}:</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {[
-            { code: 'en', label: 'English' },
-            { code: 'hi', label: 'हिन्दी' },
-            { code: 'kn', label: 'ಕನ್ನಡ' },
-            { code: 'ta', label: 'தமிழ்' },
-          ].map((lang) => (
-            <button
-              key={lang.code}
-              type="button"
-              onClick={() => setLanguage(lang.code as SupportedLanguage)}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                language === lang.code
-                  ? 'bg-blue-600 text-white shadow-sm font-bold ring-2 ring-blue-500/20'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
-              }`}
-            >
-              {lang.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Header */}
       <div className={`rounded-xl border p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs ${
         isConsumer
@@ -1666,6 +1637,35 @@ export const ConsumerComplaintsPortal: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Multilingual Language Selector - Clean Bottom Bar */}
+      <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 shadow-2xs mt-8">
+        <div className="flex items-center gap-2 font-medium">
+          <Languages className="h-4 w-4 text-slate-400" />
+          <span>{t('selectLanguage')}:</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'hi', label: 'हिन्दी' },
+            { code: 'kn', label: 'ಕನ್ನಡ' },
+            { code: 'ta', label: 'தமிழ்' },
+          ].map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => setLanguage(lang.code as SupportedLanguage)}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                language === lang.code
+                  ? 'bg-blue-600 text-white shadow-xs font-bold'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

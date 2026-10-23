@@ -16,6 +16,7 @@ import { RegulatoryRAGPortal } from './pages/dashboard/RegulatoryRAGPortal';
 import { EcommerceCrawler } from './pages/dashboard/EcommerceCrawler';
 import { ScrollToAnchor } from './components/layout/ScrollToAnchor';
 import { PwaInstallPrompt } from './components/ui/PwaInstallPrompt';
+import { HealthProfilePage } from './pages/dashboard/HealthProfilePage';
 
 import { TechnicalBlogPage } from './pages/TechnicalBlogPage';
 
@@ -45,6 +46,7 @@ export function App() {
           <Route path="complaints" element={<ConsumerComplaintsPortal />} />
           <Route path="analytics" element={<AnalyticsIntelligence />} />
           <Route path="regulatory-rag" element={<RegulatoryRAGPortal />} />
+          <Route path="health-profile" element={<HealthProfilePage />} />
           <Route path="settings" element={<Navigate to="/dashboard" replace />} />
         </Route>
 

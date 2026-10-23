@@ -17,11 +17,14 @@ export const AboutPage: React.FC = () => {
       <LandingNavbar />
       <main className="flex-1">
         <HeroSection />
-        <TechJourneyBanner />
+        {/* Hidden for now: Technical Blog Banner */}
+        {/* <TechJourneyBanner /> */}
         <TrustedByRegulators />
         <StatsCounterSection />
-        <CoreCapabilitiesSection />
-        <WorkflowTimelineSection />
+        {/* Hidden for now: Core Capabilities */}
+        {/* <CoreCapabilitiesSection /> */}
+        {/* Hidden for now: Enforcement Flow */}
+        {/* <WorkflowTimelineSection /> */}
         <BentoFeaturesGrid />
         <CtaBannerSection />
       </main>

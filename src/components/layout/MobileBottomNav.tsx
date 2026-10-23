@@ -7,6 +7,7 @@ import {
   ShieldAlert,
   MessageSquareWarning,
   Building2,
+  HeartPulse,
   Menu,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -58,6 +59,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     ];
   } else if (userRole === 'consumer') {
     roleItems = [
+      { to: '/dashboard/scanner', label: 'Scan', icon: ScanLine },
+      { to: '/dashboard/health-profile', label: 'Diet Filter', icon: HeartPulse },
       {
         to: '/dashboard/complaints',
         label: 'Grievances',

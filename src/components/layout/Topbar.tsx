@@ -15,7 +15,8 @@ import { useComplianceStore } from '../../store/complianceStore';
 import { useScanStore } from '../../store/scanStore';
 import { Button } from '../ui/Button';
 import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
-import { Loader2, Scan } from 'lucide-react';
+import { Loader2, Scan, Zap } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 interface TopbarProps {
   onOpenCommandPalette: () => void;
@@ -23,7 +24,7 @@ interface TopbarProps {
 }
 
 export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette, onToggleMobileMenu }) => {
-  const { user, logout } = useAuthStore();
+  const { user, login, logout } = useAuthStore();
   const { violations } = useComplianceStore();
   const { isProcessing, currentProgress, currentScan } = useScanStore();
   const navigate = useNavigate();
@@ -86,6 +87,21 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette, onToggleMo
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSwitchRole = (targetRole: 'consumer' | 'inspector' | 'admin') => {
+    if (user?.role === targetRole) return;
+    const emails: Record<string, string> = {
+      consumer: 'consumer@demo.gov.in',
+      inspector: 'inspector@demo.gov.in',
+      admin: 'admin@demo.gov.in',
+    };
+    login(emails[targetRole], targetRole);
+    if (targetRole === 'consumer') {
+      navigate('/dashboard/scanner');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -158,6 +174,49 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette, onToggleMo
             </span>
           </button>
         )}
+
+        {/* 1-Click Fast Role Switcher Bar */}
+        <div className="hidden sm:flex items-center bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs gap-1">
+          <button
+            type="button"
+            onClick={() => handleSwitchRole('consumer')}
+            className={cn(
+              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+              user?.role === 'consumer'
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
+            )}
+            title="Switch to Consumer Persona (Ananya Verma)"
+          >
+            <span>🧑 Consumer</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSwitchRole('inspector')}
+            className={cn(
+              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+              user?.role === 'inspector'
+                ? "bg-amber-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
+            )}
+            title="Switch to Inspector Persona (Arjun Nair)"
+          >
+            <span>🛡️ Inspector</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSwitchRole('admin')}
+            className={cn(
+              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
+              user?.role === 'admin'
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/50"
+            )}
+            title="Switch to Supervisor Persona (Dr. Sharma, IAS)"
+          >
+            <span>👑 Supervisor</span>
+          </button>
+        </div>
 
         {/* Animated Theme Toggler */}
         <AnimatedThemeToggler />
@@ -326,6 +385,60 @@ export const Topbar: React.FC<TopbarProps> = ({ onOpenCommandPalette, onToggleMo
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">{user?.email}</div>
                 <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 mt-1 uppercase tracking-wider font-mono">
                   {user?.role === 'admin' ? 'Supervisor' : user?.role === 'inspector' ? 'Inspector' : 'Consumer'}
+                </div>
+              </div>
+
+              {/* Fast 1-Click Role Switch in Dropdown */}
+              <div className="py-2 px-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono mb-1.5">
+                  1-Click Switch Persona
+                </div>
+                <div className="grid grid-cols-3 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      handleSwitchRole('consumer');
+                    }}
+                    className={cn(
+                      "py-1.5 px-1 rounded-lg text-[10px] font-bold text-center border transition-all",
+                      user?.role === 'consumer'
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100"
+                    )}
+                  >
+                    Consumer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      handleSwitchRole('inspector');
+                    }}
+                    className={cn(
+                      "py-1.5 px-1 rounded-lg text-[10px] font-bold text-center border transition-all",
+                      user?.role === 'inspector'
+                        ? "bg-amber-600 text-white border-amber-600 shadow-xs"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100"
+                    )}
+                  >
+                    Inspector
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      handleSwitchRole('admin');
+                    }}
+                    className={cn(
+                      "py-1.5 px-1 rounded-lg text-[10px] font-bold text-center border transition-all",
+                      user?.role === 'admin'
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100"
+                    )}
+                  >
+                    Supervisor
+                  </button>
                 </div>
               </div>
 

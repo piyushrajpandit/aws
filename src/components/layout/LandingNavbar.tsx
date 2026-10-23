@@ -64,6 +64,7 @@ export const LandingNavbar: React.FC = () => {
             <span>Home</span>
           </Link>
 
+          {/* Hidden for now: Product Directory
           <Link
             to="/directory"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -76,7 +77,9 @@ export const LandingNavbar: React.FC = () => {
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>Product Directory</span>
           </Link>
+          */}
 
+          {/* Hidden for now: Core Capabilities
           <Link
             to="/#capabilities"
             onClick={() => handleNavClick('capabilities')}
@@ -88,7 +91,9 @@ export const LandingNavbar: React.FC = () => {
           >
             Core Capabilities
           </Link>
+          */}
 
+          {/* Hidden for now: Enforcement Flow
           <Link
             to="/#workflow"
             onClick={() => handleNavClick('workflow')}
@@ -100,7 +105,9 @@ export const LandingNavbar: React.FC = () => {
           >
             Enforcement Flow
           </Link>
+          */}
 
+          {/* Hidden for now: Technical Blog
           <Link
             to="/technical-blog"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -112,6 +119,7 @@ export const LandingNavbar: React.FC = () => {
           >
             Technical Blog
           </Link>
+          */}
         </nav>
 
         {/* Right Actions */}
@@ -197,6 +205,7 @@ export const LandingNavbar: React.FC = () => {
             <span>Home</span>
           </Link>
 
+          {/* Hidden for now: Product Directory
           <Link
             to="/directory"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -209,7 +218,9 @@ export const LandingNavbar: React.FC = () => {
             <ShieldCheck className="h-4 w-4 shrink-0" />
             <span>Product Directory &amp; Verification</span>
           </Link>
+          */}
 
+          {/* Hidden for now: Core Capabilities
           <Link
             to="/#capabilities"
             onClick={() => handleNavClick('capabilities')}
@@ -222,7 +233,9 @@ export const LandingNavbar: React.FC = () => {
             <Layers className="h-4 w-4 shrink-0" />
             <span>Core Capabilities</span>
           </Link>
+          */}
 
+          {/* Hidden for now: Enforcement Flow
           <Link
             to="/#workflow"
             onClick={() => handleNavClick('workflow')}
@@ -235,7 +248,9 @@ export const LandingNavbar: React.FC = () => {
             <GitBranch className="h-4 w-4 shrink-0" />
             <span>Enforcement Flow</span>
           </Link>
+          */}
 
+          {/* Hidden for now: Technical Blog
           <Link
             to="/technical-blog"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -248,6 +263,7 @@ export const LandingNavbar: React.FC = () => {
             <BookOpen className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
             <span>Technical Blog &amp; Story</span>
           </Link>
+          */}
 
           {/* Auth Button in Mobile Menu */}
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
