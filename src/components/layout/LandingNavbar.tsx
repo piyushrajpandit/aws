@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShieldCheck, ArrowRight, Terminal, Menu, X, BookOpen, Layers, GitBranch, Home, Download, Zap } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
-import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
+import { ArrowRight, Menu, X, ShieldCheck, Zap } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 export const LandingNavbar: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const isHomeActive = (location.pathname === '/' || location.pathname === '/about') && (!location.hash || location.hash === '#about' || location.hash === '#home');
-  const isAboutActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#about';
-  const isDirectoryActive = location.pathname === '/directory' || location.pathname === '/verify';
-  const isCapabilitiesActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#capabilities';
-  const isWorkflowActive = (location.pathname === '/' || location.pathname === '/about') && location.hash === '#workflow';
 
   const handleNavClick = (targetId: string) => {
     setIsMobileMenuOpen(false);
@@ -28,265 +19,130 @@ export const LandingNavbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md transition-colors">
-      {/* Main Nav Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 group">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white font-sans">
-                Satya<span className="text-blue-600 dark:text-blue-400">Drishti</span>
-              </span>
-              <Badge variant="primary" size="sm" className="hidden sm:inline-flex text-[10px]">
-                Truth &amp; Safety Copilot
-              </Badge>
-            </div>
-            <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium tracking-wide hidden sm:block">
-              National Consumer Protection Intelligence
-            </p>
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-100 transition-colors">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        {/* Brand Logo (Matching Together circular mark + bold lowercase name) */}
+        <Link
+          to="/"
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="flex items-center gap-2.5 group select-none"
+        >
+          <div className="w-6 h-6 rounded-full border-2 border-slate-900 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-slate-900" />
           </div>
+          <span className="text-2xl font-black font-display tracking-tight text-slate-900 lowercase">
+            satyadrishti
+          </span>
         </Link>
 
-        {/* Center Nav Links - Desktop */}
-        <nav className="hidden md:flex items-center gap-1.5">
-          <Link
-            to="/"
-            onClick={() => handleNavClick('about')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              isHomeActive
-                ? 'bg-blue-600 text-white shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Home className="h-3.5 w-3.5" />
-            <span>Home</span>
-          </Link>
-
-          <Link
-            to="/dashboard/scanner"
-            className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 text-amber-500 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all shadow-xs"
-          >
-            <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-            <span>AI Truth Scanner</span>
-          </Link>
-
+        {/* Center Nav Links - Clean & Minimal */}
+        <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600 font-sans">
           <Link
             to="/directory"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              isDirectoryActive
-                ? 'bg-blue-600 text-white shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className="hover:text-slate-950 transition-colors"
           >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Product Directory</span>
-          </Link>
-
-          <Link
-            to="/#capabilities"
-            onClick={() => handleNavClick('capabilities')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              isCapabilitiesActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800 shadow-xs'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            Core Capabilities
+            Directory
           </Link>
 
           <Link
             to="/#workflow"
             onClick={() => handleNavClick('workflow')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              isWorkflowActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800 shadow-xs'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className="hover:text-slate-950 transition-colors"
           >
-            Enforcement Flow
+            How it Works
+          </Link>
+
+          <Link
+            to="/#faq"
+            onClick={() => handleNavClick('faq')}
+            className="hover:text-slate-950 transition-colors"
+          >
+            FAQ
           </Link>
 
           <Link
             to="/technical-blog"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              location.pathname === '/technical-blog'
-                ? 'bg-blue-600 text-white shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className="hover:text-slate-950 transition-colors"
           >
-            Technical Blog
+            Technical Story
           </Link>
         </nav>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Quick Install App Button */}
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new Event('open-pwa-install'))}
-            title="Download / Install App on Phone"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200/80 dark:border-blue-800 rounded-lg transition-colors cursor-pointer"
+        {/* Right CTA Button (Pill shaped, clean border) */}
+        <div className="hidden sm:flex items-center gap-3">
+          <Link
+            to="/dashboard/scanner"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-900 font-semibold text-xs shadow-xs transition-all active:scale-95"
           >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Install App</span>
-          </button>
+            <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+            <span>Launch Scanner</span>
+          </Link>
 
-          <AnimatedThemeToggler />
+          {isAuthenticated && user ? (
+            <Link
+              to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-all shadow-xs"
+            >
+              <span>Dashboard</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-all shadow-xs"
+            >
+              <span>Portal Login</span>
+            </Link>
+          )}
+        </div>
 
-          {/* Desktop Auth Button */}
-          <div className="hidden sm:block">
-            {isAuthenticated && user ? (
-              <Link to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className={`gap-2 text-xs font-semibold ${
-                    user.role === 'consumer'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white'
-                      : ''
-                  }`}
-                >
-                  <span>{user.role === 'consumer' ? 'Consumer Grievances' : `Dashboard (${user.role})`}</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/login">
-                <Button variant="primary" size="sm" className="gap-2 text-xs font-semibold">
-                  <Terminal className="h-3.5 w-3.5 text-blue-300" />
-                  <span>Portal Login</span>
-                </Button>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Hamburger Toggle Button */}
+        {/* Mobile Hamburger Button */}
+        <div className="flex md:hidden items-center">
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-            aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Slide-Down Dropdown Menu */}
+      {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-900/98 backdrop-blur-lg px-4 py-4 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150 shadow-xl">
-          {/* Quick Install Action for Mobile */}
-          <button
-            type="button"
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              window.dispatchEvent(new Event('open-pwa-install'));
-            }}
-            className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 min-h-[44px] transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            <span>Install / Download App on Phone</span>
-          </button>
-
-          <Link
-            to="/"
-            onClick={() => handleNavClick('about')}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-              isHomeActive
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <Home className="h-4 w-4 shrink-0" />
-            <span>Home</span>
-          </Link>
-
+        <div className="md:hidden border-t border-slate-100 bg-white px-4 pt-3 pb-6 space-y-3">
           <Link
             to="/directory"
             onClick={() => setIsMobileMenuOpen(false)}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-              isDirectoryActive
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className="block px-3 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-50"
           >
-            <ShieldCheck className="h-4 w-4 shrink-0" />
-            <span>Product Directory &amp; Verification</span>
+            Product Directory
           </Link>
-
           <Link
-            to="/#capabilities"
-            onClick={() => handleNavClick('capabilities')}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-              isCapabilitiesActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            to="/dashboard/scanner"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block px-3 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-50"
           >
-            <Layers className="h-4 w-4 shrink-0" />
-            <span>Core Capabilities</span>
+            Launch Scanner
           </Link>
-
-          <Link
-            to="/#workflow"
-            onClick={() => handleNavClick('workflow')}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-              isWorkflowActive
-                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
-          >
-            <GitBranch className="h-4 w-4 shrink-0" />
-            <span>Enforcement Flow</span>
-          </Link>
-
           <Link
             to="/technical-blog"
             onClick={() => setIsMobileMenuOpen(false)}
-            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold min-h-[44px] transition-colors ${
-              location.pathname === '/technical-blog'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-            }`}
+            className="block px-3 py-2 text-sm font-semibold text-slate-700 rounded-lg hover:bg-slate-50"
           >
-            <BookOpen className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
-            <span>Technical Blog &amp; Story</span>
+            Technical Blog
           </Link>
-
-          {/* Auth Button in Mobile Menu */}
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-            {isAuthenticated && user ? (
-              <Link
-                to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full block"
-              >
-                <Button
-                  variant="primary"
-                  className={`w-full justify-center min-h-[44px] gap-2 text-xs font-semibold ${
-                    user.role === 'consumer'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white'
-                      : ''
-                  }`}
-                >
-                  <span>{user.role === 'consumer' ? 'Consumer Grievances' : `Dashboard (${user.role})`}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full block">
-                <Button variant="primary" className="w-full justify-center min-h-[44px] gap-2 text-xs font-semibold">
-                  <Terminal className="h-4 w-4 text-blue-300" />
-                  <span>Portal Login (Officer / Citizen)</span>
-                </Button>
-              </Link>
-            )}
-          </div>
+          <Link
+            to="/login"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="block w-full text-center px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold"
+          >
+            Portal Login
+          </Link>
         </div>
       )}
     </header>
   );
 };
+
+export default LandingNavbar;

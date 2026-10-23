@@ -13,7 +13,7 @@ import { ModernSoftFooter } from '../components/landing/ModernSoftFooter';
 
 export const AboutPage: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF9] dark:bg-[#0B0F19] font-sans antialiased selection:bg-slate-900 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#FAFAF9] font-sans antialiased selection:bg-slate-900 selection:text-white">
       <LandingNavbar />
       <main className="flex-1">
         {/* 1. Giant Bold Hero with Organic Artwork & Pill Buttons */}
