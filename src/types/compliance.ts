@@ -64,6 +64,11 @@ export interface Product {
   lastScanned: string;
   missingMandatoryFields: string[];
   regulatoryActs: string[];
+  dualMrpDetected?: boolean;
+  factoryMrp?: number;
+  stickerMrp?: number;
+  overchargeAmount?: number;
+  overchargePercentage?: number;
 }
 
 export interface Violation {

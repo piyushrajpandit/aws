@@ -140,6 +140,11 @@ export interface ExtractedProductData {
     description: string;
     scale: number;
   }>;
+  dualMrpDetected?: boolean;
+  printedMrp?: string | number;
+  stickerMrp?: string | number;
+  overchargeAmount?: number;
+  overchargePercentage?: number;
 }
 
 /** A single uploaded image pending or processed */

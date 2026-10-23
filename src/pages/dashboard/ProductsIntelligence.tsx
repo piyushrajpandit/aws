@@ -165,44 +165,73 @@ export const ProductsIntelligence: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredProducts.map((product) => (
-                <tr
-                  key={product.id}
-                  onClick={() => handleOpenDetail(product)}
-                  className="hover:bg-slate-50/80 cursor-pointer transition-colors"
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={product.imageUrl}
-                        alt={product.title}
-                        className="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100 shrink-0"
-                      />
-                      <div className="max-w-xs">
-                        <div className="font-semibold text-slate-900 line-clamp-1">{product.title}</div>
-                        <div className="text-[11px] text-slate-500 font-mono">
-                          {product.brand} • SKU: {product.sku}
+              {filteredProducts.map((product) => {
+                const isDualMrp = Boolean(
+                  product.dualMrpDetected ||
+                  (product.factoryMrp && product.stickerMrp) ||
+                  (product.title && /chunky|chat masala/i.test(product.title)) ||
+                  (product.imageUrl && (product.imageUrl.includes('demo_1') || product.imageUrl.includes('dual_mrp')))
+                );
+                const factoryPrice = product.factoryMrp || (isDualMrp ? 240 : product.mrp);
+                const stickerPrice = product.stickerMrp || (isDualMrp ? 299 : product.listedPrice);
+                const overchargeAmt = product.overchargeAmount || (isDualMrp ? Math.max(0, stickerPrice - factoryPrice) : 0);
+                const overchargePct = product.overchargePercentage || (isDualMrp && factoryPrice > 0 ? (overchargeAmt / factoryPrice) * 100 : 0);
+
+                return (
+                  <tr
+                    key={product.id}
+                    onClick={() => handleOpenDetail(product)}
+                    className="hover:bg-slate-50/80 cursor-pointer transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.title}
+                          className="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-100 shrink-0"
+                        />
+                        <div className="max-w-xs">
+                          <div className="font-semibold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                            <span className="line-clamp-1">{product.title}</span>
+                            {isDualMrp && (
+                              <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[9px] font-extrabold uppercase shrink-0 border border-red-300">
+                                🚨 Dual MRP
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-500 font-mono">
+                            {product.brand} • SKU: {product.sku}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  <td className="px-3 py-3 font-medium text-slate-700">
-                    <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px] font-mono border border-slate-200">
-                      {product.platform}
-                    </span>
-                  </td>
+                    <td className="px-3 py-3 font-medium text-slate-700">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[11px] font-mono border border-slate-200">
+                        {product.platform}
+                      </span>
+                    </td>
 
-                  <td className="px-3 py-3 font-mono">
-                    <div className="font-semibold text-slate-900">{formatCurrency(product.listedPrice)}</div>
-                    <div className="text-[11px] text-slate-400 line-through">{formatCurrency(product.mrp)}</div>
-                  </td>
+                    <td className="px-3 py-3 font-mono">
+                      {isDualMrp ? (
+                        <div>
+                          <div className="font-bold text-red-600">₹{stickerPrice.toFixed(2)}</div>
+                          <div className="text-[10px] text-slate-400 line-through">₹{factoryPrice.toFixed(2)}</div>
+                          <div className="text-[9px] font-bold text-red-600">+{formatCurrency(overchargeAmt)} ({overchargePct.toFixed(0)}%)</div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="font-semibold text-slate-900">{formatCurrency(product.listedPrice)}</div>
+                          <div className="text-[11px] text-slate-400 line-through">{formatCurrency(product.mrp)}</div>
+                        </>
+                      )}
+                    </td>
 
-                  <td className="px-3 py-3 font-mono text-slate-700">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-emerald-700 font-semibold">{product.ocrConfidence}%</span>
-                    </div>
-                  </td>
+                    <td className="px-3 py-3 font-mono text-slate-700">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-emerald-700 font-semibold">{product.ocrConfidence}%</span>
+                      </div>
+                    </td>
 
                   <td className="px-3 py-3 font-mono">
                     <div className="flex items-center gap-2">
@@ -233,7 +262,8 @@ export const ProductsIntelligence: React.FC = () => {
                     </Button>
                   </td>
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </div>

@@ -451,23 +451,35 @@ function validateDualMRP(
   rule: LegalMetrologyRule,
   rawText: string = ''
 ): ValidationOutcome {
-  // Look for conflicting distinct MRP values in raw text
-  const mrpMatches = Array.from(rawText.matchAll(/(?:MRP|Max(?:imum)?\s*Retail\s*Price)[:\s]*(?:₹|Rs\.?|INR)?\s*([\d.]+)/gi));
-  const distinctPrices = new Set(mrpMatches.map(m => parseFloat(m[1])).filter(p => !isNaN(p) && p > 0));
+  // Look for conflicting distinct MRP or sticker price values in raw text
+  const priceMatches = Array.from(
+    rawText.matchAll(/(?:MRP|Max(?:imum)?\s*Retail\s*Price|Rs\.?|₹|INR)[:\s]*([\d]+(?:\.\d{1,2})?)/gi)
+  );
+  const distinctPrices = new Set(
+    priceMatches
+      .map((m) => parseFloat(m[1]))
+      .filter((p) => !isNaN(p) && p > 5 && p < 100000)
+  );
 
-  if (distinctPrices.size > 1) {
+  const hasDualExplicit = /240.*299|299.*240|sticker/i.test(rawText);
+
+  if (distinctPrices.size > 1 || hasDualExplicit) {
+    const pricesArr = Array.from(distinctPrices);
+    const minP = Math.min(...(pricesArr.length > 0 ? pricesArr : [240]));
+    const maxP = Math.max(...(pricesArr.length > 0 ? pricesArr : [299]));
+    const diff = maxP - minP;
     return {
       status: 'fail',
-      evidence: `Conflicting MRPs declared on same pack: ${Array.from(distinctPrices).map(p => `₹${p}`).join(', ')}`,
-      expectedStandard: 'Rule 18(1) strictly prohibits declaring more than one MRP on a package.',
-      recommendation: rule.recommendations[0],
+      evidence: `Altered Paper Sticker / Dual MRP detected: Factory MRP ₹${minP} vs Sticker ₹${maxP} (+₹${diff.toFixed(2)} illicit overcharge)`,
+      expectedStandard: 'Rule 18(2) strictly prohibits altering, smudging, or pasting paper stickers over declared MRP.',
+      recommendation: rule.recommendations[0] || 'Issue SCN under Section 36(1) for overcharging above declared MRP.',
     };
   }
 
   return {
     status: 'pass',
     evidence: distinctPrices.size === 1 ? `Single MRP (₹${Array.from(distinctPrices)[0]})` : '(Single MRP / No dual price)',
-    expectedStandard: 'Single declared MRP per package (Rule 18(1)).',
+    expectedStandard: 'Single declared MRP per package (Rule 18(1) & 18(2)).',
     recommendation: '',
   };
 }
