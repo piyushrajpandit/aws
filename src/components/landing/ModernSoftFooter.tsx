@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUp, ShieldCheck } from 'lucide-react';
+import { ArrowUp, ShieldCheck, Heart } from 'lucide-react';
 
 const NAV_COLS = [
   {
@@ -36,45 +36,43 @@ export const ModernSoftFooter: React.FC = () => {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer className="bg-white border-t border-slate-900/8">
-      {/* Main footer grid */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+    <footer className="bg-[#FAF9F5] border-t border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Brand column */}
-          <div className="lg:col-span-5 py-14 lg:pr-16 lg:border-r border-slate-900/8 border-b lg:border-b-0">
-            {/* Wordmark */}
-            <Link to="/" className="flex items-center gap-2 mb-6 group">
-              <div className="w-7 h-7 bg-slate-950 flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-amber-400" />
+          <div className="lg:col-span-4 space-y-4">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shadow-xs">
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
               </div>
-              <span className="text-[15px] font-black tracking-[-0.02em] text-slate-950 uppercase font-mono">
-                SatyaDrishti
+              <span className="text-xl font-black tracking-tight text-slate-900">
+                satyadrishti
               </span>
             </Link>
 
-            <p className="text-sm text-slate-500 max-w-xs leading-relaxed font-sans mb-6">
-              India's first AI-powered statutory packaging intelligence and consumer protection copilot, grounded in Legal Metrology Act, 2009 and CCPA Guidelines, 2022.
+            <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
+              India's premier AI packaging truth copilot and consumer protection intelligence platform, empowering citizens to hold brands accountable to statutory reality.
             </p>
 
-            <div className="flex items-center gap-2 text-[11px] font-mono text-amber-600">
-              <ShieldCheck className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
               <span>National Consumer Protection Intelligence</span>
             </div>
           </div>
 
-          {/* Link columns */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 divide-x divide-slate-900/8">
+          {/* Nav links columns */}
+          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8">
             {NAV_COLS.map((col, i) => (
-              <div key={i} className="py-14 px-8 first:pl-0 sm:first:pl-8 lg:first:pl-10">
-                <div className="text-[10px] font-black font-mono uppercase tracking-[0.14em] text-slate-950 mb-5">
+              <div key={i} className="space-y-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-900">
                   {col.label}
                 </div>
-                <ul className="space-y-2.5">
+                <ul className="space-y-2">
                   {col.links.map((link) => (
                     <li key={link.text}>
                       <Link
                         to={link.to}
-                        className="text-[12px] text-slate-500 hover:text-slate-950 transition-colors font-sans"
+                        className="text-xs sm:text-sm text-slate-500 hover:text-slate-900 transition-colors"
                       >
                         {link.text}
                       </Link>
@@ -86,20 +84,21 @@ export const ModernSoftFooter: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-slate-900/8 py-6 flex items-center justify-between gap-4">
-          <span className="text-[11px] font-mono text-slate-400">
-            © {new Date().getFullYear()} SatyaDrishti. Protecting 1.4 billion Indian consumers.
-          </span>
+        {/* Bottom copyright & scroll-to-top */}
+        <div className="mt-12 pt-8 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <span>© {new Date().getFullYear()} SatyaDrishti. Built with</span>
+            <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
+            <span>for 1.4 billion Indian consumers.</span>
+          </div>
 
-          {/* Scroll-to-top — flat square */}
           <button
             type="button"
             onClick={scrollToTop}
             title="Scroll to top"
-            className="w-8 h-8 bg-slate-950 text-white flex items-center justify-center hover:bg-slate-800 transition-colors"
+            className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition-all shadow-sm hover:shadow-md cursor-pointer"
           >
-            <ArrowUp className="w-3.5 h-3.5" />
+            <ArrowUp className="w-4 h-4" />
           </button>
         </div>
       </div>
