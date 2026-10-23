@@ -115,9 +115,9 @@ export const ProductScanner: React.FC = () => {
   }, [currentScan, scans, viewScan]);
 
   const { reports, addReport } = useReportStore();
-  const { runAudit, currentAuditResult } = useHealthStore();
+  const { runAudit, currentAuditResult, activeProfiles } = useHealthStore();
 
-  // Automatically run Truth & Health audit when a scan finishes or is selected
+  // Automatically run Truth & Health audit when a scan finishes or when active disease/goal guards change
   useEffect(() => {
     if (currentScan?.status === 'completed' && currentScan.extractedData) {
       const rawText = currentScan.extractedData.rawText || '';
@@ -126,20 +126,28 @@ export const ProductScanner: React.FC = () => {
       const proteinMatch = rawText.match(/protein[^\d]*(\d+(\.\d+)?)/i);
       const sugarMatch = rawText.match(/sugar[^\d]*(\d+(\.\d+)?)/i);
       const sodiumMatch = rawText.match(/sodium[^\d]*(\d+(\.\d+)?)/i);
+      const fatMatch = rawText.match(/(?:total\s+)?fat[^\d]*(\d+(\.\d+)?)/i);
+      const satFatMatch = rawText.match(/saturated[^\d]*(\d+(\.\d+)?)/i);
+      const transFatMatch = rawText.match(/trans[^\d]*(\d+(\.\d+)?)/i);
+      const energyMatch = rawText.match(/(?:energy|calories|kcal)[^\d]*(\d+(\.\d+)?)/i);
+      const carbMatch = rawText.match(/carbohydrate[^\d]*(\d+(\.\d+)?)/i);
 
       runAudit(
         rawText,
         {
-          energyKcal: 420,
+          energyKcal: energyMatch ? parseFloat(energyMatch[1]) : 420,
           protein: proteinMatch ? parseFloat(proteinMatch[1]) : 4.0,
-          carbohydrates: 55,
+          carbohydrates: carbMatch ? parseFloat(carbMatch[1]) : 55,
           totalSugars: sugarMatch ? parseFloat(sugarMatch[1]) : 12.0,
+          totalFat: fatMatch ? parseFloat(fatMatch[1]) : 18.0,
+          saturatedFat: satFatMatch ? parseFloat(satFatMatch[1]) : 8.0,
+          transFat: transFatMatch ? parseFloat(transFatMatch[1]) : 0.0,
           sodium: sodiumMatch ? parseFloat(sodiumMatch[1]) : 380,
         },
         [productName, 'High Quality Product']
       );
     }
-  }, [currentScan?.id, currentScan?.status, runAudit]);
+  }, [currentScan?.id, currentScan?.status, activeProfiles, runAudit]);
 
   const [activeReport, setActiveReport] = useState<ComplianceInspectionReport | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);

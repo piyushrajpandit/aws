@@ -12,18 +12,29 @@
  * Also provides the Front-vs-Back "Deceptive Claim Discrepancy" analyzer.
  */
 
+export type HealthCategory = 'disease' | 'goal';
+
 export type HealthProfileId =
-  | 'gym'
+  // 🩺 Medical & Clinical Diseases
   | 'diabetic'
-  | 'gluten_allergy'
-  | 'nut_allergy'
-  | 'lactose_intolerance'
   | 'hypertension'
-  | 'clean_eating';
+  | 'cholesterol'
+  | 'gluten_allergy'
+  | 'lactose_intolerance'
+  | 'nut_allergy'
+  | 'gerd_acid_reflux'
+  | 'kidney_renal'
+  // 🎯 Lifestyle Goals & Fitness
+  | 'gym'
+  | 'weight_loss'
+  | 'clean_eating'
+  | 'keto'
+  | 'vegan';
 
 export interface HealthProfileDefinition {
   id: HealthProfileId;
   label: string;
+  category: HealthCategory;
   icon: string;
   badge: string;
   description: string;
@@ -31,61 +42,125 @@ export interface HealthProfileDefinition {
 }
 
 export const HEALTH_PROFILES: HealthProfileDefinition[] = [
-  {
-    id: 'gym',
-    label: 'Gym & Fitness',
-    icon: '🏋️',
-    badge: 'High Protein / Lean',
-    description: 'Catches fake protein claims, amino spiking, hidden sugars, and palm oil filler fats.',
-    targetConcerns: ['Protein Washing', 'Palm Oil Fillers', 'High Added Sugars'],
-  },
+  // ─────────────────── 🩺 DISEASES & MEDICAL GUARDS ───────────────────
   {
     id: 'diabetic',
-    label: 'Diabetic / Low GI',
+    label: 'Diabetes & Blood Sugar',
+    category: 'disease',
     icon: '🩺',
     badge: 'Blood Sugar Guard',
-    description: 'Exposes hidden sugar aliases like Maltodextrin (GI 110) disguised as healthy carbs.',
-    targetConcerns: ['Maltodextrin', 'Hidden Sugars', 'High Glycemic Fillers'],
+    description: 'Exposes hidden sugar aliases like Maltodextrin (GI 110), Invert Syrup, and High-GI spikes.',
+    targetConcerns: ['Maltodextrin', 'Hidden Sugars', 'Glycemic Index > 70'],
+  },
+  {
+    id: 'hypertension',
+    label: 'High BP & Hypertension',
+    category: 'disease',
+    icon: '❤️',
+    badge: 'Low Sodium Guard',
+    description: 'Flags dangerous sodium surges exceeding 20% of WHO daily limits and MSG additives.',
+    targetConcerns: ['Excess Sodium', 'MSG / Monosodium Glutamate', 'High Salt'],
+  },
+  {
+    id: 'cholesterol',
+    label: 'Heart & High Cholesterol',
+    category: 'disease',
+    icon: '🫀',
+    badge: 'Zero Trans Fat & Palm Oil',
+    description: 'Guards against Trans Fats, Palmolein / Palm Oil, and high saturated fats.',
+    targetConcerns: ['Palm Oil / Palmolein', 'Trans Fats', 'Saturated Fat > 5g'],
   },
   {
     id: 'gluten_allergy',
-    label: 'Celiac / Gluten-Free',
+    label: 'Celiac & Gluten Free',
+    category: 'disease',
     icon: '🌾',
     badge: 'Zero Gluten',
-    description: 'Guards against hidden wheat, maida, barley, and malt extract contamination.',
+    description: 'Guards against hidden wheat, maida, barley malt, and rye cross-contamination.',
     targetConcerns: ['Wheat / Maida', 'Barley Malt', 'Cross-Contamination'],
   },
   {
-    id: 'nut_allergy',
-    label: 'Nut Allergy',
-    icon: '🥜',
-    badge: 'Severe Allergen',
-    description: 'Alerts on peanuts, tree nuts, groundnut oil, and nut flavor compounds.',
-    targetConcerns: ['Peanuts', 'Tree Nuts', 'Arachis Oil'],
-  },
-  {
     id: 'lactose_intolerance',
-    label: 'Dairy / Lactose Intolerant',
+    label: 'Dairy & Lactose Intolerance',
+    category: 'disease',
     icon: '🥛',
     badge: 'Lactose Free',
     description: 'Detects hidden milk solids, whey protein, casein, and lactose binders.',
     targetConcerns: ['Milk Solids', 'Whey', 'Caseinate'],
   },
   {
-    id: 'hypertension',
-    label: 'Heart & Blood Pressure',
-    icon: '❤️',
-    badge: 'Low Sodium / Trans Fat',
-    description: 'Flags dangerous sodium surges exceeding 20% of WHO daily limits, and trans fats.',
-    targetConcerns: ['Excess Sodium', 'Trans Fats', 'Hydrogenated Oils'],
+    id: 'nut_allergy',
+    label: 'Nut & Peanut Allergy',
+    category: 'disease',
+    icon: '🥜',
+    badge: 'Severe Allergen',
+    description: 'Alerts on peanuts, tree nuts, groundnut oil, and nut flavor compounds.',
+    targetConcerns: ['Peanuts', 'Tree Nuts', 'Arachis Oil'],
+  },
+  {
+    id: 'gerd_acid_reflux',
+    label: 'Acid Reflux & GERD',
+    category: 'disease',
+    icon: '🔥',
+    badge: 'Low Acidity & Irritants',
+    description: 'Flags concentrated citric acid, artificial vinegars, and heavy chemical preservatives.',
+    targetConcerns: ['Excess Citric Acid', 'Artificial Vinegar', 'Chemical Irritants'],
+  },
+  {
+    id: 'kidney_renal',
+    label: 'Kidney & Renal Care',
+    category: 'disease',
+    icon: '🫘',
+    badge: 'Low Phosphate & Sodium',
+    description: 'Flags artificial phosphate additives, sodium overloads, and extreme metabolic loads.',
+    targetConcerns: ['Phosphate Additives', 'Excess Sodium', 'Potassium Additives'],
+  },
+
+  // ─────────────────── 🎯 LIFESTYLE & FITNESS GOALS ───────────────────
+  {
+    id: 'gym',
+    label: 'Gym & Muscle Building',
+    category: 'goal',
+    icon: '🏋️',
+    badge: 'High Protein / Lean',
+    description: 'Catches protein-washing, amino spiking, palm oil fillers, and low protein-to-calorie ratio.',
+    targetConcerns: ['Protein Washing', 'Palm Oil Fillers', 'High Added Sugars'],
+  },
+  {
+    id: 'weight_loss',
+    label: 'Weight Loss & Calorie Deficit',
+    category: 'goal',
+    icon: '⚖️',
+    badge: 'Low Calorie Density',
+    description: 'Flags high caloric density (>350 kcal/100g), stealth fat fillers, and liquid glucose syrups.',
+    targetConcerns: ['High Caloric Density', 'Hidden Fat Fillers', 'Liquid Sugar Syrups'],
   },
   {
     id: 'clean_eating',
-    label: 'Clean Eating / Safe for Kids',
-    icon: '🌿',
-    badge: 'No Junk / Synthetic',
-    description: 'Flags banned synthetic colors (Tartrazine, Sunset Yellow) and artificial sweeteners.',
+    label: 'Kids Safe & Clean Eating',
+    category: 'goal',
+    icon: '👶',
+    badge: 'Zero Synthetics',
+    description: 'Flags banned synthetic colors (Tartrazine, Sunset Yellow), artificial sweeteners, and TBHQ.',
     targetConcerns: ['Synthetic Colors', 'Aspartame / Sucralose', 'TBHQ / BHA Preservatives'],
+  },
+  {
+    id: 'keto',
+    label: 'Keto & Ultra Low Carb',
+    category: 'goal',
+    icon: '🥑',
+    badge: 'Max 5g Net Carbs',
+    description: 'Strictly flags starch fillers, maltodextrin, flours, and high carbohydrate loads.',
+    targetConcerns: ['Starch Fillers', 'Net Carbs > 5g', 'Flour Bases'],
+  },
+  {
+    id: 'vegan',
+    label: 'Vegan & Plant-Based',
+    category: 'goal',
+    icon: '🌱',
+    badge: '100% Animal Free',
+    description: 'Guards against hidden dairy, whey, gelatin, carmine (E120), honey, and animal fats.',
+    targetConcerns: ['Gelatin', 'Milk / Whey', 'Carmine / Cochineal (E120)'],
   },
 ];
 
@@ -425,6 +500,137 @@ export function evaluateHealthAndClaims(
           actionableAdvice: 'Not recommended for clean eating, pregnant women, or young children.',
         });
       }
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 8. CHOLESTEROL & CARDIOVASCULAR CHECKS
+  // ───────────────────────────────────────────────────────────────────────────
+  if (activeProfiles.includes('cholesterol')) {
+    const transFatG = parseNum(nutritionalInfo.transFat);
+    const hasPalmOil = lowerIngredients.includes('palm oil') || lowerIngredients.includes('palmolein');
+    if (transFatG > 0 || hasPalmOil || saturatedFatG > 5) {
+      alerts.push({
+        id: 'cardiac-cholesterol-risk',
+        profileId: 'cholesterol',
+        severity: transFatG > 0 ? 'critical' : 'warning',
+        title: '🫀 Arterial Plaque & Lipid Risk',
+        explanation: `${transFatG > 0 ? `Contains ${transFatG}g Trans Fats! ` : ''}${hasPalmOil ? 'Uses Palmolein/Palm oil high in palmitic acid. ' : ''}${saturatedFatG > 5 ? `Saturated Fat is ${saturatedFatG}g/100g. ` : ''}`,
+        matchedIngredientOrValue: hasPalmOil ? 'Palmolein / Palm Oil' : `${saturatedFatG}g Sat Fat`,
+        scientificContext: 'Industrial trans-fats and excessive palm saturates increase LDL-C and atherogenic risk.',
+        actionableAdvice: 'Avoid if managing high cholesterol, lipid profile anomalies, or family cardiac history.',
+      });
+      quickBadges.push({
+        label: 'High LDL Risk',
+        type: 'danger',
+        detail: hasPalmOil ? 'Palm Oil' : 'Saturated Fat',
+      });
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 9. ACID REFLUX & GERD CHECKS
+  // ───────────────────────────────────────────────────────────────────────────
+  if (activeProfiles.includes('gerd_acid_reflux')) {
+    const hasAcid = lowerIngredients.includes('citric acid') || lowerIngredients.includes('ins 330') || lowerIngredients.includes('acetic acid') || lowerIngredients.includes('vinegar');
+    if (hasAcid) {
+      alerts.push({
+        id: 'gerd-acid-trigger',
+        profileId: 'gerd_acid_reflux',
+        severity: 'warning',
+        title: '🔥 Acid Reflux & GERD Irritant',
+        explanation: 'Contains concentrated acidity regulators (Citric Acid / Acetic Acid) known to trigger lower esophageal sphincter relaxation.',
+        matchedIngredientOrValue: 'Citric / Acetic Acidity Regulators',
+        actionableAdvice: 'Consume with caution if prone to heartburn, gastritis, or nighttime acid regurgitation.',
+      });
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 10. RENAL & KIDNEY CHECKS
+  // ───────────────────────────────────────────────────────────────────────────
+  if (activeProfiles.includes('kidney_renal')) {
+    const hasPhosphate = lowerIngredients.includes('phosphate') || lowerIngredients.includes('ins 339') || lowerIngredients.includes('ins 340');
+    if (sodiumMg > 400 || hasPhosphate) {
+      alerts.push({
+        id: 'renal-sodium-phosphate',
+        profileId: 'kidney_renal',
+        severity: sodiumMg > 600 ? 'critical' : 'warning',
+        title: '🫘 Kidney Filtration Strain Detected',
+        explanation: `${sodiumMg > 400 ? `High sodium (${sodiumMg}mg) ` : ''}${hasPhosphate ? 'plus artificial inorganic phosphates ' : ''}places heavy glomerular filtration load.`,
+        matchedIngredientOrValue: `${sodiumMg}mg Sodium`,
+        actionableAdvice: 'Patients with reduced eGFR or CKD should avoid processed inorganic phosphates.',
+      });
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 11. WEIGHT LOSS & CALORIE DEFICIT CHECKS
+  // ───────────────────────────────────────────────────────────────────────────
+  if (activeProfiles.includes('weight_loss')) {
+    if (totalCalories > 400 || addedSugarsG > 18 || totalFatG > 18) {
+      alerts.push({
+        id: 'weight-loss-dense',
+        profileId: 'weight_loss',
+        severity: 'warning',
+        title: '⚖️ Calorie Deficit Trap: High Caloric Density',
+        explanation: `Provides ${totalCalories} kcal and ${totalFatG}g fat per 100g. Just a modest portion consumes a significant chunk of a standard 1,500 kcal deficit diet.`,
+        matchedIngredientOrValue: `${totalCalories} kcal / 100g`,
+        actionableAdvice: 'Limit portion size or choose fiber-rich, high-volume alternatives.',
+      });
+      quickBadges.push({
+        label: 'Calorie Dense',
+        type: 'warning',
+        detail: `${totalCalories} kcal`,
+      });
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 12. KETO & ULTRA LOW CARB CHECKS
+  // ───────────────────────────────────────────────────────────────────────────
+  if (activeProfiles.includes('keto')) {
+    const carbsG = parseNum(nutritionalInfo.carbohydrates);
+    const hasStarchOrSugar = lowerIngredients.includes('maida') || lowerIngredients.includes('sugar') || lowerIngredients.includes('maltodextrin') || lowerIngredients.includes('rice flour');
+    if (carbsG > 10 || hasStarchOrSugar) {
+      alerts.push({
+        id: 'keto-carb-limit',
+        profileId: 'keto',
+        severity: 'critical',
+        title: '🥑 Ketosis Breaker: High Glycemic Carbs',
+        explanation: `Contains ${carbsG > 0 ? `${carbsG}g Carbs per 100g` : 'fast-digesting flour/sugar carbs'}, which will quickly kick your metabolism out of nutritional ketosis.`,
+        matchedIngredientOrValue: carbsG > 0 ? `${carbsG}g Carbs` : 'Starch/Sugar Basis',
+        actionableAdvice: 'Strict Keto limit: under 5g net carbs per serving.',
+      });
+      quickBadges.push({
+        label: 'Not Keto Friendly',
+        type: 'danger',
+        detail: carbsG > 0 ? `${carbsG}g Carbs` : 'High Carb',
+      });
+    }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 13. VEGAN & PLANT-BASED CHECKS
+  // ───────────────────────────────────────────────────────────────────────────
+  if (activeProfiles.includes('vegan')) {
+    const animalTerms = ['milk', 'whey', 'casein', 'butter', 'ghee', 'gelatin', 'carmine', 'cochineal', 'e120', 'honey'];
+    const foundAnimal = animalTerms.filter(t => lowerIngredients.includes(t));
+    if (foundAnimal.length > 0) {
+      alerts.push({
+        id: 'vegan-animal-derivative',
+        profileId: 'vegan',
+        severity: 'critical',
+        title: '🌱 Non-Vegan Ingredients Detected',
+        explanation: `Contains animal/dairy-derived ingredients: ${foundAnimal.join(', ')}.`,
+        matchedIngredientOrValue: foundAnimal.join(', '),
+        actionableAdvice: 'Not suitable for strict plant-based or vegan lifestyles.',
+      });
+      quickBadges.push({
+        label: 'Non-Vegan',
+        type: 'danger',
+        detail: foundAnimal[0],
+      });
     }
   }
 

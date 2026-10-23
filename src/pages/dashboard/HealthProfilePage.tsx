@@ -13,8 +13,12 @@ import {
   Sliders,
   Save,
   Check,
+  ScanLine,
+  ArrowRight,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useHealthProfileStore, HealthCondition, CONDITION_PRESETS } from '../../store/healthProfileStore';
+import { HealthProfileSelector } from '../../components/scanner/HealthProfileSelector';
 import { Button } from '../../components/ui/Button';
 
 interface PresetOption {
@@ -112,14 +116,28 @@ export const HealthProfilePage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Tell SatyaDrishti What You Can & Cannot Eat
           </h1>
-          <p className="mt-2 text-sm sm:text-base text-emerald-50/90 leading-relaxed">
+          <p className="mt-2 text-sm sm:text-base text-emerald-50/90 leading-relaxed mb-4">
             When you scan any food or beverage label, our AI doesn't just read words—it judges the product specifically for <strong>your condition</strong> and warns you before you buy.
           </p>
+          <Link to="/dashboard/scanner">
+            <Button
+              variant="primary"
+              size="sm"
+              className="bg-white text-emerald-800 hover:bg-emerald-50 font-bold text-xs gap-2 px-4 py-2.5 rounded-xl shadow-lg border-0"
+            >
+              <ScanLine className="h-4 w-4 text-emerald-700" />
+              <span>Open Product Scanner with Active Guards</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
         </div>
         <div className="absolute -right-8 -bottom-10 opacity-15 pointer-events-none hidden sm:block">
           <HeartPulse className="h-64 w-64 text-white" />
         </div>
       </div>
+
+      {/* 1. Categorized Disease & Goal Guards Selector */}
+      <HealthProfileSelector />
 
       {savedNotice && (
         <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 rounded-xl text-xs font-semibold animate-in fade-in duration-200">
