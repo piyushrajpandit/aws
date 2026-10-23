@@ -617,7 +617,7 @@ async def scanner_local_ocr_endpoint(payload: Dict[str, Any] = Body(...)):
 
     return {
         "status": "success",
-        "engine": "LocalPaddleOCR-PP-OCRv6",
+        "engine": result.get("engine", "LocalPaddleOCR-PP-OCRv6"),
         "fields": result.get("fields", {}),
         "raw_text": result.get("raw_text", ""),
         "latency_ms": result.get("latency_ms", 0.0),

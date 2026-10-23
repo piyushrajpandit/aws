@@ -347,6 +347,25 @@ def _extract_fields(text_lines: List[str]) -> Dict[str, Any]:
     elif re.search(r"\b(?:NON[\s\-]?VEG|CONTAINS EGG|CONTAINS MEAT|CONTAINS FISH)\b", combined, re.IGNORECASE):
         fields["dietary_type"] = "Non-Vegetarian"
 
+    # 11. Manufacturer / Packer
+    m = re.search(r"(?:MANUFACTURED\s*BY|MFD\.?\s*BY|MARKETED\s*BY|PACKED\s*BY|PACKER|MANUFACTURER)\s*[:\.\-]?\s*([^\n\r]+)", combined, re.IGNORECASE)
+    if m:
+        fields["manufacturer"] = m.group(1).strip()
+
+    # 12. Country of Origin
+    m = re.search(r"(?:COUNTRY\s*OF\s*ORIGIN|MADE\s*IN|PRODUCT\s*OF)\s*[:\.\-]?\s*([A-Za-z\s]+)", combined, re.IGNORECASE)
+    if m:
+        cand = m.group(1).strip()
+        if cand.lower() in ["india", "china", "usa", "uk", "germany", "japan", "thailand", "vietnam"]:
+            fields["country_of_origin"] = cand.capitalize()
+    elif "made in india" in combined.lower() or "product of india" in combined.lower():
+        fields["country_of_origin"] = "India"
+
+    # 13. Unit Sale Price (USP)
+    m = re.search(r"(?:USP|UNIT\s*SALE\s*PRICE|UNIT\s*PRICE)\s*[:\.\-]?\s*(?:RS\.?|INR|₹)?\s*([\d\.]+\s*(?:per|\/)\s*(?:g|ml|kg|l|units?))", combined, re.IGNORECASE)
+    if m:
+        fields["unit_sale_price"] = m.group(1).strip()
+
     return fields
 
 
@@ -479,6 +498,9 @@ def run_local_packaging_ocr(image_input: Union[str, bytes, np.ndarray]) -> Dict[
         "fssaiLicNo":        raw_fields.get("fssai_lic_no"),
         "dietaryType":       raw_fields.get("dietary_type"),
         "ingredients":       raw_fields.get("ingredients", []),
+        "manufacturer":      raw_fields.get("manufacturer"),
+        "countryOfOrigin":   raw_fields.get("country_of_origin"),
+        "unitSalePrice":     raw_fields.get("unit_sale_price"),
     }
 
     return {

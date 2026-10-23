@@ -75,3 +75,20 @@ class RegulatoryAPIHandler:
         )
         self.feedback_log.append(fb)
         return {"status": "success", "feedback_id": fb.feedback_id}
+
+
+from fastapi import APIRouter, Body
+
+router = APIRouter(prefix="/api/v1/regulatory", tags=["Regulatory Knowledge & RAG"])
+
+_default_handler = RegulatoryAPIHandler()
+
+@router.post("/retrieve")
+def retrieve_regulatory_rules(payload: Dict[str, Any] = Body(...)):
+    """Retrieve applicable gazette rules and supporting documents for a product category."""
+    return _default_handler.handle_retrieve(payload)
+
+@router.post("/feedback")
+def submit_regulatory_feedback(payload: Dict[str, Any] = Body(...)):
+    """Submit inspector feedback on retrieved regulatory rules."""
+    return _default_handler.handle_submit_feedback(payload)

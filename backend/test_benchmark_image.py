@@ -9,14 +9,19 @@ import urllib.request
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-IMAGE_PATH = r"C:\Users\marmi\.gemini\antigravity-ide\brain\a633a525-5abe-4722-b6d2-b4b51e730503\.user_uploaded\media_1788891372894.jpg"
+DEFAULT_IMAGE = os.path.join(os.path.dirname(__file__), "..", "public", "products", "bournvita.jpg")
+IMAGE_PATH = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_IMAGE
+if not os.path.exists(IMAGE_PATH):
+    candidates = list(Path(os.path.join(os.path.dirname(__file__), "..", "public", "products")).glob("*.jpg"))
+    if candidates:
+        IMAGE_PATH = str(candidates[0])
 
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(__file__))
 from services.vision_service import STATUTORY_VISION_PROMPT, encode_image_to_base64
 from services.validation_service import validate_product_compliance
 from services.llm_validation_service import _build_verification_prompt, _safe_parse_json_list
 
-img_b64 = encode_image_to_base64(IMAGE_PATH, max_dimension=768)
+img_b64 = encode_image_to_base64(IMAGE_PATH, max_dimension=768) if os.path.exists(IMAGE_PATH) else ""
 
 def clean_and_parse_json(raw_str: str):
     raw_str = raw_str.strip()
