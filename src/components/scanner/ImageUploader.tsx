@@ -1,8 +1,38 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, ImagePlus, AlertCircle, Camera } from 'lucide-react';
+import { Upload, ImagePlus, AlertCircle, Camera, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 import { useScanStore } from '../../store/scanStore';
 import { cn } from '../../lib/utils';
+
+const DEMO_SAMPLES = [
+  {
+    name: 'Dual-MRP Paper Sticker (Printed Rs 240 vs Sticker Rs 299)',
+    path: '/demo/demo_1_dual_mrp_overcharge.jpg',
+    tag: 'Legal Metrology / Dual MRP',
+    badge: '₹10 Scam Radar',
+    badgeColor: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30',
+    icon: '🏷️',
+    description: 'Paper sticker pasted over pre-printed Rs 240 price. Missing Unit Sale Price.',
+  },
+  {
+    name: 'Gym Bro Protein-Washing (Pro-Fit 25g* vs 4.2g Back)',
+    path: '/demo/demo_2_gym_protein_trap.jpg',
+    tag: 'Fitness / CCPA Deceptive Ad',
+    badge: 'Gym Bro Trap',
+    badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    icon: '🏋️',
+    description: 'Front claims 25g Protein* & 100% Honey, but back reveals 4.2g protein, Palm Oil & Maida.',
+  },
+  {
+    name: 'Diabetic Sugar Stealth (0% Sugar vs Maltodextrin GI 110)',
+    path: '/demo/demo_3_diabetic_sugar_trap.jpg',
+    tag: 'Clinical / Diabetic & Allergens',
+    badge: 'Diabetic Guard',
+    badgeColor: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    icon: '🩺',
+    description: 'Promoted as 0% Sugar, but packed with Maltodextrin (GI 110) & unlisted Milk/Gluten.',
+  },
+];
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/heic', 'image/heif'];
 const ACCEPTED_EXTENSIONS = '.png,.jpg,.jpeg,.webp,.heic,.heif,image/*';
@@ -64,6 +94,22 @@ export const ImageUploader: React.FC = () => {
     if (e.target.files?.length) {
       validateAndAdd(e.target.files);
       e.target.value = '';
+    }
+  };
+
+  const handleLoadDemoImage = async (samplePath: string, sampleName: string) => {
+    if (isProcessing) return;
+    setError(null);
+    try {
+      const res = await fetch(samplePath);
+      const blob = await res.blob();
+      const file = new File([blob], sampleName.replace(/[^a-zA-Z0-9_-]/g, '_') + '.jpg', {
+        type: 'image/jpeg',
+      });
+      addImages([file]);
+    } catch (err) {
+      console.error('Failed to load demo image:', err);
+      setError('Could not load sample picture. Please browse files manually.');
     }
   };
 
@@ -152,6 +198,47 @@ export const ImageUploader: React.FC = () => {
               <Upload className="h-4 w-4 shrink-0 text-slate-500" />
               <span>Browse Files</span>
             </label>
+          </div>
+        </div>
+
+        {/* 1-Click Test Demo Packaging Pictures */}
+        <div className="pt-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+            <span>Try 1-Click Demo Packaging Photos (All 3 Use Cases):</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+            {DEMO_SAMPLES.map((sample, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleLoadDemoImage(sample.path, sample.name)}
+                disabled={isProcessing}
+                className="group text-left p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-850/60 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 dark:hover:border-blue-500/60 hover:shadow-md transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1.5">
+                    <span className="text-lg leading-none">{sample.icon}</span>
+                    <span className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border ${sample.badgeColor}`}>
+                      {sample.badge}
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+                    {sample.name}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                    {sample.description}
+                  </p>
+                </div>
+
+                <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+                  <span>Load into Queue</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
