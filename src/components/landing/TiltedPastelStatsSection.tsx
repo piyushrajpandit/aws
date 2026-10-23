@@ -3,65 +3,72 @@ import React from 'react';
 const STATS = [
   {
     value: '250k+',
-    label: 'Commodities Verified',
-    description: 'Packaged items scanned across Blinkit, Zepto, Instamart & local kirana shelves.',
+    description: 'Packaged commodities verified across Blinkit, Zepto, Instamart & retail shelves.',
+    index: 'VERIFIED METRIC 01',
     bgColor: 'bg-[#EEF2FF]',
-    borderColor: 'border-[#C7D2FE]',
+    borderColor: 'border-[#E0E7FF]',
     textColor: 'text-[#3730A3]',
-    tiltClass: 'sm:-rotate-1 hover:rotate-0',
+    indexColor: 'text-[#6366F1]',
   },
   {
     value: '98.4%',
-    label: 'Deceptive Claim Accuracy',
-    description: 'Pinpoints asterisk tricks, microscopic text violations, and synthetic additives.',
+    description: 'Accuracy detecting misleading marketing claims, asterisks, and font size violations.',
+    index: 'VERIFIED METRIC 02',
     bgColor: 'bg-[#FDF2F8]',
-    borderColor: 'border-[#FBCFE8]',
-    textColor: 'text-[#9D174D]',
-    tiltClass: 'sm:rotate-2 hover:rotate-0',
+    borderColor: 'border-[#FCE7F3]',
+    textColor: 'text-[#9F1239]',
+    indexColor: 'text-[#F43F5E]',
   },
   {
-    value: '< 2s',
-    label: 'AI Verification Speed',
-    description: 'Instant multi-angle optical character recognition and statutory rule checking.',
+    value: '2 sec',
+    description: 'Average AI inference time to analyze nutrition tables and quantitative ingredients.',
+    index: 'VERIFIED METRIC 03',
     bgColor: 'bg-[#F0FDFA]',
-    borderColor: 'border-[#99F6E4]',
-    textColor: 'text-[#0D9488]',
-    tiltClass: 'sm:-rotate-2 hover:rotate-0',
+    borderColor: 'border-[#CCFBF1]',
+    textColor: 'text-[#065F46]',
+    indexColor: 'text-[#10B981]',
   },
   {
     value: '100%',
-    label: 'Legally Grounded',
-    description: 'Strictly backed by Legal Metrology Act 2009 & CCPA Misleading Ads 2022.',
+    description: 'Deterministic legal grounding in Legal Metrology Act 2009 & CCPA Guidelines 2022.',
+    index: 'VERIFIED METRIC 04',
     bgColor: 'bg-[#FEF3C7]',
     borderColor: 'border-[#FDE68A]',
-    textColor: 'text-[#B45309]',
-    tiltClass: 'sm:rotate-1 hover:rotate-0',
+    textColor: 'text-[#92400E]',
+    indexColor: 'text-[#D97706]',
   },
 ];
 
 export const TiltedPastelStatsSection: React.FC = () => {
   return (
-    <section className="py-12 sm:py-16 bg-white relative">
+    <section className="pb-20 sm:pb-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {STATS.map((stat, idx) => (
             <div
               key={idx}
-              className={`${stat.bgColor} ${stat.borderColor} ${stat.tiltClass} p-8 rounded-[24px] border shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] transition-all duration-300 transform flex flex-col justify-between min-h-[220px]`}
+              className={`${stat.bgColor} ${stat.borderColor} rounded-[26px] p-7 sm:p-8 border shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.05)] transition-all duration-300 flex flex-col justify-between min-h-[220px]`}
             >
               <div>
                 <div
-                  className={`text-4xl sm:text-5xl font-black ${stat.textColor} tracking-tight leading-none mb-3 font-sans`}
+                  className={`text-4xl sm:text-5xl font-black ${stat.textColor} tracking-tight leading-none mb-4 font-sans`}
                 >
                   {stat.value}
                 </div>
-                <div className="text-sm font-bold text-slate-800 leading-snug mb-2">
-                  {stat.label}
-                </div>
+                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal">
+                  {stat.description}
+                </p>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {stat.description}
-              </p>
+
+              {/* Bottom line + metric index */}
+              <div className="pt-6 border-t border-black/5 flex items-center justify-between mt-6">
+                <span className={`text-[10px] font-mono font-bold tracking-wider uppercase ${stat.indexColor}`}>
+                  {stat.index}
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  0{idx + 1}
+                </span>
+              </div>
             </div>
           ))}
         </div>

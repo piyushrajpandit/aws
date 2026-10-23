@@ -88,31 +88,29 @@ export const LandingNavbar: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Right CTAs (pill buttons matching Image 2) */}
+        {/* Right CTAs (pill buttons matching screenshot) */}
         <div className="hidden sm:flex items-center gap-3">
           <Link
             to="/dashboard/scanner"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all border border-amber-200/80 shadow-xs"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all border border-slate-200/90 shadow-xs"
           >
-            <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+            <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             Launch Scanner
           </Link>
 
           {isAuthenticated && user ? (
             <Link
               to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#0D1117] hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
             >
               Dashboard
-              <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           ) : (
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#0D1117] hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
             >
               Portal Login
-              <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           )}
         </div>
