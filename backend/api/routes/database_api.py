@@ -6,7 +6,7 @@ Provides full CRUD endpoints for Products, OCR Scans, Violations, Manufacturers,
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 import sys
@@ -359,7 +359,7 @@ def create_violation(viol_in: ViolationCreateSchema, db: Session = Depends(get_d
 @router.put("/violations/{violation_id}")
 def update_violation(
     violation_id: str,
-    payload: Dict[str, Any],
+    payload: Dict[str, Any] = Body(...),
     db: Session = Depends(get_db),
 ):
     """Update status or details of a violation / notice."""
@@ -458,7 +458,7 @@ def create_complaint(c_in: ComplaintCreateSchema, db: Session = Depends(get_db))
 @router.put("/complaints/{complaint_id}")
 def update_complaint(
     complaint_id: str,
-    payload: Dict[str, Any],
+    payload: Dict[str, Any] = Body(...),
     db: Session = Depends(get_db),
 ):
     """Update status, officer decision, or review flags for a complaint."""

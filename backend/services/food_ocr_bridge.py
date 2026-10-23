@@ -254,6 +254,9 @@ def _extract_fields(text_lines: List[str]) -> Dict[str, Any]:
         "ingredients": [],
         "customer_care": None,
         "dietary_type": None,
+        "manufacturer": None,
+        "country_of_origin": None,
+        "unit_sale_price": None,
     }
 
     # 1. MRP
@@ -353,12 +356,12 @@ def _extract_fields(text_lines: List[str]) -> Dict[str, Any]:
         fields["manufacturer"] = m.group(1).strip()
 
     # 12. Country of Origin
-    m = re.search(r"(?:COUNTRY\s*OF\s*ORIGIN|MADE\s*IN|PRODUCT\s*OF)\s*[:\.\-]?\s*([A-Za-z\s]+)", combined, re.IGNORECASE)
+    m = re.search(r"(?:COUNTRY\s*OF\s*ORIGIN|MADE\s*IN|PRODUCT\s*OF|MANUFACTURED\s*IN)\s*[:\-\.\|]?\s*([A-Za-z][A-Za-z\s]{2,30})", combined, re.IGNORECASE)
     if m:
-        cand = m.group(1).strip()
-        if cand.lower() in ["india", "china", "usa", "uk", "germany", "japan", "thailand", "vietnam"]:
-            fields["country_of_origin"] = cand.capitalize()
-    elif "made in india" in combined.lower() or "product of india" in combined.lower():
+        cand = m.group(1).strip().rstrip(".,;:)").strip()
+        if len(cand) >= 3 and cand.replace(" ", "").isalpha():
+            fields["country_of_origin"] = cand.title()
+    elif re.search(r"\bmade\s+in\s+india\b|\bproduct\s+of\s+india\b", combined, re.IGNORECASE):
         fields["country_of_origin"] = "India"
 
     # 13. Unit Sale Price (USP)
