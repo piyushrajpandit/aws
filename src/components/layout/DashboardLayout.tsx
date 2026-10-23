@@ -21,9 +21,15 @@ export const DashboardLayout: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Consumer Portal Restriction: Consumers are strictly scoped to the Complaints portal
-  if (user?.role === 'consumer' && location.pathname !== '/dashboard/complaints') {
-    return <Navigate to="/dashboard/complaints" replace />;
+  // Consumer Allowed Routes: Complaints, Scanner, Crawler, Health Profile
+  const consumerAllowedPaths = [
+    '/dashboard/complaints',
+    '/dashboard/scanner',
+    '/dashboard/crawler',
+    '/dashboard/health-profile',
+  ];
+  if (user?.role === 'consumer' && !consumerAllowedPaths.includes(location.pathname)) {
+    return <Navigate to="/dashboard/scanner" replace />;
   }
 
   // Inspector Portal Restriction: Restrict crawler and manufacturer features

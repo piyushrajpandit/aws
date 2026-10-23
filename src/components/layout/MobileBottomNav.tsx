@@ -8,6 +8,7 @@ import {
   MessageSquareWarning,
   Building2,
   HeartPulse,
+  Bot,
   Menu,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -60,14 +61,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   } else if (userRole === 'consumer') {
     roleItems = [
       { to: '/dashboard/scanner', label: 'Scan', icon: ScanLine },
-      { to: '/dashboard/health-profile', label: 'Diet Filter', icon: HeartPulse },
+      { to: '/dashboard/crawler', label: 'Crawler', icon: Bot },
+      { to: '/dashboard/health-profile', label: 'Health', icon: HeartPulse },
       {
         to: '/dashboard/complaints',
         label: 'Grievances',
         icon: MessageSquareWarning,
         badge: newComplaintsCount > 0 ? newComplaintsCount : undefined,
       },
-      { to: '/directory', label: 'Directory', icon: Building2 },
     ];
   } else {
     // admin: 4 destinations + More = 5 items maximum

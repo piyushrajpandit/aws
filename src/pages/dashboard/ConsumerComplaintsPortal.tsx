@@ -28,7 +28,10 @@ import {
   Mail,
   Camera,
   Upload,
+  ScanLine,
+  Bot,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
   Complaint,
@@ -356,7 +359,31 @@ export const ConsumerComplaintsPortal: React.FC = () => {
         </div>
 
         {!isInspector && (
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {isConsumer && (
+              <>
+                <Link to="/dashboard/scanner">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs gap-1.5 font-semibold px-3.5 py-2.5 rounded-lg bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-2xs"
+                  >
+                    <ScanLine className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Scan Product</span>
+                  </Button>
+                </Link>
+                <Link to="/dashboard/crawler">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs gap-1.5 font-semibold px-3.5 py-2.5 rounded-lg bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 shadow-2xs"
+                  >
+                    <Bot className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>Web Crawler</span>
+                  </Button>
+                </Link>
+              </>
+            )}
             <Button
               variant="primary"
               size="sm"

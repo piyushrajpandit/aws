@@ -80,9 +80,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       to: '/dashboard/crawler',
-      label: 'E-Commerce Crawler',
+      label: userRole === 'consumer' ? 'Web Marketplace Crawler' : 'E-Commerce Crawler',
       icon: Bot,
-      roles: ['admin'],
+      roles: ['admin', 'consumer'],
     },
     {
       to: '/dashboard/scanner',
