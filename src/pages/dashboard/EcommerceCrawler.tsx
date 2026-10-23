@@ -306,6 +306,28 @@ export const EcommerceCrawler: React.FC = () => {
               )}
             </Button>
           </form>
+
+          {/* Quick 1-Click Demo Links */}
+          <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex-wrap">
+            <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-amber-500" />
+              Demo Links:
+            </span>
+            <button
+              type="button"
+              onClick={() => setCustomUrl('https://www.amazon.in/dp/B00I6G2K22')}
+              className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-800 transition-colors cursor-pointer"
+            >
+              <span className="font-bold">Amazon:</span> Cadbury Bournvita (500g)
+            </button>
+            <button
+              type="button"
+              onClick={() => setCustomUrl('https://www.flipkart.com/maggi-2-minute-instant-noodles-masala/p/itme9vj7f8tqu52g')}
+              className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
+            >
+              <span className="font-bold">Flipkart:</span> MAGGI 2-Min Noodles (420g)
+            </button>
+          </div>
         </CardContent>
       </Card>
 
