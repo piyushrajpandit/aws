@@ -11,10 +11,13 @@ import {
   AlertOctagon,
   ArrowRight,
   Info,
+  MapPin,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 
 export const TruthAndSafetyResultsCard: React.FC = () => {
+  const navigate = useNavigate();
   const { currentAuditResult, activePreset } = useHealthStore();
 
   if (!currentAuditResult) return null;
@@ -29,6 +32,21 @@ export const TruthAndSafetyResultsCard: React.FC = () => {
   };
 
   const theme = getScoreTheme(overallSafetyScore);
+
+  const handleReportToSupervisor = () => {
+    const summaryAlerts = alerts.map((a) => a.title).join('; ');
+    const summaryDisc = discrepancies.map((d) => `"${d.frontClaim}" vs "${d.backReality}"`).join('; ');
+    const fullDesc = `Consumer Packaging Audit Violation: Detected misleading marketing claims and health risks on ${activePreset?.name || 'scanned package'}. Alerts: ${summaryAlerts || 'None'}. Discrepancies: ${summaryDisc || 'None'}.`;
+
+    navigate('/dashboard/complaints', {
+      state: {
+        triggerModal: true,
+        prefillProduct: activePreset?.name || 'Scanned Packaged Commodity',
+        prefillBrand: activePreset?.brand || 'Packaged Commodity Brand',
+        prefillDescription: fullDesc,
+      },
+    });
+  };
 
   // 1-Click PDF Generation for National Consumer Helpline / CCPA Evidence
   const exportDossierPDF = () => {
@@ -331,20 +349,32 @@ export const TruthAndSafetyResultsCard: React.FC = () => {
         </div>
       )}
 
-      {/* Action Footer: 1-Click Evidence Dossier */}
+      {/* Action Footer: 1-Click Evidence Dossier & Report to Supervisor */}
       <div className="mt-8 pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="text-xs text-slate-400 flex items-center gap-2">
           <Scale className="w-4 h-4 text-indigo-400" />
           <span>Statutory compliance cited under Legal Metrology Act, 2009 & CCPA 2022</span>
         </div>
 
-        <button
-          onClick={exportDossierPDF}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-semibold text-xs shadow-lg shadow-indigo-950/50 transition-all active:scale-[0.98]"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download CCPA / DoCA Evidence Dossier (PDF)</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleReportToSupervisor}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold text-xs shadow-lg shadow-rose-950/50 transition-all active:scale-[0.98]"
+          >
+            <MapPin className="w-4 h-4 text-white" />
+            <span>Report Violation to Supervisor (With Location)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={exportDossierPDF}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs shadow-md transition-all active:scale-[0.98]"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download PDF Dossier</span>
+          </button>
+        </div>
       </div>
     </div>
   );

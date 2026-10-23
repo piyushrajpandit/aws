@@ -31,7 +31,7 @@ import {
   ScanLine,
   Bot,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useComplianceStore } from '../../store/complianceStore';
 import {
   Complaint,
@@ -58,10 +58,25 @@ export const ConsumerComplaintsPortal: React.FC = () => {
   const isConsumer = user?.role === 'consumer';
   const { language, setLanguage, t } = useLanguageStore();
   const { complaints, addFullComplaint, updateOfficerDecision, fetchComplaints, backendOnline, isLoadingComplaints } = useComplianceStore();
+  const location = useLocation();
 
   useEffect(() => {
     fetchComplaints();
   }, []);
+
+  // Auto-open submission modal if navigated from Product Scanner with prefilled violation data
+  useEffect(() => {
+    if (location.state && (location.state as any).triggerModal) {
+      const state = location.state as any;
+      setNewComplaintData((prev) => ({
+        ...prev,
+        productName: state.prefillProduct || prev.productName,
+        brand: state.prefillBrand || prev.brand,
+        description: state.prefillDescription || prev.description,
+      }));
+      setIsSubmitModalOpen(true);
+    }
+  }, [location.state]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
