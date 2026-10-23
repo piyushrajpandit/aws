@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShieldCheck, ArrowRight, Terminal, Menu, X, BookOpen, Layers, GitBranch, Home, Download } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Terminal, Menu, X, BookOpen, Layers, GitBranch, Home, Download, Zap } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
@@ -39,18 +39,17 @@ export const LandingNavbar: React.FC = () => {
                 Satya<span className="text-blue-600 dark:text-blue-400">Drishti</span>
               </span>
               <Badge variant="primary" size="sm" className="hidden sm:inline-flex text-[10px]">
-                Legal Metrology Grid
+                Truth &amp; Safety Copilot
               </Badge>
             </div>
             <p className="text-[10px] text-slate-700 dark:text-slate-300 font-medium tracking-wide hidden sm:block">
-              Consumer Affairs &amp; E-Commerce Intelligence
+              National Consumer Protection Intelligence
             </p>
           </div>
         </Link>
 
         {/* Center Nav Links - Desktop */}
-        {/* Center Nav Links - Desktop */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1.5">
           <Link
             to="/"
             onClick={() => handleNavClick('about')}
@@ -62,6 +61,14 @@ export const LandingNavbar: React.FC = () => {
           >
             <Home className="h-3.5 w-3.5" />
             <span>Home</span>
+          </Link>
+
+          <Link
+            to="/dashboard/scanner"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 text-amber-500 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all shadow-xs"
+          >
+            <Zap className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            <span>AI Truth Scanner</span>
           </Link>
 
           <Link
