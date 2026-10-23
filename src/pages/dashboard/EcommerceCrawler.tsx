@@ -322,6 +322,13 @@ export const EcommerceCrawler: React.FC = () => {
             </button>
             <button
               type="button"
+              onClick={() => setCustomUrl('https://www.flipkart.com/anugrah-cold-pressed-chakki-atta-10kg-naturally-wheat-flour-rich-tasty-rotis/p/itm64b5e1e57001f')}
+              className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-200 dark:border-emerald-800 transition-colors cursor-pointer"
+            >
+              <span className="font-bold">Flipkart:</span> Anugrah Chakki Atta (10kg)
+            </button>
+            <button
+              type="button"
               onClick={() => setCustomUrl('https://www.flipkart.com/maggi-2-minute-instant-noodles-masala/p/itme9vj7f8tqu52g')}
               className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-200 dark:border-blue-800 transition-colors cursor-pointer"
             >
