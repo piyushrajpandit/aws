@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { BrandLogo } from '../ui/BrandLogo';
 import { useReportStore } from '../../store/reportStore';
 import { useAuthStore } from '../../store/authStore';
 import { reportService } from '../../lib/reportService';
@@ -147,10 +148,8 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
         {/* Desktop Header (>=sm) */}
         <div className="hidden sm:flex px-6 py-4 border-b border-slate-200 dark:border-slate-800 items-center justify-between bg-slate-50 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
-              <FileText className="h-5 w-5" />
-            </div>
-            <div>
+            <BrandLogo iconSize="w-8 h-8" textSize="text-base" />
+            <div className="border-l border-slate-200 dark:border-slate-800 pl-3">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold font-mono tracking-widest uppercase px-2 py-0.5 rounded border text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900/60">
                   OFFICIAL STATUTORY INSPECTION RECORD
@@ -159,7 +158,7 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   {report.reportId}
                 </span>
               </div>
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
                 Compliance Inspection Report Generator
               </h2>
             </div>
@@ -411,7 +410,8 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
                   /* ── Multi-Product Inspection Session Printable View ── */
                   <div className="max-w-4xl mx-auto bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6 text-slate-900 dark:text-slate-100">
               {/* Government Header Banner */}
-              <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 text-center space-y-1">
+              <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 flex flex-col items-center justify-center space-y-2 text-center">
+                <BrandLogo iconSize="w-8 h-8" textSize="text-xl" />
                 <div className="inline-flex items-center gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest font-mono">
                   <span>GOVERNMENT OF INDIA</span>
                   <span>•</span>
@@ -728,7 +728,8 @@ export const ComplianceReportModal: React.FC<ComplianceReportModalProps> = ({
             /* ── Single-Product Printable Report View ─────────────────── */
             <div className="max-w-4xl mx-auto bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-8 shadow-sm space-y-6 text-slate-900 dark:text-slate-100">
               {/* Government Header Banner */}
-              <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 text-center space-y-1">
+              <div className="border-b-2 border-slate-900 dark:border-slate-700 pb-4 flex flex-col items-center justify-center space-y-2 text-center">
+                <BrandLogo iconSize="w-8 h-8" textSize="text-xl" />
                 <div className="inline-flex items-center gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest font-mono">
                   <span>GOVERNMENT OF INDIA</span>
                   <span>•</span>

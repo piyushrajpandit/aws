@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, Smartphone, Share2, PlusSquare, ShieldCheck, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from './Button';
+import { BrandLogo } from './BrandLogo';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -134,26 +135,26 @@ export const PwaInstallPrompt: React.FC = () => {
               /* Minimized Subtle Pill (Doesn't block any audit cards) */
               <div
                 onClick={() => setIsMinimized(false)}
-                className="cursor-pointer bg-slate-900/90 hover:bg-slate-900 backdrop-blur-xl border border-blue-500/40 rounded-full px-3.5 py-1.5 shadow-xl text-white flex items-center gap-2 ml-auto w-fit transition-all hover:scale-105"
+                className="cursor-pointer bg-slate-900/90 hover:bg-slate-900 backdrop-blur-xl border border-slate-700 rounded-full px-3.5 py-1.5 shadow-xl text-white flex items-center gap-2 ml-auto w-fit transition-all hover:scale-105"
                 title="Click to view PWA installation options"
               >
-                <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center p-1 shrink-0">
-                  <ShieldCheck className="h-full w-full text-white" />
+                <div className="h-5 w-5 rounded-full bg-white flex items-center justify-center p-0.5 shrink-0">
+                  <BrandLogo iconSize="w-4 h-4" showText={false} variant="dark" />
                 </div>
-                <span className="text-xs font-semibold">Install PWA App</span>
-                <span className="text-[9px] bg-blue-500/30 text-blue-300 px-1.5 py-0.2 rounded-full font-mono">Mobile</span>
+                <span className="text-xs font-semibold">Install SatyaDrishti</span>
+                <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded-full font-mono">Mobile</span>
                 <ChevronUp className="h-3.5 w-3.5 text-slate-400" />
               </div>
             ) : (
               /* Expanded Full Card with Minimize & Close Options */
-              <div className="bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl shadow-blue-950/40 text-white flex items-center justify-between gap-3">
+              <div className="bg-slate-900/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl p-3.5 shadow-2xl text-white flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center p-2 shadow-md shadow-blue-500/20 shrink-0">
-                    <ShieldCheck className="h-full w-full text-white" />
+                  <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-md shrink-0">
+                    <BrandLogo iconSize="w-7 h-7" showText={false} variant="dark" />
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-semibold text-xs sm:text-sm leading-tight text-white flex items-center gap-1.5">
-                      Download App
+                      Install SatyaDrishti
                       <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.2 rounded-full font-medium">
                         PWA
                       </span>

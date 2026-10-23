@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Manufacturer, Violation } from '../../types/compliance';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { cn } from '../../lib/utils';
 
 interface Props {
@@ -121,6 +122,9 @@ export const ManufacturerDossierModal: React.FC<Props> = ({
             <div className={`px-6 pt-5 pb-4 border-b border-slate-200 ${rc.ring} border-l-4`} style={{ borderLeftColor: mfg.riskTier === 'Critical' ? '#dc2626' : mfg.riskTier === 'High' ? '#d97706' : mfg.riskTier === 'Moderate' ? '#ca8a04' : '#16a34a' }}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
+                  <div className="mb-2">
+                    <BrandLogo iconSize="w-5 h-5" textSize="text-xs" />
+                  </div>
                   <div className="flex items-center gap-2 flex-wrap mb-1.5">
                     <Badge variant={rc.badge} size="sm" className="font-mono font-bold text-[10px]">
                       {mfg.riskTier.toUpperCase()} RISK · {mfg.riskScore}/100

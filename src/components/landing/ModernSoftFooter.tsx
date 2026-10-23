@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUp, ShieldCheck, Heart } from 'lucide-react';
+import { BrandLogo } from '../ui/BrandLogo';
 
 const NAV_COLS = [
   {
@@ -41,14 +42,7 @@ export const ModernSoftFooter: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Brand column */}
           <div className="lg:col-span-4 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shadow-xs">
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-              </div>
-              <span className="text-xl font-black tracking-tight text-slate-900">
-                satyadrishti
-              </span>
-            </Link>
+            <BrandLogo to="/" />
 
             <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
               India's premier AI packaging truth copilot and consumer protection intelligence platform, empowering citizens to hold brands accountable to statutory reality.

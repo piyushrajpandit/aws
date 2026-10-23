@@ -16,6 +16,7 @@ import { Badge } from '../../components/ui/Badge';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { formatCurrency } from '../../lib/utils';
 
 const SEVERITY_LABELS: Record<string, string> = {
@@ -81,6 +82,9 @@ export const ViolationsLedger: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2.5 mb-1">
+            <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+          </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Violations & Enforcement Ledger
           </h1>

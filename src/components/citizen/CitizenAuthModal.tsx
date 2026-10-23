@@ -3,6 +3,7 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
+import { BrandLogo } from '../ui/BrandLogo';
 import { useAuthStore } from '../../store/authStore';
 import {
   UserCheck,
@@ -86,6 +87,10 @@ export const CitizenAuthModal: React.FC<CitizenAuthModalProps> = ({
       maxWidth="md"
     >
       <div className="space-y-5 text-xs text-slate-700">
+        <div className="flex justify-center pb-1">
+          <BrandLogo iconSize="w-8 h-8" textSize="text-xl" />
+        </div>
+
         {/* Method Switcher Tabs */}
         <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
           <button

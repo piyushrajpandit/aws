@@ -4,6 +4,7 @@ import html2canvas from 'html2canvas';
 import { Modal } from '../../components/ui/Modal';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { Violation } from '../../types/compliance';
 import { formatCurrency } from '../../lib/utils';
 import { sendSCNNoticeEmail, SendEmailResult } from '../../services/gmailService';
@@ -293,14 +294,17 @@ export const LegalNoticeModal: React.FC<LegalNoticeModalProps> = ({
             id="printable-scn-notice"
             className="printable-scn-document p-6 bg-white rounded-xl border border-slate-200 font-sans text-slate-800 space-y-4 relative shadow-sm"
           >
-            {/* Gov Crest Header */}
+            {/* Gov Crest Header with Official Brand Logo */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-200">
-              <div>
-                <div className="font-extrabold text-sm tracking-tight uppercase text-slate-900">
-                  CENTRAL CONSUMER PROTECTION AUTHORITY (CCPA)
-                </div>
-                <div className="text-[11px] text-slate-500 font-medium mt-0.5">
-                  Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
+              <div className="flex items-center gap-3">
+                <BrandLogo iconSize="w-8 h-8" textSize="text-base" />
+                <div className="border-l border-slate-200 pl-3">
+                  <div className="font-extrabold text-xs tracking-tight uppercase text-slate-900">
+                    CENTRAL CONSUMER PROTECTION AUTHORITY (CCPA)
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-medium">
+                    Ministry of Consumer Affairs, Food & Public Distribution • Govt. of India
+                  </div>
                 </div>
               </div>
               <Badge variant="danger" size="sm" className="font-sans text-[10px] uppercase font-bold tracking-wider px-2.5 py-1">

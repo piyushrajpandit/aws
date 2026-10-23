@@ -38,6 +38,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { formatCurrency, cn } from '../../lib/utils';
 import { useComplianceStore } from '../../store/complianceStore';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 
 export const EcommerceCrawler: React.FC = () => {
   const [status, setStatus] = useState<CrawlerStatus | null>(null);
@@ -149,12 +150,15 @@ export const EcommerceCrawler: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-100 via-indigo-100 to-slate-100 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 text-slate-900 dark:text-white p-6 rounded-2xl shadow-xl border border-indigo-200 dark:border-indigo-900/50">
         <div>
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <h1 className="text-2xl font-black tracking-tight">
+          <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+            <span className="text-slate-300 dark:text-slate-600 font-bold">•</span>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">
               Autonomous E-Commerce Compliance Inspector
             </h1>
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
+            AI-driven legal metrology scraper detecting missing mandatory declarations, MRP discrepancies, and foreign origin non-compliance across Indian marketplaces.
           </p>
         </div>
 

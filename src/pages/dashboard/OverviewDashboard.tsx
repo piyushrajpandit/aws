@@ -37,6 +37,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Badge } from '../../components/ui/Badge';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Button } from '../../components/ui/Button';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { NationalComplianceTrajectoryChart } from '../../components/dashboard/NationalComplianceTrajectoryChart';
 import { InspectorFieldTrajectoryChart } from '../../components/dashboard/InspectorFieldTrajectoryChart';
 import { useAuthStore } from '../../store/authStore';
@@ -106,17 +107,19 @@ export const OverviewDashboard: React.FC = () => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* ── Top Banner / Role Welcome ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold font-mono px-2 py-0.5 rounded uppercase tracking-wider bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <BrandLogo iconSize="w-5 h-5" textSize="text-xs" />
+            <span className="text-slate-300">•</span>
+            <span className="text-[11px] font-bold font-mono px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-slate-100 text-slate-800 border border-slate-200">
               {user?.role === 'admin' ? 'Enforcement Supervisor' : user?.role === 'inspector' ? 'Zonal Field Inspector' : 'Citizen Desk'}
             </span>
           </div>
-          <h1 className="text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Welcome, {user?.name || 'Officer'}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
+          <p className="text-xs text-slate-500 mt-1 max-w-xl">
             {user?.role === 'admin'
               ? 'Central directorate supervisor oversight & statutory Show Cause Notice authorization.'
               : user?.role === 'inspector'
@@ -125,24 +128,26 @@ export const OverviewDashboard: React.FC = () => {
           </p>
         </div>
 
-        {/* Primary Action Button — Mobile single primary CTA first */}
+        {/* Primary Action Button */}
         <div className="flex items-center gap-2.5 flex-col sm:flex-row w-full md:w-auto">
           <Link to="/dashboard/scanner" className="w-full sm:w-auto">
-            <Button
-              variant="primary"
-              size="sm"
-              className="w-full sm:w-auto text-xs font-bold gap-2 min-h-[44px] justify-center bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            <button
+              type="button"
+              className="w-full sm:w-auto text-xs font-bold gap-2 min-h-[42px] px-5 py-2.5 rounded-lg justify-center bg-[#0F172A] hover:bg-slate-800 text-white shadow-xs transition-colors flex items-center cursor-pointer"
             >
               <Scan className="h-4 w-4" />
               <span>Start Packaging Scan</span>
-            </Button>
+            </button>
           </Link>
 
           <Link to="/dashboard/violations" className="w-full sm:w-auto hidden sm:block">
-            <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs gap-1.5 min-h-[40px] justify-center">
-              <Gavel className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+            <button
+              type="button"
+              className="w-full sm:w-auto text-xs font-bold gap-1.5 min-h-[42px] px-5 py-2.5 rounded-lg justify-center bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors flex items-center cursor-pointer"
+            >
+              <Gavel className="h-3.5 w-3.5 text-slate-600" />
               <span>Enforcement Ledger</span>
-            </Button>
+            </button>
           </Link>
         </div>
       </div>
@@ -186,29 +191,23 @@ export const OverviewDashboard: React.FC = () => {
           <>
             <StatCard
               title="Your Assigned Grievances"
-              titleClassName="text-blue-700 dark:text-blue-400 font-bold"
-              value={formatNumber(complaints.filter((c) => c.status === 'Assigned for Inspection' || c.status === 'Investigation').length || 8)}
-              valueClassName="text-blue-700 dark:text-blue-400 font-bold font-mono"
+              value={formatNumber(complaints.filter((c) => c.status === 'Assigned for Inspection' || c.status === 'Investigation').length || 6)}
               change="Active"
               trend="up"
-              trendLabel="Personal Field Queue"
-              variant="accent"
+              trendLabel="Personal Field Inspection Queue"
+              variant="default"
             />
             <StatCard
               title="Field Scans Conducted"
-              titleClassName="text-blue-600 dark:text-blue-400 font-bold"
               value="1,240"
-              valueClassName="text-blue-600 dark:text-blue-400 font-bold font-mono"
               change="+14.2%"
               trend="up"
               trendLabel="OCR Optical Verifications"
-              variant="accent"
+              variant="default"
             />
             <StatCard
               title="Field Violations Flagged"
-              titleClassName="text-red-600 dark:text-red-400 font-bold"
               value="18"
-              valueClassName="text-red-600 dark:text-red-400 font-bold font-mono"
               change="3 SCN Pending"
               trend="up"
               trendLabel="Forwarded to Supervisor"
@@ -216,9 +215,7 @@ export const OverviewDashboard: React.FC = () => {
             />
             <StatCard
               title="Zonal Compliance Index"
-              titleClassName="text-emerald-700 dark:text-emerald-400 font-bold"
               value="94.2%"
-              valueClassName="text-emerald-700 dark:text-emerald-400 font-bold font-mono"
               change="+1.8%"
               trend="up"
               trendLabel="Bengaluru Circle SLA"

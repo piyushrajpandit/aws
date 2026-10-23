@@ -12,14 +12,13 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   ExternalLink,
   BookOpen,
   X,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useComplianceStore } from '../../store/complianceStore';
-import { Badge } from '../ui/Badge';
+import { BrandLogo } from '../ui/BrandLogo';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -87,7 +86,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       to: '/dashboard/scanner',
       label: 'Product Scanner',
       icon: ScanLine,
-      badge: undefined,
       roles: ['admin', 'inspector'],
     },
     {
@@ -116,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: MessageSquareWarning,
       badge: newComplaintsCount > 0 ? `${newComplaintsCount}` : undefined,
       badgeVariant: 'warning' as const,
-      roles: ['admin', 'inspector', 'consumer'], // Exclude manufacturer
+      roles: ['admin', 'inspector', 'consumer'],
     },
     {
       to: '/dashboard/analytics',
@@ -160,50 +158,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onMouseLeave={() => {
           if (isCollapsed) setIsHovered(false);
         }}
-        className={`fixed top-0 left-0 bottom-0 z-50 bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-in-out flex flex-col justify-between ${
+        className={`fixed top-0 left-0 bottom-0 z-50 bg-white text-slate-700 border-r border-slate-200/90 transition-all duration-300 ease-in-out flex flex-col justify-between ${
           isMobileOpen
             ? 'translate-x-0 shadow-2xl w-72'
             : isCollapsed
             ? isHovered
-              ? '-translate-x-full lg:translate-x-0 lg:w-64 shadow-2xl ring-1 ring-black/5 dark:ring-white/10'
+              ? '-translate-x-full lg:translate-x-0 lg:w-64 shadow-2xl ring-1 ring-black/5'
               : '-translate-x-full lg:translate-x-0 lg:w-20'
             : '-translate-x-full lg:translate-x-0 w-72 lg:w-64'
         }`}
       >
-        {/* Top Header */}
+        {/* Top Header with Consistent Official Brand Logo */}
         <div className="overflow-y-auto flex-1 scrollbar-thin">
-          <div className={`h-16 px-3 flex items-center border-b border-slate-200 dark:border-slate-800/80 ${
-            isExpanded ? 'justify-between px-4' : 'justify-center'
-          }`}>
+          <div
+            className={`h-20 px-4 flex items-center border-b border-slate-100 ${
+              isExpanded ? 'justify-between' : 'justify-center'
+            }`}
+          >
             {isExpanded ? (
-              <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`h-9 w-9 shrink-0 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-xs ${
-                    userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
-                  }`}
+              <div className="flex items-center justify-between w-full">
+                <BrandLogo
+                  to="/dashboard"
+                  iconSize="w-6 h-6"
+                  textSize="text-[17px]"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextState = !isCollapsed;
+                    setIsCollapsed(nextState);
+                    setIsHovered(false);
+                  }}
+                  className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  title={isCollapsed ? 'Pin Sidebar Open' : 'Collapse Sidebar'}
                 >
-                  S
-                </div>
-                <div className="min-w-0">
-                  <div className="text-base font-bold text-slate-900 dark:text-white tracking-tight truncate flex items-center gap-1.5">
-                    <span>SatyaDrishti</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider truncate">
-                    {userRole === 'consumer' ? 'Consumer Portal' : 'Compliance Intel'}
-                  </div>
-                </div>
+                  {isCollapsed ? (
+                    <ChevronRight className="h-4 w-4" />
+                  ) : (
+                    <ChevronLeft className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setIsCollapsed(false)}
-                title="Expand Navigation Menu"
-                className={`h-9 w-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-xs hover:opacity-90 transition-opacity ${
-                  userRole === 'consumer' ? 'bg-emerald-600' : 'bg-blue-600'
-                }`}
-              >
-                S
-              </button>
+              <BrandLogo
+                to="/dashboard"
+                iconSize="w-7 h-7"
+                showText={false}
+              />
             )}
 
             {/* Mobile Close Button (<lg) */}
@@ -211,43 +212,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 type="button"
                 onClick={onCloseMobile}
-                className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 aria-label="Close navigation drawer"
               >
                 <X className="h-5 w-5" />
               </button>
             )}
-
-            {/* Desktop Collapse / Pin Toggle (lg+) */}
-            {isExpanded && (
-              <button
-                type="button"
-                onClick={() => {
-                  const nextState = !isCollapsed;
-                  setIsCollapsed(nextState);
-                  setIsHovered(false);
-                }}
-                className="hidden lg:flex p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title={isCollapsed ? 'Pin Sidebar Open' : 'Collapse Sidebar to Mini Rail'}
-                aria-label={isCollapsed ? 'Pin Sidebar Open' : 'Collapse Sidebar'}
-              >
-                {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-              </button>
-            )}
           </div>
 
-          {/* User Role Card */}
-          {isExpanded && user && (
-            <div className="p-3.5 m-3 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user.name}</div>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{user.designation}</p>
-            </div>
-          )}
-
-          {/* Navigation Items */}
-          <nav className={`p-3 space-y-1.5 text-xs font-medium ${!isExpanded ? 'px-2' : ''}`}>
+          {/* Navigation Items with Authoritative High-Contrast Active State */}
+          <nav className={`p-3 space-y-1 text-xs font-medium ${!isExpanded ? 'px-2' : ''}`}>
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -263,24 +237,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       isExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center p-2.5'
                     } ${
                       isActive
-                        ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/70'
+                        ? 'bg-[#0F172A] text-white font-bold shadow-xs'
+                        : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/80'
                     }`
                   }
                   title={!isExpanded ? item.label : undefined}
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
+                  <Icon className="h-4.5 w-4.5 shrink-0" />
                   {isExpanded && (
                     <div className="flex-1 flex items-center justify-between min-w-0">
                       <span className="truncate">{item.label}</span>
                       {item.badge && (
                         <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono font-semibold shrink-0 ml-1.5 ${
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ml-1.5 ${
                             item.badgeVariant === 'danger'
-                              ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                              ? 'bg-rose-100 text-rose-800'
                               : item.badgeVariant === 'warning'
-                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-slate-100 text-slate-700'
                           }`}
                         >
                           {item.badge}
@@ -294,32 +268,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </nav>
         </div>
 
-        {/* Bottom Section */}
-        <div className={`p-3 border-t border-slate-200 dark:border-slate-800 space-y-1.5 shrink-0 ${!isExpanded ? 'px-2' : ''}`}>
+        {/* User Card & Bottom Controls */}
+        <div className={`p-3 border-t border-slate-100 space-y-2 shrink-0 ${!isExpanded ? 'px-2' : ''}`}>
+          {isExpanded && user && (
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 mb-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#0F172A] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  {user.name.charAt(0)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-bold text-slate-900 truncate">
+                    {user.name}
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-medium truncate">
+                    {user.designation || user.role}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <NavLink
             to="/"
             onClick={() => {
               if (onCloseMobile) onCloseMobile();
             }}
-            className={`flex items-center rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs transition-colors min-h-[44px] ${
-              isExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center p-2.5'
+            className={`flex items-center rounded-xl text-slate-600 hover:text-slate-950 hover:bg-slate-100 text-xs transition-colors min-h-[40px] ${
+              isExpanded ? 'px-3 py-2 gap-3' : 'justify-center p-2'
             }`}
             title={!isExpanded ? 'Public Portal' : undefined}
           >
-            <ExternalLink className="h-5 w-5 shrink-0 text-slate-400" />
-            {isExpanded && <span className="truncate">Public Portal</span>}
+            <ExternalLink className="h-4 w-4 shrink-0 text-slate-400" />
+            {isExpanded && <span className="truncate font-medium">Public Portal</span>}
           </NavLink>
 
           <button
             type="button"
             onClick={handleLogout}
-            className={`w-full flex items-center rounded-xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-300 text-xs transition-colors min-h-[44px] ${
-              isExpanded ? 'px-3 py-2.5 gap-3' : 'justify-center p-2.5'
+            className={`w-full flex items-center rounded-xl text-rose-600 hover:bg-rose-50 text-xs transition-colors min-h-[40px] cursor-pointer ${
+              isExpanded ? 'px-3 py-2 gap-3' : 'justify-center p-2'
             }`}
             title={!isExpanded ? 'Sign Out' : undefined}
           >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {isExpanded && <span className="truncate">Sign Out</span>}
+            <LogOut className="h-4 w-4 shrink-0" />
+            {isExpanded && <span className="truncate font-bold">Sign Out</span>}
           </button>
         </div>
       </aside>
@@ -327,3 +319,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
+export default Sidebar;

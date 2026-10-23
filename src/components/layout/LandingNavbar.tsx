@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Zap } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { BrandLogo } from '../ui/BrandLogo';
 
 export const LandingNavbar: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -44,40 +45,7 @@ export const LandingNavbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
         {/* Brand Logo matching screenshot: Outline Circle with Inner Dot + satyadrishti */}
-        <Link
-          to="/"
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="flex items-center gap-3 group select-none"
-        >
-          {/* Target/Eye Icon: White circle with black border and inner black dot */}
-          <div className="w-8 h-8 flex items-center justify-center shrink-0">
-            <svg
-              className="w-7 h-7"
-              viewBox="0 0 28 28"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="14"
-                cy="14"
-                r="10.5"
-                stroke="#0F172A"
-                strokeWidth="2.5"
-                className="group-hover:stroke-amber-600 transition-colors"
-              />
-              <circle
-                cx="14"
-                cy="14"
-                r="4"
-                fill="#0F172A"
-                className="group-hover:fill-amber-600 transition-colors"
-              />
-            </svg>
-          </div>
-          <span className="text-xl sm:text-[22px] font-black tracking-tight text-slate-900 font-sans">
-            satyadrishti
-          </span>
-        </Link>
+        <BrandLogo to="/" onClick={() => setIsMobileMenuOpen(false)} />
 
         {/* Center Nav Links */}
         <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-[14px] font-medium text-slate-600">

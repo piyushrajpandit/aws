@@ -24,6 +24,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../..
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Tabs } from '../../components/ui/Tabs';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import {
   OFFICIAL_REGULATORY_SOURCES,
   INITIAL_RULE_REGISTRY,
@@ -157,8 +158,11 @@ export const RegulatoryRAGPortal: React.FC = () => {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 text-slate-900 dark:text-white flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-xs">
         {/* Left (65–70%) */}
         <div className="space-y-2 lg:max-w-[68%]">
-          <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 tracking-wide">
-            Hybrid Vector + Knowledge Graph RAG Engine
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+            <div className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 tracking-wide">
+              Hybrid Vector + Knowledge Graph RAG Engine
+            </div>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             Regulatory Intelligence &amp; Guideline Assistant

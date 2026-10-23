@@ -17,6 +17,7 @@ import { SupportedLanguage } from '../types/compliance';
 import { UserRole } from '../types/auth';
 import { GridPattern } from '../components/ui/GridPattern';
 import { AnimatedThemeToggler } from '../components/ui/AnimatedThemeToggler';
+import { BrandLogo } from '../components/ui/BrandLogo';
 import { cn } from '../lib/utils';
 
 type PortalTab = 'consumer' | 'inspector' | 'admin';
@@ -187,11 +188,14 @@ export const LoginPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-xl relative z-10 pt-8 sm:pt-4">
-        <h2 className="text-center text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Satya<span className="text-blue-600 dark:text-blue-400">Drishti</span>
-        </h2>
-        <p className="mt-1 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+      <div className="sm:mx-auto sm:w-full sm:max-w-xl relative z-10 pt-8 sm:pt-4 flex flex-col items-center">
+        <BrandLogo
+          to="/"
+          iconSize="w-9 h-9"
+          textSize="text-3xl"
+          className="justify-center"
+        />
+        <p className="mt-2 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
           {t('loginSubtitle')}
         </p>
       </div>

@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useComplianceStore } from '../../store/complianceStore';
 import { useAuthStore } from '../../store/authStore';
+import { BrandLogo } from '../ui/BrandLogo';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -253,9 +254,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-            <span>Navigation: [Enter] to select • [Esc] to dismiss</span>
-            <span>Ctrl + K</span>
+          <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500 font-sans">
+            <BrandLogo iconSize="w-4 h-4" textSize="text-xs" />
+            <div className="flex items-center gap-3 text-slate-400 font-mono text-[10px]">
+              <span>[Enter] select • [Esc] close</span>
+              <span>⌘K</span>
+            </div>
           </div>
         </motion.div>
       </div>

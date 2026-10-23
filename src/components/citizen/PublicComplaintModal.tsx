@@ -3,6 +3,7 @@ import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
+import { BrandLogo } from '../ui/BrandLogo';
 import { Product, PlatformType, EvidenceTag, Complaint, SupportedLanguage } from '../../types/compliance';
 import { useComplianceStore } from '../../store/complianceStore';
 import { useAuthStore } from '../../store/authStore';
@@ -184,6 +185,11 @@ export const PublicComplaintModal: React.FC<PublicComplaintModalProps> = ({
       subtitle={t('newGrievanceSubtitle')}
       maxWidth="2xl"
     >
+      {/* Brand Logo Header */}
+      <div className="flex justify-center pb-2">
+        <BrandLogo iconSize="w-8 h-8" textSize="text-xl" />
+      </div>
+
       {/* Language Selector Toolbar */}
       <div className="flex items-center justify-between p-2.5 mb-3 bg-slate-50 border border-slate-200 rounded-xl">
         <div className="flex items-center gap-2">

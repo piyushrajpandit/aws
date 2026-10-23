@@ -18,6 +18,7 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 import { ManufacturerSatelliteMap } from '../../components/maps/ManufacturerSatelliteMap';
 import { ManufacturerDossierModal } from './ManufacturerDossierModal';
 import { ScheduleInspectionModal } from '../../components/manufacturers/ScheduleInspectionModal';
@@ -119,6 +120,9 @@ export const ManufacturerRiskRanking: React.FC = () => {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2.5 mb-1">
+            <BrandLogo iconSize="w-6 h-6" textSize="text-base" />
+          </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Manufacturer & Seller Risk Intelligence
           </h1>
