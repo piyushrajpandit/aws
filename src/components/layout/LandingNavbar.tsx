@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 export const LandingNavbar: React.FC = () => {
@@ -11,7 +11,7 @@ export const LandingNavbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 15);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -36,30 +36,51 @@ export const LandingNavbar: React.FC = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80'
-          : 'bg-[#FDFCF9] border-b border-transparent'
+          ? 'bg-white/98 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.04)] border-b border-slate-200/80'
+          : 'bg-white border-b border-slate-100/80'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 h-18 flex items-center justify-between">
-        {/* Wordmark inspired by Image 2's clean logo */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 h-20 flex items-center justify-between">
+        {/* Brand Logo matching screenshot: Outline Circle with Inner Dot + satyadrishti */}
         <Link
           to="/"
           onClick={() => setIsMobileMenuOpen(false)}
-          className="flex items-center gap-2.5 group select-none"
+          className="flex items-center gap-3 group select-none"
         >
-          {/* Friendly circular truth eye mark */}
-          <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center shadow-xs">
-            <div className="w-2.5 h-2.5 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
+          {/* Target/Eye Icon: White circle with black border and inner black dot */}
+          <div className="w-8 h-8 flex items-center justify-center shrink-0">
+            <svg
+              className="w-7 h-7"
+              viewBox="0 0 28 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="14"
+                cy="14"
+                r="10.5"
+                stroke="#0F172A"
+                strokeWidth="2.5"
+                className="group-hover:stroke-amber-600 transition-colors"
+              />
+              <circle
+                cx="14"
+                cy="14"
+                r="4"
+                fill="#0F172A"
+                className="group-hover:fill-amber-600 transition-colors"
+              />
+            </svg>
           </div>
-          <span className="text-xl font-black tracking-tight text-slate-900">
+          <span className="text-xl sm:text-[22px] font-black tracking-tight text-slate-900 font-sans">
             satyadrishti
           </span>
         </Link>
 
         {/* Center Nav Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+        <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-[14px] font-medium text-slate-600">
           <Link
             to="/directory"
             className="hover:text-slate-900 transition-colors"
@@ -69,14 +90,14 @@ export const LandingNavbar: React.FC = () => {
           <button
             type="button"
             onClick={() => handleNavClick('how-it-works')}
-            className="hover:text-slate-900 transition-colors cursor-pointer bg-transparent border-0 p-0 text-sm font-semibold text-slate-600"
+            className="hover:text-slate-900 transition-colors cursor-pointer bg-transparent border-0 p-0 text-[14px] font-medium text-slate-600"
           >
-            How It Works
+            How it Works
           </button>
           <button
             type="button"
             onClick={() => handleNavClick('faq')}
-            className="hover:text-slate-900 transition-colors cursor-pointer bg-transparent border-0 p-0 text-sm font-semibold text-slate-600"
+            className="hover:text-slate-900 transition-colors cursor-pointer bg-transparent border-0 p-0 text-[14px] font-medium text-slate-600"
           >
             FAQ
           </button>
@@ -88,34 +109,39 @@ export const LandingNavbar: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Right CTAs (pill buttons matching screenshot) */}
+        {/* Right Action Buttons matching screenshot */}
         <div className="hidden sm:flex items-center gap-3">
+          {/* Launch Scanner Button: White pill with subtle border and amber bolt */}
           <Link
             to="/dashboard/scanner"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold transition-all border border-slate-200/90 shadow-xs"
+            id="nav-launch-scanner-btn"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white hover:bg-slate-50/80 text-slate-800 text-[13px] font-semibold transition-all border border-slate-200 shadow-xs hover:border-slate-300"
           >
-            <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
             Launch Scanner
           </Link>
 
+          {/* Portal Login Button: Dark navy/black pill */}
           {isAuthenticated && user ? (
             <Link
               to={user.role === 'consumer' ? '/dashboard/complaints' : '/dashboard'}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#0D1117] hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
+              id="nav-dashboard-btn"
+              className="inline-flex items-center px-6 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-[13px] font-semibold transition-all shadow-xs"
             >
               Dashboard
             </Link>
           ) : (
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#0D1117] hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
+              id="nav-portal-login-btn"
+              className="inline-flex items-center px-6 py-2.5 rounded-full bg-[#0F172A] hover:bg-slate-800 text-white text-[13px] font-semibold transition-all shadow-xs"
             >
               Portal Login
             </Link>
           )}
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu hamburger */}
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -125,34 +151,34 @@ export const LandingNavbar: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-5 pt-4 pb-6 space-y-2 shadow-lg">
+        <div className="md:hidden border-t border-slate-100 bg-white px-6 pt-4 pb-6 space-y-3 shadow-lg">
           <Link
             to="/directory"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-sm font-semibold text-slate-700 hover:text-slate-900"
+            className="block py-2 text-sm font-medium text-slate-700 hover:text-slate-900"
           >
-            Product Directory
+            Directory
           </Link>
           <button
             type="button"
             onClick={() => handleNavClick('how-it-works')}
-            className="block w-full text-left py-2 text-sm font-semibold text-slate-700 hover:text-slate-900"
+            className="block w-full text-left py-2 text-sm font-medium text-slate-700 hover:text-slate-900"
           >
-            How It Works
+            How it Works
           </button>
           <button
             type="button"
             onClick={() => handleNavClick('faq')}
-            className="block w-full text-left py-2 text-sm font-semibold text-slate-700 hover:text-slate-900"
+            className="block w-full text-left py-2 text-sm font-medium text-slate-700 hover:text-slate-900"
           >
             FAQ
           </button>
           <Link
             to="/technical-blog"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-sm font-semibold text-slate-700 hover:text-slate-900"
+            className="block py-2 text-sm font-medium text-slate-700 hover:text-slate-900"
           >
             Technical Story
           </Link>
@@ -160,14 +186,14 @@ export const LandingNavbar: React.FC = () => {
             <Link
               to="/dashboard/scanner"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="block w-full text-center py-3 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider"
+              className="block w-full text-center py-2.5 rounded-full bg-white border border-slate-200 text-slate-800 text-xs font-semibold shadow-xs"
             >
-              Launch Free Scanner
+              ⚡ Launch Scanner
             </Link>
             <Link
               to="/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="block w-full text-center py-3 rounded-full bg-slate-900 text-white text-xs font-bold"
+              className="block w-full text-center py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-semibold shadow-xs"
             >
               Portal Login
             </Link>
