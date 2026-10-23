@@ -34,12 +34,21 @@ interface HealthState {
   clearAudit: () => void;
 }
 
+const defaultPreset = DEMO_PRESETS[0];
+const defaultProfiles: HealthProfileId[] = ['gym', 'diabetic', 'nut_allergy', 'cholesterol'];
+const defaultAudit = evaluateHealthAndClaims(
+  defaultPreset.ingredientsText,
+  defaultPreset.nutritionalInfo,
+  defaultPreset.frontClaims,
+  defaultProfiles
+);
+
 export const useHealthStore = create<HealthState>()(
   persist(
     (set, get) => ({
-      activeProfiles: ['gym', 'diabetic', 'nut_allergy'],
-      activePreset: null,
-      currentAuditResult: null,
+      activeProfiles: defaultProfiles,
+      activePreset: defaultPreset,
+      currentAuditResult: defaultAudit,
 
       toggleProfile: (id: HealthProfileId) => {
         const { activeProfiles, activePreset } = get();
@@ -63,6 +72,16 @@ export const useHealthStore = create<HealthState>()(
 
       setProfiles: (ids: HealthProfileId[]) => {
         set({ activeProfiles: ids });
+        const { activePreset } = get();
+        if (activePreset) {
+          const reAudit = evaluateHealthAndClaims(
+            activePreset.ingredientsText,
+            activePreset.nutritionalInfo,
+            activePreset.frontClaims,
+            ids
+          );
+          set({ currentAuditResult: reAudit });
+        }
       },
 
       loadPreset: (presetId: string) => {
