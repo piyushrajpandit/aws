@@ -545,7 +545,7 @@ class OCRService {
   private provider: OCRProvider;
 
   constructor() {
-    this.provider = new HybridVisionBackendProvider(import.meta.env.VITE_API_URL || 'https://satyadrishti-backend-v2.onrender.com');
+    this.provider = new TesseractLegalMetrologyProvider();
   }
 
   /** Swap the OCR provider (e.g. to Google Vision, AWS Textract, or Azure OCR) */
