@@ -1,10 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const GEMINI_MODELS = [
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-1.5-flash-8b',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash-lite',
+  'gemini-2.5-flash-lite',
+  'gemini-flash-latest',
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
 ];
 
 const STATUTORY_PROMPT = `You are an official Legal Metrology Compliance Officer under the Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011 (Rule 6).
@@ -59,7 +61,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const { dataUrl, apiKey: clientApiKey } = req.body || {};
   const apiKey =
+    clientApiKey ||
     process.env.GEMINI_API_KEY ||
     process.env.VITE_GEMINI_API_KEY ||
     '';
@@ -68,7 +72,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'GEMINI_API_KEY not configured on server' });
   }
 
-  const { dataUrl } = req.body || {};
   if (!dataUrl) {
     return res.status(400).json({ error: 'dataUrl is required' });
   }
@@ -100,15 +103,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
   };
 
-  for (const model of GEMINI_MODELS) {
-    // AQ. keys use Bearer token auth; AIzaSy keys use ?key= query param
-    const isBearer = apiKey.startsWith('AQ.');
-    const url = isBearer
-      ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-      : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  let lastError = '';
 
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (isBearer) headers['Authorization'] = `Bearer ${apiKey}`;
+  for (const model of GEMINI_MODELS) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    };
 
     try {
       const response = await fetch(url, {
@@ -126,12 +128,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       } else {
         const errText = await response.text();
-        console.warn(`[Gemini API] Model ${model} failed: ${response.status} ${errText}`);
+        lastError = `Model ${model} returned ${response.status}: ${errText}`;
+        console.warn(`[Gemini API] ${lastError}`);
       }
     } catch (err) {
-      console.warn(`[Gemini API] Model ${model} error:`, err);
+      lastError = `Model ${model} error: ${err instanceof Error ? err.message : String(err)}`;
+      console.warn(`[Gemini API] ${lastError}`);
     }
   }
 
-  return res.status(500).json({ error: 'All Gemini models failed' });
+  return res.status(500).json({
+    error: 'All Gemini models failed',
+    details: lastError,
+  });
 }

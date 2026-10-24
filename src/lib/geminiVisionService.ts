@@ -21,6 +21,7 @@ import type {
 
 // Read from Vite environment (loaded from .env at runtime)
 export const GEMINI_SCANNER_KEY =
+  (typeof window !== 'undefined' && (localStorage.getItem('gemini_api_key') || localStorage.getItem('VITE_GEMINI_API_KEY'))) ||
   (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_GEMINI_API_KEY || import.meta.env?.VITE_GEMINI_VISION_KEY)) ||
   '';
 
@@ -30,10 +31,12 @@ const BACKEND_API_URL =
   'https://satyadrishti-backend-v2.onrender.com';
 
 const GEMINI_MODELS = [
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-1.5-flash-8b',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash-lite',
+  'gemini-2.5-flash-lite',
+  'gemini-flash-latest',
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
 ];
 
 export interface GeminiExtractionRaw {
@@ -117,7 +120,7 @@ export async function callGeminiVision(
     const response = await fetch('/api/gemini', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dataUrl }),
+      body: JSON.stringify({ dataUrl, apiKey }),
     });
     if (response.ok) {
       const resJson = await response.json();
@@ -133,7 +136,7 @@ export async function callGeminiVision(
     console.warn('[Gemini Vision] /api/gemini serverless call failed:', err);
   }
 
-  // Strategy 1: Direct client call if API key is present in environment
+  // Strategy 1: Direct client call if API key is present in environment or localStorage
   if (apiKey && apiKey.trim().length > 10) {
     const payload = {
       contents: [
@@ -156,12 +159,15 @@ export async function callGeminiVision(
     };
 
     for (const model of GEMINI_MODELS) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
           body: JSON.stringify(payload),
         });
 
@@ -169,6 +175,7 @@ export async function callGeminiVision(
           const resJson = await response.json();
           const text = resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
+            console.log(`[Gemini Vision] ✅ Direct browser call succeeded via model: ${model}`);
             return JSON.parse(text) as GeminiExtractionRaw;
           }
         }
