@@ -112,6 +112,27 @@ export async function callGeminiVision(
 ): Promise<GeminiExtractionRaw> {
   const { mimeType, base64 } = parseDataUrl(dataUrl);
 
+  // Strategy 0: Call local Vercel serverless /api/gemini (server-side key, no CORS)
+  try {
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl }),
+    });
+    if (response.ok) {
+      const resJson = await response.json();
+      if (resJson?.status === 'success' && resJson?.data) {
+        console.log(`[Gemini Vision] ✅ Server-side call succeeded via model: ${resJson.model}`);
+        return resJson.data as GeminiExtractionRaw;
+      }
+    } else {
+      const errText = await response.text();
+      console.warn('[Gemini Vision] /api/gemini returned error:', errText);
+    }
+  } catch (err) {
+    console.warn('[Gemini Vision] /api/gemini serverless call failed:', err);
+  }
+
   // Strategy 1: Direct client call if API key is present in environment
   if (apiKey && apiKey.trim().length > 10) {
     const payload = {
@@ -178,6 +199,7 @@ export async function callGeminiVision(
 
   throw new Error('Gemini Vision analysis could not be completed via direct or proxy channels');
 }
+
 
 function mkBBox(xPct: number, yPct: number, wPct: number, hPct: number): BoundingBox {
   return {
