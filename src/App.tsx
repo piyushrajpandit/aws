@@ -37,8 +37,9 @@ export function App() {
 
         {/* Authenticated Dashboard Routes */}
         <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<OverviewDashboard />} />
-          <Route path="products" element={<ProductsIntelligence />} />
+          <Route index element={<ProductsIntelligence />} />
+          <Route path="products" element={<Navigate to="/dashboard" replace />} />
+          <Route path="overview" element={<OverviewDashboard />} />
           <Route path="crawler" element={<EcommerceCrawler />} />
           <Route path="scanner" element={<ProductScanner />} />
           <Route path="violations" element={<ViolationsLedger />} />

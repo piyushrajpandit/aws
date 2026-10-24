@@ -67,14 +67,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const allNavItems = [
     {
       to: '/dashboard',
-      label: 'Dashboard',
-      icon: LayoutDashboard,
+      label: 'Products',
+      icon: Package,
       roles: ['admin', 'inspector'],
     },
     {
-      to: '/dashboard/products',
-      label: 'Products',
-      icon: Package,
+      to: '/dashboard/overview',
+      label: 'Overview',
+      icon: LayoutDashboard,
       roles: ['admin', 'inspector'],
     },
     {
