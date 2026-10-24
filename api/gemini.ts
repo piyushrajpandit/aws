@@ -101,11 +101,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   };
 
   for (const model of GEMINI_MODELS) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    // AQ. keys use Bearer token auth; AIzaSy keys use ?key= query param
+    const isBearer = apiKey.startsWith('AQ.');
+    const url = isBearer
+      ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+      : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (isBearer) headers['Authorization'] = `Bearer ${apiKey}`;
+
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(payload),
       });
 
