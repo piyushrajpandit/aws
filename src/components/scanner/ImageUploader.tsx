@@ -46,13 +46,34 @@ export const ImageUploader: React.FC = () => {
     (files: FileList | File[]) => {
       setError(null);
       const fileArray = Array.from(files);
+
+      // Block files with unsupported types
       const invalid = fileArray.filter(
         (f) => f.type && !ACCEPTED_TYPES.includes(f.type) && !f.type.startsWith('image/')
       );
-
       if (invalid.length > 0) {
         setError(`Unsupported format: ${invalid.map((f) => f.name).join(', ')}. Use PNG, JPG, JPEG, or WebP.`);
         return;
+      }
+
+      // Hard-block files > 50 MB — these will crash ANY browser tab
+      const tooBig = fileArray.filter((f) => f.size > 50 * 1024 * 1024);
+      if (tooBig.length > 0) {
+        setError(
+          `File too large: ${tooBig.map((f) => `${f.name} (${(f.size / 1048576).toFixed(0)} MB)`).join(', ')}. ` +
+          `Maximum supported size is 50 MB. Use your camera app to reduce resolution before uploading.`
+        );
+        return;
+      }
+
+      // Soft-warn for files between 15–50 MB (will be auto-compressed but may be slow)
+      const largeFiles = fileArray.filter((f) => f.size > 15 * 1024 * 1024);
+      if (largeFiles.length > 0) {
+        setError(
+          `⚠️ Large file(s) detected (${largeFiles.map((f) => `${(f.size / 1048576).toFixed(0)} MB`).join(', ')}). ` +
+          `Auto-compressing to 1600 px — this may take a few seconds on older devices.`
+        );
+        // Don't return — still process, just warn
       }
 
       addImages(fileArray);

@@ -94,43 +94,100 @@ function generateId(): string {
   return `scan-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
 }
 
+/**
+ * Converts a File to a compressed base64 data URL without OOM-crashing on large photos.
+ *
+ * Strategy: use createObjectURL so the raw file bytes are NEVER copied into the
+ * JS heap. Only the final downscaled canvas pixels end up in memory.
+ *
+ * Max output dimensions: 1600 × 1600 px  (sufficient for OCR, ≈ 200–400 KB JPEG)
+ * Max output quality: 0.88 JPEG
+ *
+ * The old approach (FileReader.readAsDataURL → base64 → new Image) inflated a
+ * 10 MB DSLR photo to ~13 MB base64 string in RAM *before* any compression,
+ * causing Chrome "Aw, Snap!" OOM (Error code 5) on low-RAM laptops.
+ */
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = (e) => {
-      const src = e.target?.result as string;
-      if (!file.type.startsWith('image/') || typeof Image === 'undefined') {
-        return resolve(src);
-      }
-      const img = new Image();
-      img.onerror = () => resolve(src);
-      img.onload = () => {
-        const maxDim = 1920;
-        let { width, height } = img;
-        if (width <= maxDim && height <= maxDim && file.size < 1.2 * 1024 * 1024) {
-          return resolve(src);
-        }
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return resolve(src);
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', 0.90));
-      };
-      img.src = src;
+    // Max dimension for OCR — text is readable at 1600 px, larger wastes RAM/bandwidth
+    const MAX_DIM = 1600;
+    // Quality threshold: re-encode only if the file is large or needs downscaling
+    const QUALITY = 0.88;
+
+    if (!file.type.startsWith('image/') || typeof Image === 'undefined') {
+      // Non-image or SSR fallback: use legacy FileReader (won't happen in browser scanner)
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // createObjectURL: the browser maps the File directly from disk — zero JS-heap copy
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error(`Failed to decode image: ${file.name}`));
     };
-    reader.readAsDataURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl); // Free the object URL immediately after load
+
+      let { naturalWidth: w, naturalHeight: h } = img;
+
+      // If image is already small enough, still re-encode to strip EXIF / large
+      // metadata but at full dimensions
+      const needsResize = w > MAX_DIM || h > MAX_DIM;
+      if (needsResize) {
+        if (w >= h) {
+          h = Math.round((h * MAX_DIM) / w);
+          w = MAX_DIM;
+        } else {
+          w = Math.round((w * MAX_DIM) / h);
+          h = MAX_DIM;
+        }
+      }
+
+      // If small file AND no resize needed: skip canvas entirely (fastest path)
+      if (!needsResize && file.size < 800 * 1024) {
+        // Re-read via FileReader only for small files where it's safe
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      // Canvas path: only the final resized pixels live in memory (~w*h*4 bytes)
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        // Canvas unavailable (unlikely) — fall back to object URL re-read
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const compressed = canvas.toDataURL('image/jpeg', QUALITY);
+
+      // Release canvas backing store
+      canvas.width = 0;
+      canvas.height = 0;
+
+      resolve(compressed);
+    };
+
+    img.src = objectUrl;
   });
 }
 
